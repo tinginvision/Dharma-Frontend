@@ -83,13 +83,28 @@ export function SiteHeader() {
                   </Link>
                   <button
                     type="button"
-                    className="navbar-toggler d-md-none border-0 shadow-none px-2 dh-header-toggler"
+                    className="navbar-toggler d-md-none border-0 shadow-none px-2 dh-header-toggler text-white"
                     aria-label="Toggle navigation"
                     aria-controls="nav-collapse"
                     aria-expanded={menuOpen}
                     onClick={() => setMenuOpen((v) => !v)}
                   >
-                    <span className="navbar-toggler-icon" />
+                    <svg
+                      className="dh-header-hamburger-icon"
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      width={22}
+                      height={22}
+                      aria-hidden="true"
+                    >
+                      <path
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth={2}
+                        strokeLinecap="round"
+                        d="M5 7h14M5 12h14M5 17h14"
+                      />
+                    </svg>
                   </button>
                 </div>
                 <div className="d-none d-md-flex align-items-center min-w-0 dh-header-nav-wrap">
@@ -181,7 +196,6 @@ export function SiteHeader() {
               : null}
             </div>
           </div>
-          <div className="head-curve" aria-hidden="true" />
         </div>
       </nav>
     </header>

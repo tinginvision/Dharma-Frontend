@@ -1,20 +1,26 @@
 /* Bootstrap is loaded as compiled CSS from layout.tsx */
 
-$brand-primary: #f26522;
+$brand-primary: #f37021;
 $dark-primary: #d4550e;
-$movies-accent: #f26522;
+$movies-accent: #f37021;
 $white: #ffffff;
 $black: #171717;
 $grey: #6f6f6e;
 
-/* Fixed header total height (orange + curve) — keep heroes aligned under navbar */
+/* Fixed header total height — scales on small screens; safe-area avoids notch overlap */
 :root {
-  --dh-header-offset: 116px;
+  --dh-header-offset: calc(100px + env(safe-area-inset-top, 0px));
 }
 
 @media (max-width: 767px) {
   :root {
-    --dh-header-offset: 106px;
+    --dh-header-offset: calc(clamp(84px, 18vw + 52px, 98px) + env(safe-area-inset-top, 0px));
+  }
+}
+
+@media (max-width: 380px) {
+  :root {
+    --dh-header-offset: calc(clamp(80px, 15vw + 56px, 94px) + env(safe-area-inset-top, 0px));
   }
 }
 
@@ -103,8 +109,7 @@ body {
 
 /*
  * Bootstrap 5 `.navbar > .container-fluid` uses `display:flex` + `justify-content:space-between`.
- * Legacy header has two block siblings (`.head-bg` + `.head-curve`). Flex would pin them in a row;
- * force a vertical stack + full width like `frontend/views/header.html`.
+ * Single block `.head-bg` wraps nav (orange bar).
  */
 .dh-site-navbar > .dh-header-shell.container-fluid {
   display: block !important;
@@ -113,45 +118,47 @@ body {
   flex: 1 1 100%;
 }
 
-/* Legacy Angular header: orange + curve inset from viewport edges (matches content band). */
+/* Legacy Angular-style header band (inset on wide viewports); bottom curve is pure CSS ellipses */
 .dh-header-shell {
   position: relative;
 }
 
+/* Orange band + CSS curve — side inset scales down on tablet until full-bleed on phone */
 .head-bg {
-  background: $brand-primary;
-  margin: 0 60px;
-  /* Orange band only; `.head-curve` is the next sibling (legacy `header.html`). */
-  padding: clamp(10px, 1.35vw, 16px) 0 0;
+  margin: 0 clamp(14px, 5vw, 60px);
   box-sizing: border-box;
   display: block;
-}
-
-@media (max-width: 1200px) {
-  .head-bg {
-    margin: 0 35px;
-  }
-
-  .head-curve {
-    margin: -1px 35px 0;
-    background-size: 100% 100%;
-  }
+  /* Curve depth scales with viewport so mobile keeps a visible scallop without overwhelming */
+  --dh-head-curve-depth: clamp(22px, 4.2vmin + 8px, 44px);
+  padding: clamp(10px, 1.35vw, 16px) 0 clamp(8px, 2vw, 14px);
+  background-color: $brand-primary;
+  border-bottom-right-radius: 100% var(--dh-head-curve-depth);
+  border-bottom-left-radius: 100% var(--dh-head-curve-depth);
 }
 
 @media (max-width: 767px) {
-  .head-bg {
-    margin: 0 10px;
-    padding: 10px 0 0;
+  .dh-site-navbar {
+    /* Fixed bar clears status bar / Dynamic Island */
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-left: env(safe-area-inset-left, 0px);
+    padding-right: env(safe-area-inset-right, 0px);
   }
 
-  .head-curve {
-    margin: -1px 10px 0;
-    background-position-y: -10px;
+  .head-bg {
+    margin: 0;
+    --dh-head-curve-depth: clamp(18px, 5.8vw + 6px, 36px);
+    padding: clamp(10px, 2.4vw, 14px) 0 clamp(6px, 2vw, 12px);
+  }
+}
+
+@media (max-width: 380px) {
+  .head-bg {
+    --dh-head-curve-depth: clamp(16px, 5vw + 8px, 32px);
   }
 }
 
 /* Bootstrap 5 “container” ≈ 1140/1320 — match legacy ~1170 content band */
-/* Horizontal band + optional search/drawer; ribbon curve is the following sibling */
+/* Horizontal band + optional search/drawer */
 /* Tighter left gutter so logo sits farther left like localhost:1337 reference */
 .dh-header-inner.container {
   max-width: 1170px;
@@ -214,20 +221,73 @@ body {
   display: block;
 }
 
-.dh-header-toggler .navbar-toggler-icon {
-  filter: brightness(0) invert(1);
+.dh-header-hamburger-icon {
+  display: block;
+  flex-shrink: 0;
+  color: rgba(255, 255, 255, 0.96);
 }
 
-/* Same as `frontend/sass/main.scss`: sibling under `.head-bg`, inset margins track orange band */
-.head-curve {
-  background: url("/frontend/img/head-curve.png") no-repeat center;
-  height: 30px;
-  background-size: cover;
-  background-position-y: -10px;
-  margin: -1px 60px 0;
-  display: block;
-  line-height: 0;
-  pointer-events: none;
+@media (max-width: 767px) {
+  .dh-header-inner.container {
+    max-width: 100%;
+    width: 100%;
+    padding-left: max(clamp(12px, 3.8vw, 18px), env(safe-area-inset-left, 0px));
+    padding-right: max(clamp(12px, 3.8vw, 18px), env(safe-area-inset-right, 0px));
+    padding-bottom: 4px;
+  }
+
+  .dh-header-main-row {
+    min-height: 42px;
+    gap: 0.35rem;
+  }
+
+  /* Legacy mobile: logo optically centered; menu stays anchored right */
+  .dh-header-logo-col {
+    position: relative;
+    justify-content: flex-end;
+    align-items: center;
+    width: 100%;
+  }
+
+  .dh-header-logo-col > a.d-inline-block {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1;
+  }
+
+  .dh-header-logo {
+    width: auto;
+    max-width: min(210px, 58vw);
+  }
+
+  .dh-header-toggler {
+    flex-shrink: 0;
+    width: clamp(38px, 10.5vw, 44px);
+    height: clamp(38px, 10.5vw, 44px);
+    padding: 0 !important;
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(255, 255, 255, 0.92) !important;
+    border-radius: 50%;
+    background: transparent;
+    margin-left: auto;
+    position: relative;
+    z-index: 2;
+  }
+
+  .dh-header-toggler:focus-visible {
+    outline: 2px solid rgba(255, 255, 255, 0.85);
+    outline-offset: 2px;
+  }
+}
+
+@media (max-width: 380px) {
+  .dh-header-logo {
+    max-width: min(190px, 54vw);
+  }
 }
 
 .logo-img {
@@ -704,28 +764,109 @@ body {
   padding: 7px 30px 5px;
 }
 
-/* Movies page — `movie-up.jpg` includes ceiling + three spotlights (legacy movies.html).
-   Padding must exceed fixed header height so art under the curve stays visible (not only hidden under the navbar). */
+/*
+ * Movies — DharmaNodeRun / localhost:1337 movies: light grey wash with softer centre and
+ * slightly darker shoulders (radial spotlight + subtle left/right vignette).
+ * First gradient in list paints above the radial; base `#e5e5e5` anchors the tone.
+ */
 .dharma-movies-bg {
   position: relative;
-  background-color: #ececec;
-  background-image: url("/frontend/img/movie-up.jpg");
+  z-index: 0;
+  background-color: #e5e5e5;
+  background-image:
+    linear-gradient(
+      90deg,
+      rgba(0, 0, 0, 0.06) 0%,
+      rgba(0, 0, 0, 0.02) 12%,
+      transparent 30%,
+      transparent 70%,
+      rgba(0, 0, 0, 0.02) 88%,
+      rgba(0, 0, 0, 0.06) 100%
+    ),
+    radial-gradient(ellipse 95% 82% at 50% 30%, #fbfbfb 0%, rgba(251, 251, 251, 0.5) 40%, transparent 72%);
   background-repeat: no-repeat;
-  background-size: cover;
-  /* Keep top of art aligned; extra padding below header reveals the hanging fixtures */
-  background-position: center top;
+  background-size: 100% 100%, 100% 100%;
   padding: calc(var(--dh-header-offset) + 120px) 0 0;
 }
 
-@media (max-width: 991px) {
-  .dharma-movies-bg {
-    padding: calc(var(--dh-header-offset) + 80px) 0 0;
+.movies-hero-wallpaper {
+  position: absolute;
+  z-index: 0;
+  left: 0;
+  right: 0;
+  /* Below fixed navbar + curve the bitmap was painting underneath the orange strip
+     (fixtures looked “gone”). Nudge mural down like DharmaNodeRun reference. */
+  top: clamp(12px, 2.2vw, 28px);
+  pointer-events: none;
+  background-color: transparent;
+  line-height: 0;
+  overflow: visible;
+}
+
+.movies-hero-wallpaper__img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* Tablet/desktop — clamp mural height; overflow clips from bottom only, width stays 100%. */
+@media screen and (min-width: 768px) {
+  .movies-hero-wallpaper {
+    max-height: min(620px, 58vh);
+    overflow: hidden;
   }
 }
 
-@media (max-width: 575px) {
+.dharma-movies-bg > section {
+  position: relative;
+  z-index: 1;
+}
+
+@media screen and (max-width: 991px) {
   .dharma-movies-bg {
-    padding: calc(var(--dh-header-offset) + 56px) 0 0;
+    padding: calc(var(--dh-header-offset) + clamp(68px, 10vw, 96px)) 0 0;
+  }
+
+  .movies-hero-wallpaper {
+    top: clamp(32px, 6.5vw, 58px);
+  }
+}
+
+@media screen and (max-width: 767px) {
+  .dharma-movies-bg {
+    padding: calc(var(--dh-header-offset) + clamp(72px, 20vw, 108px)) 0 clamp(1.35rem, 5vw, 2.35rem);
+  }
+
+  .movies-hero-wallpaper {
+    max-height: none;
+    overflow: visible;
+    top: clamp(48px, 12vw, 88px);
+  }
+
+  .movies-page-hero {
+    padding-left: env(safe-area-inset-left, 0px);
+    padding-right: env(safe-area-inset-right, 0px);
+  }
+
+  .movies-hero-head {
+    margin-top: clamp(0.25rem, 2vw, 0.75rem);
+    margin-bottom: clamp(1rem, 4vw, 1.5rem);
+  }
+
+  .movies-head-xl {
+    font-size: clamp(2.35rem, 11vw, 3.25rem);
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .dharma-movies-bg {
+    padding: calc(var(--dh-header-offset) + clamp(64px, 22vw, 100px)) 0 clamp(1.1rem, 4vw, 1.85rem);
+  }
+}
+
+@media screen and (max-width: 360px) {
+  .dharma-movies-bg {
+    padding: calc(var(--dh-header-offset) + clamp(56px, 24vw, 92px)) 0 1rem;
   }
 }
 
