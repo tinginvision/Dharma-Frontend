@@ -2,12 +2,12 @@ import Image from "next/image";
 
 import { ContactDepartmentEmails } from "@/components/contact/ContactDepartmentEmails";
 import { ContactMapWithAddressPanel } from "@/components/contact/ContactMapWithAddressPanel";
+import { buildPageMetadata } from "@/lib/siteMetadata";
 
-export const metadata = {
-  title: "Contact Us — Dharma Productions",
-  description:
-    "Contact Dharma Productions — Mumbai office address and department email: info, creative, marketing, syndication, legal.",
-};
+export const metadata = buildPageMetadata({
+  title: "Contact Us",
+  path: "/contact-us",
+});
 
 const LOCAL_BUSINESS_JSON_LD = {
   "@context": "https://schema.org",

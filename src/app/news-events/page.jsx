@@ -1,4 +1,10 @@
 import NewsEventsBrowseClient from "@/components/news/NewsEventsBrowseClient";
+import { buildPageMetadata } from "@/lib/siteMetadata";
+
+export const metadata = buildPageMetadata({
+  title: "News & Events",
+  path: "/news-events",
+});
 import { buildNewsListStrapiUrl } from "@/lib/newsEventsListQuery";
 import { fetchJsonWithRevalidate } from "@/lib/server/fetchJson";
 import {

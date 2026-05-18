@@ -4,6 +4,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "./globals.scss";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { SiteHeader } from "@/components/layout/SiteHeader";
+import { defaultSiteMetadata } from "@/lib/siteMetadata";
 
 const karla = Karla({
   subsets: ["latin"],
@@ -18,20 +19,19 @@ const hammersmith = Hammersmith_One({
   display: "swap",
 });
 
-export const metadata = {
-  title: "Dharma Productions",
-  description: "Dharma Productions — Official site (Next.js frontend)",
-};
+export const metadata = defaultSiteMetadata;
 
 export const viewport = {
   width: "device-width",
   initialScale: 1,
+  themeColor: "#f37021",
 };
 
 export default function RootLayout({ children }) {
   return (
     <html lang="en" className={`${karla.variable} ${hammersmith.variable}`}>
       <head>
+        <link rel="shortcut icon" href="/frontend/img/favicon.png" />
         {/* Preload FA woff2 fonts so they're ready when the lazy CSS fires */}
         <link rel="preload" as="font" type="font/woff2" href="/fonts/fa/fa-brands-400.woff2" crossOrigin="anonymous" />
         <link rel="preload" as="font" type="font/woff2" href="/fonts/fa/fa-solid-900.woff2" crossOrigin="anonymous" />

@@ -1,10 +1,11 @@
 import Image from "next/image";
 
-export const metadata = {
-  title: "Overview — Dharma Productions",
-  description:
-    "About Dharma Productions — heart-warming storylines, stellar casts, and Karan Johar.",
-};
+import { buildPageMetadata } from "@/lib/siteMetadata";
+
+export const metadata = buildPageMetadata({
+  title: "Overview",
+  path: "/overview",
+});
 
 export default function OverviewPage() {
   return (

@@ -1,10 +1,11 @@
 import Image from "next/image";
 
-export const metadata = {
-  title: "Disclaimer — Dharma Productions",
-  description:
-    "Dharma Productions website disclaimer and casting/recruitment policy for visitors.",
-};
+import { buildPageMetadata } from "@/lib/siteMetadata";
+
+export const metadata = buildPageMetadata({
+  title: "Disclaimer",
+  path: "/disclaimer",
+});
 
 /** Matches privacy hero breakpoints — same artwork (`privacy.jpg`). */
 const DISCLAIMER_HERO_SIZES =
