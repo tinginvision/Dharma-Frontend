@@ -5624,70 +5624,136 @@ img.doneLoading {
   }
 }
 
-/* Synopsis deco (`cutImage2` inline): tablets — smaller plate + bottom band so image stays under copy */
-@media (max-width: 1366.98px) {
-  .movie-inside-date.bg-synopsis.mob-bg,
-  .movie-inside-date.bg-synopsis {
-    background-repeat: no-repeat !important;
-    background-position: right bottom !important;
-    background-attachment: scroll !important;
-    background-origin: padding-box !important;
-    background-size: min(88vw, 500px) auto !important;
-    padding-bottom: clamp(64px, 18vw, 160px) !important;
-    overflow-x: clip;
-    isolation: isolate;
+/* Synopsis — text height drives section; cutImage2 sits bottom-right without extra gap below */
+.movie-inside-date.bg-synopsis.mob-bg,
+.movie-inside-date.bg-synopsis.synopsis-layout {
+  padding-top: 0;
+  padding-bottom: 0;
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.synopsis-layout {
+  position: relative;
+  padding-top: 0;
+  padding-bottom: 0;
+  overflow: hidden;
+}
+
+.synopsis-layout__row {
+  position: relative;
+}
+
+.synopsis-cut-deco {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  z-index: 0;
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: min(52%, 560px);
+  max-height: 95%;
+  object-fit: contain;
+  object-position: right bottom;
+  pointer-events: none;
+}
+
+.synopsis-layout .synopsis-pane {
+  position: relative;
+  z-index: 1;
+}
+
+.synopsis-layout:has(.synopsis-cut-deco) .synopsis-pane {
+  padding-right: clamp(12px, 40%, 300px);
+}
+
+
+/* Phones: deco draws upward from bottom — need extra vertical band + smaller bitmap so paragraphs don’t sit on art */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .synopsis-cut-deco {
+    max-width: min(58%, 500px);
+    max-height: 95%;
   }
 
-  .movie-inside-date.bg-synopsis > .row,
-  .movie-inside-date.bg-synopsis .synopsis-pane,
-  .movie-inside-date.bg-synopsis .scroll-over,
-  .movie-inside-date.bg-synopsis .data-content {
-    position: relative;
-    z-index: 1;
+  .synopsis-layout:has(.synopsis-cut-deco) .synopsis-pane {
+    padding-right: clamp(12px, 44%, 340px);
   }
 }
 
-/* Phones: deco draws upward from bottom — need extra vertical band + smaller bitmap so paragraphs don’t sit on art */
 @media (max-width: 767.98px) {
-  .movie-inside-date.bg-synopsis.mob-bg,
-  .movie-inside-date.bg-synopsis {
-    background-size: min(80vw, 310px) auto !important;
-    /* Nudge deco slightly above bottom edge so it sits a bit higher vs copy */
-    background-position: right max(0px, env(safe-area-inset-right, 0px))
-      bottom clamp(20px, 4.5vmin, 40px) !important;
-    padding-bottom: clamp(172px, 50vmin, 295px) !important;
+  .synopsis {
+    margin-bottom: 0;
+    padding-bottom: 0;
   }
 
-  .movie-inside-date.bg-synopsis .synopsis-pane,
-  .movie-inside-date.bg-synopsis .scroll-over,
-  .movie-inside-date.bg-synopsis .data-content,
-  .movie-inside-date.bg-synopsis .col-md-8 {
+  .synopsis-layout {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    overflow: hidden;
+  }
+
+  /* In-flow image: section height ends at image bottom (no gap after deco) */
+  .synopsis-layout__row {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    margin-left: 0;
+    margin-right: 0;
+    margin-bottom: 0;
+    --bs-gutter-x: 0;
+    --bs-gutter-y: 0;
+  }
+
+  .synopsis-layout__row > .col-md-8 {
+    width: 100%;
+    max-width: 100%;
+    padding-left: 0;
+    padding-right: 0;
+    flex: 0 0 auto;
+  }
+
+  .synopsis-cut-deco {
+    position: static;
+    display: block;
+    flex: 0 0 auto;
+    margin: 0;
+    padding: 0;
+    line-height: 0;
+    max-width: min(92vw, 420px);
+    max-height: none;
+    width: auto;
+    height: auto;
+  }
+
+  .synopsis-layout .synopsis-pane {
     background-color: rgba(255, 255, 255, 0.97);
     padding-left: max(12px, env(safe-area-inset-left, 0px));
     padding-right: max(12px, env(safe-area-inset-right, 0px));
-    padding-top: 10px;
-    padding-bottom: 12px;
+    padding-top: 0;
+    padding-bottom: 0;
     border-radius: 4px;
+  }
+
+  .synopsis-layout:has(.synopsis-cut-deco) .synopsis-pane {
+    padding-right: max(12px, env(safe-area-inset-right, 0px));
+  }
+
+  .synopsis-body > *:last-child,
+  .synopsis-body p:last-child {
+    margin-bottom: 0;
   }
 }
 
 @media (max-width: 575.98px) {
-  .movie-inside-date.bg-synopsis.mob-bg,
-  .movie-inside-date.bg-synopsis {
-    background-size: min(74vw, 270px) auto !important;
-    background-position: right max(0px, env(safe-area-inset-right, 0px))
-      bottom clamp(24px, 5vmin, 44px) !important;
-    padding-bottom: clamp(192px, 54vmin, 315px) !important;
+  .synopsis-cut-deco {
+    max-width: min(94vw, 400px);
   }
 }
 
-/* Synopsis panel default deco (legacy .bg-synopsis); cutImage2 overrides via inline style */
 .bg-synopsis {
-  // background: url("/frontend/img/main2.png") no-repeat;
-  background-size: contain;
-  background-position: right bottom;
-  padding-top: 20px;
-  padding-bottom: 30px;
+  padding-top: 0;
+  padding-bottom: 0;
 }
 
 /* Legacy .scroll-over was a 400px scroll box; synopsis uses static .synopsis-pane instead. */
@@ -5707,7 +5773,7 @@ img.doneLoading {
   height: auto;
   max-height: none;
   overflow: visible;
-  padding: 0 15px 32px;
+  padding: 0 15px 0;
 }
 
 .synopsis-pane h4 {
@@ -5729,6 +5795,7 @@ img.doneLoading {
 .synopsis-body {
   font-family: var(--font-karla), "Karla", system-ui, sans-serif;
   font-weight: 300;
+
   p,
   li {
     color: #2a2a2a;
@@ -5737,6 +5804,24 @@ img.doneLoading {
     line-height: 1.85;
     margin: 0 0 1.35em;
   }
+
+  img {
+    display: block;
+    max-width: 100%;
+    width: auto;
+    height: auto;
+    margin: 0 0 1em;
+  }
+
+  > *:last-child,
+  p:last-child,
+  img:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.synopsis-pane > *:last-child {
+  margin-bottom: 0;
 }
 
 @media (max-width: 767px) {
