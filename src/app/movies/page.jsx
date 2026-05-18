@@ -1,6 +1,12 @@
 import { jsx as _jsx } from "react/jsx-runtime";
 import { MoviesPageView } from "@/components/movies/MoviesPageView";
 import { fetchAllMovieName, fetchMovieDetails } from "@/lib/server/movies";
+import { buildPageMetadata } from "@/lib/siteMetadata";
+
+export const metadata = buildPageMetadata({
+  title: "Movies",
+  path: "/movies",
+});
 /**
  * Movie grids come only from Strapi (`GET {STRAPI_URL}/api/movies`).
  */

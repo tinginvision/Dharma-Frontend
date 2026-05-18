@@ -1,10 +1,11 @@
 import Image from "next/image";
 
-export const metadata = {
-  title: "Privacy Policy — Dharma Productions",
-  description:
-    "Dharma Productions privacy statement: how we collect and use information on this website.",
-};
+import { buildPageMetadata } from "@/lib/siteMetadata";
+
+export const metadata = buildPageMetadata({
+  title: "Privacy Policy",
+  path: "/privacy-policy",
+});
 
 /** Next/Image `sizes` tuned for typical device widths + DPR (~412, 765, 820, 1440–1536). */
 const PRIVACY_HERO_SIZES =

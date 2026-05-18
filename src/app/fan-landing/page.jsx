@@ -1,9 +1,10 @@
 import { FanLandingContent } from "@/components/fan/FanLandingContent";
+import { buildPageMetadata } from "@/lib/siteMetadata";
 
-export const metadata = {
-  title: "Fan Corner | Dharma Productions",
-  description: "Enter the Dharma fan corner — games and dictionary.",
-};
+export const metadata = buildPageMetadata({
+  title: "Fan Landing",
+  path: "/fan-landing",
+});
 
 /** Legacy Angular `fan-landing` state. */
 export default function FanLandingPage() {

@@ -1,5 +1,11 @@
 import { Suspense } from "react";
 import { VideosPageView } from "@/components/videos/VideosPageView";
+import { buildPageMetadata } from "@/lib/siteMetadata";
+
+export const metadata = buildPageMetadata({
+  title: "Videos",
+  path: "/videos",
+});
 import { buildMovieTitleLookups } from "@/lib/videosTitles";
 import { resolveUploadUrl } from "@/lib/media";
 import { youtubeThumbnailUrlMax, youtubeThumbnailUrl } from "@/lib/youtube";

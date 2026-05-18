@@ -1,10 +1,11 @@
 import DictionaryCards from "@/components/dictionary/DictionaryCards";
 import { fetchDictionaryCards } from "@/lib/server/dictionary";
+import { buildPageMetadata } from "@/lib/siteMetadata";
 
-export const metadata = {
-  title: "Dharma Dictionary | Dharma Productions",
-  description: "Drama the Dharma way — words for your vocab.",
-};
+export const metadata = buildPageMetadata({
+  title: "Dictionary",
+  path: "/dictionary",
+});
 
 /** Data from Strapi `GET /api/dictionaries?populate=*` (server — see `lib/server/dictionary.js`). */
 export default async function DictionaryPage() {
