@@ -8300,7 +8300,7 @@ img.doneLoading {
   }
 }
 
-/* News slider — legacy flexslider: `frontend/img/news-left.png` / `news-right.png` (40×47) */
+/* News slider — legacy: prev = news-right (▶ ARROW-2), next = news-left (◀ ARROW-1), 40×40 */
 .bg-sun.home-news-sun .movies-upcoming-arrow.home-news-slider-arrow {
   position: absolute;
   z-index: 5;
@@ -8313,7 +8313,7 @@ img.doneLoading {
   align-items: center;
   justify-content: center;
   width: 40px;
-  height: 47px;
+  height: 40px;
   padding: 0;
   background: transparent !important;
   border: none;
@@ -8332,7 +8332,7 @@ img.doneLoading {
 .bg-sun.home-news-sun .home-news-slider-arrow-img {
   display: block;
   width: 40px;
-  height: 47px;
+  height: 40px;
   object-fit: contain;
   pointer-events: none;
 }

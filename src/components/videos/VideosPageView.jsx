@@ -387,7 +387,7 @@ function HeroSlider({ slides, onVideoOpen }) {
                         <div className="videos-hero-slide__shade" aria-hidden />
                         <span className="dharma-home-play-overlay dh-absulate" aria-hidden>
                           <Image
-                            src="/frontend/img/play-world.png"
+                            src="/frontend/img/play-world.svg"
                             alt=""
                             width={120}
                             height={120}

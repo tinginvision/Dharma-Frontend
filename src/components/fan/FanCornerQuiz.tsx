@@ -300,7 +300,7 @@ export function FanCornerQuiz() {
                       onClick={() => setShowModal(true)}
                     >
                       <Image
-                        src="/frontend/img/big-play.png"
+                        src="/frontend/img/play-world.svg"
                         alt="Start Rapid Fire"
                         width={220}
                         height={220}

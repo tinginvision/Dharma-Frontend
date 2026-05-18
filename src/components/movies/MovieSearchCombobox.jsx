@@ -161,7 +161,7 @@ export function MovieSearchCombobox({
         </label>
         <div className="movies-search-input-inner dh-relative">
           <img
-            src="/frontend/img/search-grey.png"
+            src="/frontend/img/search-grey.svg"
             alt=""
             className={`movies-search-input-icon${isHeader ? " movies-search-input-icon--header" : ""}`}
             width={22}

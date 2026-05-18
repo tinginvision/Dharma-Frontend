@@ -109,7 +109,7 @@ function NewsSearchToolbar({
     >
       <div className="search-movie dh-relative">
         <div className="search-img">
-          <img src="/frontend/img/search.png" alt="" />
+          <img src="/frontend/img/search.svg" alt="" />
         </div>
         <input
           type="search"
