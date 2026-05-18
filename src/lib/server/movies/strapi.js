@@ -712,6 +712,35 @@ function detailPopulateParams() {
   return p;
 }
 
+/** Query shapes for `/api/movies` with full-detail populate — shared list + slug filter + bulk list. */
+function detailRawFetchParamAttempts(pageSizeForListAttempt = "500") {
+  return [
+    {
+      "pagination[pageSize]": pageSizeForListAttempt,
+      "sort[0]": "upcomingOrder:desc",
+      populate: "*",
+      "populate[movie_casts][populate][0]": "image",
+      "populate[movie_crews][populate][0]": "image",
+      "populate[movie_wallpapers][populate][0]": "image",
+      "populate[movie_film_videos][populate][0]": "thumbnail",
+      "populate[movie_behind_scenes][populate][0]": "image",
+      "populate[movie_gallery_items][populate][0]": "image",
+      "populate[news_lists][populate][0]": "image",
+      "populate[news_lists][populate][1]": "banner",
+    },
+    (() => {
+      const q = detailPopulateParams();
+      q["pagination[pageSize]"] = pageSizeForListAttempt;
+      return q;
+    })(),
+    (() => {
+      const q = listPopulateParams();
+      q["pagination[pageSize]"] = pageSizeForListAttempt;
+      return q;
+    })(),
+  ];
+}
+
 /**
  * Do not cache the movie list in module scope: Strapi edits (e.g. releaseType)
  * would never appear until the Next process restarts. Dedupe per request with
@@ -734,24 +763,36 @@ const loadAllMoviesForList = cache(async () => {
   return sortAllMovies(mapped);
 });
 
+/**
+ * One movie row for `/movie/[slug]`: filtered `GET /api/movies` on `urlName` and Strapi `slug`,
+ * same populate fallbacks as the bulk loader; bulk+fuzzy slug match only runs when filtered calls miss.
+ *
+ * @param {string} slugDecoded
+ */
+const fetchMovieRawByDecodedSlugFiltered = cache(async (slugDecoded) => {
+  if (!slugDecoded) return null;
+  const filters = ["urlName", "slug"];
+  const attempts = detailRawFetchParamAttempts("1");
+
+  for (const baseParams of attempts) {
+    for (const field of filters) {
+      try {
+        const rows = await strapiGetMany({
+          ...baseParams,
+          [`filters[${field}][$eq]`]: slugDecoded,
+        });
+        const first = rows[0];
+        if (first && typeof first === "object") return normalizeStrapiDoc(first);
+      } catch {
+        /* try next */
+      }
+    }
+  }
+  return null;
+});
+
 const loadDetailRawRows = cache(async () => {
-  const attempts = [
-    {
-      "pagination[pageSize]": "500",
-      "sort[0]": "upcomingOrder:desc",
-      populate: "*",
-      "populate[movie_casts][populate][0]": "image",
-      "populate[movie_crews][populate][0]": "image",
-      "populate[movie_wallpapers][populate][0]": "image",
-      "populate[movie_film_videos][populate][0]": "thumbnail",
-      "populate[movie_behind_scenes][populate][0]": "image",
-      "populate[movie_gallery_items][populate][0]": "image",
-      "populate[news_lists][populate][0]": "image",
-      "populate[news_lists][populate][1]": "banner",
-    },
-    detailPopulateParams(),
-    listPopulateParams(),
-  ];
+  const attempts = detailRawFetchParamAttempts("500");
   let raw = [];
   for (const params of attempts) {
     try {
@@ -1776,27 +1817,54 @@ async function strapiFetchNewsListForMoviePick(picked) {
  */
 export async function strapiFetchNewsListForMovieSlug(slug) {
   if (!isStrapiMoviesEnabled()) return [];
-  const rawRows = await loadDetailRawRows();
-  const picked = pickMovieRaw(rawRows, slug);
+  const decodedSlug = decodeURIComponent(slug || "").trim();
+  let picked = decodedSlug ? await fetchMovieRawByDecodedSlugFiltered(decodedSlug) : null;
+  if (!picked) {
+    const rawRows = await loadDetailRawRows();
+    picked = pickMovieRaw(rawRows, slug);
+  }
   if (!picked) return [];
   return plain(await strapiFetchNewsListForMoviePick(picked));
 }
 
 export async function strapiTryFetchOneMovie(slug) {
-  const rawRows = await loadDetailRawRows();
-  const picked = pickMovieRaw(rawRows, slug);
+  const decodedSlug = decodeURIComponent(slug || "").trim();
+  let picked = decodedSlug ? await fetchMovieRawByDecodedSlugFiltered(decodedSlug) : null;
+
+  /** When slug filter misses, bulk rows are loaded for fuzzy `pickMovieRaw` — reuse for related summary. */
+  let rawRowsFallback = /** @type {Record<string, unknown>[]} */ ([]);
+
+  if (!picked) {
+    rawRowsFallback = await loadDetailRawRows();
+    picked = pickMovieRaw(rawRowsFallback, slug);
+  }
   if (!picked) return null;
 
   const summaryByKey = new Map();
-  for (const r of rawRows) {
-    const mapped = mapStrapiRowToMovieFields(r);
-    summaryByKey.set(String(mapped._id), mapped);
-    if (mapped.id != null && String(mapped.id).trim() !== "") {
-      summaryByKey.set(String(mapped.id), mapped);
+  if (rawRowsFallback.length) {
+    for (const r of rawRowsFallback) {
+      const mapped = mapStrapiRowToMovieFields(r);
+      summaryByKey.set(String(mapped._id), mapped);
+      if (mapped.id != null && String(mapped.id).trim() !== "") {
+        summaryByKey.set(String(mapped.id), mapped);
+      }
+    }
+  } else {
+    const listMovies = await loadAllMoviesForList();
+    for (const m of listMovies) {
+      summaryByKey.set(String(m._id), m);
+      if (m.id != null && String(m.id).trim() !== "") {
+        summaryByKey.set(String(m.id), m);
+      }
     }
   }
 
   const mappedCore = mapStrapiRowToMovieFields(picked);
+  summaryByKey.set(String(mappedCore._id), mappedCore);
+  if (mappedCore.id != null && String(mappedCore.id).trim() !== "") {
+    summaryByKey.set(String(mappedCore.id), mappedCore);
+  }
+
   const movie = stripRelationsForMovie(mappedCore);
 
   let castRows = strapiRelatedToArray(picked.movie_casts);
