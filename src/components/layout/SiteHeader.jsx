@@ -104,8 +104,8 @@ export function SiteHeader() {
                     <div className="dh-header-mob-bar dh-header-mob-bar--triple dh-navbar-header w-100">
                       <button
                         type="button"
-                        className="navbar-toggler collapsed border-0 shadow-none dh-header-toggler dh-header-mob-toggle"
-                        aria-label="Toggle navigation"
+                        className={`navbar-toggler border-0 shadow-none dh-header-toggler dh-header-mob-toggle${menuOpen ? "" : " collapsed"}`}
+                        aria-label={menuOpen ? "Close navigation" : "Open navigation"}
                         aria-controls="nav-collapse"
                         aria-expanded={menuOpen}
                         onClick={() => {
@@ -114,7 +114,9 @@ export function SiteHeader() {
                           setSearchOpen(false);
                         }}
                       >
-                        <span className="navbar-toggler-icon" aria-hidden />
+                        {menuOpen ?
+                          <i className="fa-solid fa-xmark dh-header-toggler-close" aria-hidden />
+                        : <span className="navbar-toggler-icon" aria-hidden />}
                       </button>
                       <Link
                         className="d-inline-block dh-header-mob-brand dh-header-mob-brand--centered"
@@ -122,7 +124,7 @@ export function SiteHeader() {
                         onClick={() => setMenuOpen(false)}
                       >
                         <Image
-                          src="/frontend/img/logo.png"
+                          src="/frontend/img/logo.svg"
                           alt="Dharma Productions"
                           width={168}
                           height={44}
@@ -211,9 +213,9 @@ export function SiteHeader() {
                   {links.map((item) =>
                     item.subnav?.length ?
                       <li key={item.href} className="nav-item dh-relative">
-                        <div className="d-flex align-items-stretch w-100 dh-mob-nav-split">
+                        <div className="dh-mob-nav-split position-relative w-100">
                           <Link
-                            className="nav-link text-up color-white font-hammersmith dh-header-nav-link dh-relative flex-grow-1 text-center"
+                            className="nav-link text-up color-white font-hammersmith dh-header-nav-link dh-relative text-center d-block w-100"
                             href={item.href}
                             onClick={() => setMenuOpen(false)}
                           >
@@ -221,7 +223,7 @@ export function SiteHeader() {
                           </Link>
                           <button
                             type="button"
-                            className="nav-link text-up color-white font-hammersmith dh-header-nav-link dh-mob-sub-toggle-btn border-0 bg-transparent flex-shrink-0"
+                            className="nav-link text-up color-white font-hammersmith dh-header-nav-link dh-mob-sub-toggle-btn border-0 bg-transparent"
                             aria-expanded={openMobSubKey === item.href}
                             aria-controls={`mob-sub-${item.href.replace(/\W/g, "")}`}
                             aria-label={`${item.name} submenu`}

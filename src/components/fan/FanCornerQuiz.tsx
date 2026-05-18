@@ -255,13 +255,37 @@ export function FanCornerQuiz() {
   const twHref =
     shareUrl ? `https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}` : "#";
 
+  function FanQuizActionButton({
+    children,
+    disabled,
+    onClick,
+  }: {
+    children: string;
+    disabled?: boolean;
+    onClick: () => void;
+  }) {
+    return (
+      <button
+        type="button"
+        disabled={disabled}
+        onClick={onClick}
+        className={`btn-1 dh-view-all-btn font-hammersmith btn color-primary mobile-center${disabled ? " disabled opacity-50" : ""}`}
+      >
+        <svg aria-hidden="true">
+          <rect x="0" y="0" fill="none" width="100%" height="100%" />
+        </svg>
+        <span className="dh-view-all-label">{children}</span>
+      </button>
+    );
+  }
+
   return (
     <>
-      <section className="fan-corner-page top-bannerss">
+      <section className="fan-corner-page top-bannerss dh-relative">
         <div className="dharma-word m-zero pd-all">
           <div className="container">
             <div className="banner-title text-center lin-min-ht">
-              <h1 className="color-white font-hammersmith fan-corner-title margin0 text-uppercase">
+              <h1 className="color-white font-hammersmith f120 fan-corner-title margin0 text-uppercase">
                 Special Rapid Fire
               </h1>
             </div>
@@ -291,7 +315,7 @@ export function FanCornerQuiz() {
             {phase === "quiz" && current ?
               <div className="change-sc pt40">
                 <div className="big-pl text-center">
-                  <div className="fc-question-card">
+                  <div className="bg-transparent">
                     {/* Timer — absolutely pinned to top-right of the card */}
                     <div className="ticker dh-relative">
                       {/* tp-head: small 39×25 icon above the circular canvas ring (same as legacy) */}
@@ -301,10 +325,9 @@ export function FanCornerQuiz() {
                         <div>
                           <canvas ref={canvasRef} width={80} height={80} className="fan-timer-canvas" />
                         </div>
-                      </div>
-                      {/* Number badge — wt.png bg, positioned absolute over the canvas ring */}
-                      <div className="sc-bg ps-wt">
-                        <span className="color-primary font-bold">{timer}</span>
+                        <div className="sc-bg ps-wt">
+                          <span className="color-primary font-bold">{timer}</span>
+                        </div>
                       </div>
                     </div>
                     <div className="clearfix" />
@@ -338,26 +361,13 @@ export function FanCornerQuiz() {
                               </ul>
                             </div>
                             <div className="btn-n-s mt30">
-                              <div className="btn-view-more mt15 display-inline-block">
-                                <button
-                                  type="button"
-                                  disabled={!hasSelection}
-                                  onClick={() => goNext()}
-                                  className={`btn-1 font-hammersmith btn mobile-center fan-corner-action ${!hasSelection ? "opacity-50" : "color-primary"}`}
-                                >
-                                  <svg aria-hidden="true"><rect x="0" y="0" fill="none" width="100%" height="100%" /></svg>
+                              <div className="btn-view-more mt15">
+                                <FanQuizActionButton disabled={!hasSelection} onClick={() => goNext()}>
                                   NEXT
-                                </button>
+                                </FanQuizActionButton>
                               </div>
-                              <div className="btn-view-more mt15 display-inline-block">
-                                <button
-                                  type="button"
-                                  onClick={() => goSkip()}
-                                  className="btn-1 font-hammersmith btn color-primary mobile-center fan-corner-action"
-                                >
-                                  <svg aria-hidden="true"><rect x="0" y="0" fill="none" width="100%" height="100%" /></svg>
-                                  SKIP
-                                </button>
+                              <div className="btn-view-more mt15">
+                                <FanQuizActionButton onClick={() => goSkip()}>SKIP</FanQuizActionButton>
                               </div>
                             </div>
                           </div>
@@ -393,15 +403,9 @@ export function FanCornerQuiz() {
                             </div>
                             <div className="btn-n-s mt30 text-center">
                               <div className="btn-view-more mt15">
-                                <button
-                                  type="button"
-                                  disabled={!hasSelection}
-                                  onClick={() => finishQuiz()}
-                                  className={`btn-1 font-hammersmith btn mobile-center fan-corner-action ${!hasSelection ? "opacity-50" : "color-primary"}`}
-                                >
-                                  <svg aria-hidden="true"><rect x="0" y="0" fill="none" width="100%" height="100%" /></svg>
+                                <FanQuizActionButton disabled={!hasSelection} onClick={() => finishQuiz()}>
                                   FINISH
-                                </button>
+                                </FanQuizActionButton>
                               </div>
                             </div>
                           </div>
@@ -416,7 +420,7 @@ export function FanCornerQuiz() {
             {phase === "score" ?
               <div className="change-sc pt40">
                 <div className="big-pl text-center">
-                  <div className="fc-question-card">
+                  <div className="bg-transparent">
                     <div className="final-score padall0 text-center">
                       <h1 className="color-white font-bold font-karla">Your Score: {score} / 10</h1>
                       <div className="text-center">
@@ -470,8 +474,8 @@ export function FanCornerQuiz() {
               ×
             </button>
             <div className="text-center">
-              <h2 id="fan-form-title" className="color-primary font-bold f-gin">
-                Enter your details
+              <h2 id="fan-form-title" className="color-primary font-bold f-gin text-uppercase">
+                ENTER THE DETAILS
               </h2>
             </div>
             <form onSubmit={submitRegister} className="plc-hld" noValidate>

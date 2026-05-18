@@ -47,6 +47,15 @@ export function SiteFooter() {
                 <li className="pointer">
                   <Link href="/disclaimer">Disclaimer</Link>
                 </li>
+                <li className="pointer">
+                  <a
+                    href="/frontend/img/csr-policy.pdf"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    CSR Policy
+                  </a>
+                </li>
               </ul>
             </div>
 

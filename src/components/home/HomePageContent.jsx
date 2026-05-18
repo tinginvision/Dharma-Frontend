@@ -105,7 +105,7 @@ function MovieThumbCard({ item, released }) {
   const src = released ?
       resolveUploadUrl(item.recentSmall || item.smallImage)
     : resolveUploadUrl(item.upcomingSmall || item.smallImage);
-  const thumbSrc = src || "/frontend/img/logo.png";
+  const thumbSrc = src || "/frontend/img/logo.svg";
   const imgEl = (
     <div className="position-relative w-100 dh-movie-thumb-frame overflow-hidden mx-auto rounded-0">
       <Image
@@ -330,7 +330,7 @@ export function HomePageContent({
         </div>
       </section>
 
-      <section className="dh-relative">
+      <section className="dh-relative dharma-home-tv-anchor">
         <div className="dharma-tv-bg dharma-home-tv">
           <div className="container">
             <div className="row justify-content-center">
@@ -450,14 +450,16 @@ export function HomePageContent({
             </div>
           </div>
 
-          {/* Subscribe card inside dark section — keeps black background flush behind the card */}
-          <div className="container-fluid position-relative px-0 dharma-home-subscribe-wrap">
-          <div className="subscribe dharma-home-subscribe">
-            <div className="container">
+        </div>
+
+        <section className="pos-bottom dharma-home-pos-bottom" aria-label="Subscribe">
+          <div className="container-fluid px-0 dharma-home-subscribe-wrap">
+            <div className="subscribe dharma-home-subscribe">
+              <div className="container">
               {/* Same centred `col-lg-10` width as Videos feature strip — aligns subscribe.png with hero film art */}
               <div className="row justify-content-center">
                 <div className="col-12 col-lg-10">
-                  <div className="row">
+                  <div className="row align-items-center justify-content-center">
                     <div className="col-md-6 text-center col-sm-7">
                       <div className="display-inline up-img">
                         <Image
@@ -540,9 +542,9 @@ export function HomePageContent({
                 </div>
               </div>
             </div>
+            </div>
           </div>
-          </div>{/* closes dharma-home-subscribe-wrap */}
-        </div>{/* closes dharma-tv-bg dharma-home-tv */}
+        </section>
       </section>
 
       {newsItems && newsItems.length > 0 ?

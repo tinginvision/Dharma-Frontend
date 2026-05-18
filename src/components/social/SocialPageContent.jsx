@@ -1,4 +1,4 @@
-import Image from "next/image";
+﻿import Image from "next/image";
 import Link from "next/link";
 
 /**
@@ -7,9 +7,19 @@ import Link from "next/link";
 export function SocialPageContent() {
   return (
     <>
-      {/* Hero — bg-image fills the container so it never collapses on mobile */}
-      <section className="social-page-hero text-center text-white">
-        <div className="social-page-hero__inner">
+      {/* Hero — full-bleed cover bg (legacy `dharma-world.html` + mobile/iPad safe) */}
+      <section className="top-banner dh-relative social-page-hero text-center text-white">
+        <div className="social-page-hero__bg" aria-hidden="true">
+          <Image
+            src="/frontend/img/dharma-world-bg.jpg"
+            alt=""
+            fill
+            priority
+            sizes="100vw"
+            className="social-page-hero__bg-img"
+          />
+        </div>
+        <div className="dharma-word dh-absulate middle mob-mt-20 m-zero social-page-hero__inner">
           <Image
             src="/frontend/img/dharma-word.png"
             alt="Dharma Productions"
@@ -32,26 +42,26 @@ export function SocialPageContent() {
       <section className="social-page-bands min-m-flex">
         <div className="social-page-band-row row-flex">
           <div className="social-page-band-col col-flex">
-            <div className="full-image">
+            <div className="full-image social-page-band-image">
               <Image
                 src="/frontend/img/dharma-world/d1.jpg"
                 alt="Dharma Productions"
                 width={960}
                 height={640}
-                className="img-fluid w-100 d-block"
+                className="img-fluid social-page-band-img w-100"
                 sizes="(max-width: 768px) 100vw, 50vw"
               />
             </div>
           </div>
           <div className="social-page-band-col col-flex">
-            <div className="full-image">
+            <div className="full-image social-page-band-image">
               <Link href="/fan-landing" className="d-block text-decoration-none">
                 <Image
-                  src="/frontend/img/dharma-world/d3.jpg"
+                  src="/frontend/img/dharma-world/d3.avif"
                   alt="Dharma Productions — Fan corner"
                   width={960}
                   height={640}
-                  className="img-fluid w-100 d-block"
+                  className="img-fluid social-page-band-img w-100"
                   sizes="(max-width: 768px) 100vw, 50vw"
                 />
               </Link>

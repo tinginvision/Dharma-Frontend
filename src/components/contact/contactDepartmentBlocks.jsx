@@ -6,7 +6,7 @@ export const CONTACT_EMAIL_BLOCKS_ROW1 = [
   {
     key: "info",
     title: "INFO",
-    src: "/frontend/img/info.png",
+    src: "/frontend/img/info.svg",
     iconWidth: 25,
     iconHeight: 25,
     lines: <>For info related queries email us on</>,
@@ -15,7 +15,7 @@ export const CONTACT_EMAIL_BLOCKS_ROW1 = [
   {
     key: "creative",
     title: "CREATIVE",
-    src: "/frontend/img/creativity.png",
+    src: "/frontend/img/creativity.svg",
     iconWidth: 30,
     iconHeight: 33,
     lines: <>For creative related queries email us on</>,
@@ -24,7 +24,7 @@ export const CONTACT_EMAIL_BLOCKS_ROW1 = [
   {
     key: "marketing",
     title: "MARKETING",
-    src: "/frontend/img/marketing.png",
+    src: "/frontend/img/marketing.svg",
     iconWidth: 25,
     iconHeight: 29,
     lines: <>For info marketing queries email us on</>,
@@ -45,7 +45,7 @@ export const CONTACT_EMAIL_BLOCKS_ROW2 = [
   {
     key: "legal",
     title: "LEGAL",
-    src: "/frontend/img/legal.png",
+    src: "/frontend/img/legal.svg",
     iconWidth: 27,
     iconHeight: 33,
     lines: <>For legal related queries contact us on</>,
