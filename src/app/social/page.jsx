@@ -9,7 +9,7 @@ export const metadata = {
 /** Legacy Angular `dharma-world` state at `/social`. */
 export default function SocialPage() {
   return (
-    <div className="min-vh-content social-page">
+    <div className="social-page">
       <SocialPageContent />
     </div>
   );

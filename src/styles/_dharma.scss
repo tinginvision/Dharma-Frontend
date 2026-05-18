@@ -262,6 +262,16 @@ body {
   filter: brightness(0) invert(1);
 }
 
+.dh-header-toggler .dh-header-toggler-close {
+  display: block;
+  width: 1.5em;
+  height: 1.5em;
+  font-size: 1.35rem;
+  line-height: 1.5em;
+  text-align: center;
+  color: #fff;
+}
+
 .logo-img {
   width: 180px;
   margin: 0 auto;
@@ -595,17 +605,26 @@ body {
     font-size: 14px !important;
   }
 
-  .dh-header-mob-drawer .dh-mob-nav-split {
-    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
-    margin-bottom: 2px;
+  .dh-header-mob-drawer .dh-mob-nav-split > .dh-header-nav-link {
+    text-align: center !important;
+    padding: 12px 16px !important;
   }
 
-  .dh-header-mob-drawer .dh-mob-sub-toggle-btn {
+  .dh-header-mob-drawer .dh-mob-nav-split .dh-mob-sub-toggle-btn {
+    position: absolute;
+    left: calc(50% + 2.1rem);
+    top: 50%;
+    transform: translateY(-50%);
     color: $white !important;
     cursor: pointer;
-    line-height: inherit;
-    min-width: 48px;
-    max-width: 56px;
+    line-height: 1;
+    min-width: 28px;
+    padding: 0 !important;
+    margin: 0;
+  }
+
+  .dh-header-mob-drawer .dh-mob-nav-split .dh-mob-sub-toggle-btn i {
+    font-size: 12px;
   }
 
   .dh-header-mob-drawer .dh-mob-sub-toggle-btn:focus-visible {
@@ -3301,13 +3320,14 @@ img.doneLoading {
 }
 
 /* ----------------------------------------------------------------------- */
-/* Privacy + Disclaimer — parity with                                             */
+/* Privacy + Disclaimer + CSR Policy — parity with                                */
 /* `frontend/views/content/privacy-policy.html` / `disclaimer.html`                   */
 /* + `.middle` positioning `frontend/sass/main.scss` / `_mobile.scss`               */
 /* ----------------------------------------------------------------------- */
 
 .privacy-page,
-.disclaimer-page {
+.disclaimer-page,
+.csr-policy-page {
   font-family: var(--font-karla), Karla, "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-size: 14px;
   line-height: 1.428571429;
@@ -3326,7 +3346,8 @@ img.doneLoading {
  * Intrinsic height @ W ≈ `W × 947÷1920`; capped by viewport so short laptops (~1440×700)
  * and tall phones/tablets stay usable (`dvh` includes mobile browser chrome). */
 .privacy-page .privacy-page__banner.banner.dh-relative,
-.disclaimer-page .disclaimer-page__banner.banner.dh-relative {
+.disclaimer-page .disclaimer-page__banner.banner.dh-relative,
+.csr-policy-page .csr-policy-page__banner.banner.dh-relative {
   position: relative;
   display: block;
   width: 100%;
@@ -3342,7 +3363,8 @@ img.doneLoading {
 /* Short wide desktop (~1440×700, 1536×700-class) — keep fold + title visible */
 @media (min-width: 1200px) and (max-height: 760px) {
   .privacy-page .privacy-page__banner.banner.dh-relative,
-  .disclaimer-page .disclaimer-page__banner.banner.dh-relative {
+  .disclaimer-page .disclaimer-page__banner.banner.dh-relative,
+.csr-policy-page .csr-policy-page__banner.banner.dh-relative {
     max-height: min(
       calc((100vw * 947) / 1920),
       calc(52dvh - (var(--dh-header-offset) * 0.35)),
@@ -3354,7 +3376,8 @@ img.doneLoading {
 /* Roomier short desktop (~1440×780) — allow a bit more band than ultrashort laptops */
 @media (min-width: 1200px) and (min-height: 761px) and (max-height: 860px) {
   .privacy-page .privacy-page__banner.banner.dh-relative,
-  .disclaimer-page .disclaimer-page__banner.banner.dh-relative {
+  .disclaimer-page .disclaimer-page__banner.banner.dh-relative,
+.csr-policy-page .csr-policy-page__banner.banner.dh-relative {
     max-height: min(
       calc((100vw * 947) / 1920),
       calc(62dvh - (var(--dh-header-offset) * 0.4)),
@@ -3364,7 +3387,8 @@ img.doneLoading {
 }
 
 .privacy-page .privacy-page__hero-img,
-.disclaimer-page .disclaimer-page__hero-img {
+.disclaimer-page .disclaimer-page__hero-img,
+.csr-policy-page .csr-policy-page__hero-img {
   object-fit: cover;
   object-position: center center;
 }
@@ -3372,7 +3396,8 @@ img.doneLoading {
 /* Legacy extra-tight laptops — complements block above without double-clamping Disclaimer */
 @media (min-width: 1024px) and (max-width: 1199.98px) and (max-height: 780px) {
   .privacy-page .privacy-page__banner.banner.dh-relative,
-  .disclaimer-page .disclaimer-page__banner.banner.dh-relative {
+  .disclaimer-page .disclaimer-page__banner.banner.dh-relative,
+.csr-policy-page .csr-policy-page__banner.banner.dh-relative {
     max-height: min(
       calc((100vw * 947) / 1920),
       calc(50dvh),
@@ -3410,14 +3435,30 @@ img.doneLoading {
   }
 }
 
+.csr-policy-page .csr-policy-page__container {
+  @media (min-width: 768px) and (max-width: 991.98px) {
+    max-width: 750px;
+  }
+
+  @media (min-width: 992px) and (max-width: 1199.98px) {
+    max-width: 970px;
+  }
+
+  @media (min-width: 1200px) {
+    max-width: 1170px;
+  }
+}
+
 /* Copy band: predictable horizontal rhythm (matches ~15–22px gutters on 412-wide devices) */
 .privacy-page .privacy-page__copy-section,
-.disclaimer-page .disclaimer-page__copy-section {
+.disclaimer-page .disclaimer-page__copy-section,
+.csr-policy-page .csr-policy-page__copy-section {
   box-sizing: border-box;
 }
 
 .privacy-page .privacy-page__data-abt.data-abt,
-.disclaimer-page .disclaimer-page__data-abt.data-abt {
+.disclaimer-page .disclaimer-page__data-abt.data-abt,
+.csr-policy-page .csr-policy-page__data-abt.data-abt {
   box-sizing: border-box;
 }
 
@@ -3432,11 +3473,17 @@ img.doneLoading {
     padding-right: max(14px, env(safe-area-inset-right));
   }
 
+  .csr-policy-page .csr-policy-page__container {
+    padding-left: max(14px, env(safe-area-inset-left));
+    padding-right: max(14px, env(safe-area-inset-right));
+  }
+
   .privacy-page .privacy-page__data-abt.data-abt {
     padding-bottom: clamp(20px, 5vw, 30px);
   }
 
-  .disclaimer-page .disclaimer-page__data-abt.data-abt {
+  .disclaimer-page .disclaimer-page__data-abt.data-abt,
+.csr-policy-page .csr-policy-page__data-abt.data-abt {
     padding-bottom: clamp(20px, 5vw, 30px);
   }
 }
@@ -3451,17 +3498,24 @@ img.doneLoading {
     padding-left: max(18px, env(safe-area-inset-left));
     padding-right: max(18px, env(safe-area-inset-right));
   }
+
+  .csr-policy-page .csr-policy-page__container {
+    padding-left: max(18px, env(safe-area-inset-left));
+    padding-right: max(18px, env(safe-area-inset-right));
+  }
 }
 
 .privacy-page .banner-title.dh-absulate,
-.disclaimer-page .banner-title.dh-absulate {
+.disclaimer-page .banner-title.dh-absulate,
+.csr-policy-page .banner-title.dh-absulate {
   position: absolute;
   z-index: 2;
   pointer-events: none;
 }
 
 .privacy-page .banner-title.middle,
-.disclaimer-page .banner-title.middle {
+.disclaimer-page .banner-title.middle,
+.csr-policy-page .banner-title.middle {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
@@ -3470,8 +3524,10 @@ img.doneLoading {
 
 .privacy-page .banner-title .privacy-page__hero-title.f120,
 .disclaimer-page .banner-title .disclaimer-page__hero-title.f120,
+.csr-policy-page .banner-title .csr-policy-page__hero-title.f120,
 .privacy-page .banner-title .f120,
-.disclaimer-page .banner-title .f120 {
+.disclaimer-page .banner-title .f120,
+.csr-policy-page .banner-title .f120 {
   font-family: var(--font-hammersmith), "Hammersmith One", Georgia, "Times New Roman", Times, serif;
   line-height: 1.06;
   font-weight: 400;
@@ -3483,28 +3539,32 @@ img.doneLoading {
 
 /* Typography scale keyed to typical devices: Android ~412; 765 tab; iPad Air 820; desktops 1440–1536 */
 .privacy-page .banner-title .f120,
-.disclaimer-page .banner-title .f120 {
+.disclaimer-page .banner-title .f120,
+.csr-policy-page .banner-title .f120 {
   font-size: clamp(2.875rem, 5.5vw + 1rem, 7.5rem); /* fallback fluid layer */
 }
 
 /* ≤ ~430px — Android portrait (412×915 etc.) */
 @media (max-width: 430px) {
   .privacy-page .banner-title .f120,
-  .disclaimer-page .banner-title .f120 {
+  .disclaimer-page .banner-title .f120,
+.csr-policy-page .banner-title .f120 {
     font-size: clamp(2.625rem, 12vw + 0.85rem, 3.375rem);
     line-height: 1.07;
     padding: 0 10px;
   }
 
   .privacy-page .banner-title.dh-absulate,
-  .disclaimer-page .banner-title.dh-absulate {
+  .disclaimer-page .banner-title.dh-absulate,
+.csr-policy-page .banner-title.dh-absulate {
     padding: 0 env(safe-area-inset-right) 0 env(safe-area-inset-left);
   }
 }
 
 @media (min-width: 431px) and (max-width: 599px) {
   .privacy-page .banner-title .f120,
-  .disclaimer-page .banner-title .f120 {
+  .disclaimer-page .banner-title .f120,
+.csr-policy-page .banner-title .f120 {
     font-size: clamp(3.125rem, 9vw + 0.85rem, 4.25rem);
   }
 }
@@ -3512,28 +3572,32 @@ img.doneLoading {
 /* 600–899px — tablet portrait / small tablet (765, 820-ish alongside Bootstrap md) */
 @media (min-width: 600px) and (max-width: 899.98px) {
   .privacy-page .banner-title .f120,
-  .disclaimer-page .banner-title .f120 {
+  .disclaimer-page .banner-title .f120,
+.csr-policy-page .banner-title .f120 {
     font-size: clamp(4.125rem, 7.5vw + 1.75rem, 5.875rem);
   }
 }
 
 @media (min-width: 900px) and (max-width: 1199.98px) {
   .privacy-page .banner-title .f120,
-  .disclaimer-page .banner-title .f120 {
+  .disclaimer-page .banner-title .f120,
+.csr-policy-page .banner-title .f120 {
     font-size: clamp(5.25rem, 5.5vw + 2.75rem, 6.875rem);
   }
 }
 
 @media (min-width: 1200px) and (max-width: 1439.98px) {
   .privacy-page .banner-title .f120,
-  .disclaimer-page .banner-title .f120 {
+  .disclaimer-page .banner-title .f120,
+.csr-policy-page .banner-title .f120 {
     font-size: clamp(5.875rem, 4vw + 3.75rem, 7.375rem);
   }
 }
 
 @media (min-width: 1440px) {
   .privacy-page .banner-title .f120,
-  .disclaimer-page .banner-title .f120 {
+  .disclaimer-page .banner-title .f120,
+.csr-policy-page .banner-title .f120 {
     font-size: clamp(6rem, 3.5vw + 3rem, 7.5rem); /* cap ≈120px */
   }
 }
@@ -3556,8 +3620,50 @@ img.doneLoading {
   color: #333;
 }
 
+.csr-policy-page .data-abt .csr-policy-page__doc-title {
+  font-family: inherit;
+  font-size: 18px;
+  line-height: 1.35;
+  font-weight: 700;
+  margin: 0 0 14px;
+  color: #333;
+}
+
+.csr-policy-page .data-abt .csr-policy-page__section-heading {
+  font-family: inherit;
+  font-size: 18px;
+  line-height: 1.35;
+  font-weight: 700;
+  margin: 24px 0 14px;
+  color: #333;
+}
+
+.csr-policy-page .csr-policy-page__definitions,
+.csr-policy-page .csr-policy-page__definitions-sub {
+  margin: 0 0 12px;
+  padding-left: 1.25rem;
+  color: #333;
+  font-size: 14px;
+  line-height: 1.428571429;
+}
+
+.csr-policy-page .csr-policy-page__definitions > li {
+  margin-bottom: 10px;
+}
+
+.csr-policy-page .csr-policy-page__definitions-sub {
+  margin-top: 8px;
+  list-style-type: disc;
+}
+
+.csr-policy-page .data-abt a {
+  color: $brand-primary;
+  text-decoration: underline;
+}
+
 .privacy-page .data-abt p,
-.disclaimer-page .data-abt p {
+.disclaimer-page .data-abt p,
+.csr-policy-page .data-abt p {
   margin: 0 0 12px;
   color: #333;
   font-size: 14px;
@@ -3566,7 +3672,8 @@ img.doneLoading {
 }
 
 .privacy-page .data-abt p:last-child,
-.disclaimer-page .data-abt p:last-child {
+.disclaimer-page .data-abt p:last-child,
+.csr-policy-page .data-abt p:last-child {
   margin-bottom: 0;
 }
 
@@ -3576,7 +3683,8 @@ img.doneLoading {
    * Bias headline slightly downward for **both** Privacy + Disclaimer vs pure 50%/50%.
    */
   .privacy-page .banner-title.middle,
-  .disclaimer-page .banner-title.middle {
+  .disclaimer-page .banner-title.middle,
+.csr-policy-page .banner-title.middle {
     width: 100%;
     top: 56%;
     transform: translate(-50%, -50%);
@@ -3590,6 +3698,10 @@ img.doneLoading {
     font-size: 13px;
   }
 
+  .csr-policy-page .csr-policy-page__data-abt.data-abt p {
+    font-size: 13px;
+  }
+
   .privacy-page .privacy-page__data-abt.data-abt h4 {
     font-size: clamp(13px, 1.85vw + 10px, 17px);
     line-height: 1.35;
@@ -3599,23 +3711,37 @@ img.doneLoading {
     font-size: clamp(13px, 1.85vw + 10px, 17px);
     line-height: 1.35;
   }
+
+  .csr-policy-page .csr-policy-page__data-abt.data-abt .csr-policy-page__section-heading,
+  .csr-policy-page .csr-policy-page__data-abt.data-abt .csr-policy-page__doc-title {
+    font-size: clamp(13px, 1.85vw + 10px, 17px);
+    line-height: 1.35;
+  }
+
+  .csr-policy-page .csr-policy-page__definitions,
+  .csr-policy-page .csr-policy-page__definitions-sub {
+    font-size: 13px;
+  }
 }
 
 /* Short landscape / cramped height — shrink band + tighten title (privacy + disclaimer). */
 @media (max-width: 900px) and (max-height: 520px) {
   .privacy-page .privacy-page__banner.banner.dh-relative,
-  .disclaimer-page .disclaimer-page__banner.banner.dh-relative {
+  .disclaimer-page .disclaimer-page__banner.banner.dh-relative,
+.csr-policy-page .csr-policy-page__banner.banner.dh-relative {
     max-height: min(72dvh, 300px);
   }
 
   .privacy-page .banner-title .f120,
-  .disclaimer-page .banner-title .f120 {
+  .disclaimer-page .banner-title .f120,
+.csr-policy-page .banner-title .f120 {
     font-size: clamp(1.875rem, 8dvh + 0.65rem, 3.1rem) !important;
     line-height: 1.05;
   }
 
   .privacy-page .banner-title.middle,
-  .disclaimer-page .banner-title.middle {
+  .disclaimer-page .banner-title.middle,
+.csr-policy-page .banner-title.middle {
     top: 58%;
     transform: translate(-50%, -50%);
   }
@@ -3623,7 +3749,8 @@ img.doneLoading {
 
 @media (min-width: 1024px) and (max-height: 760px) {
   .privacy-page .banner-title .f120,
-  .disclaimer-page .banner-title .f120 {
+  .disclaimer-page .banner-title .f120,
+.csr-policy-page .banner-title .f120 {
     font-size: clamp(3rem, 8dvh + 1.25rem, 5.65rem);
   }
 }
@@ -5497,70 +5624,136 @@ img.doneLoading {
   }
 }
 
-/* Synopsis deco (`cutImage2` inline): tablets — smaller plate + bottom band so image stays under copy */
-@media (max-width: 1366.98px) {
-  .movie-inside-date.bg-synopsis.mob-bg,
-  .movie-inside-date.bg-synopsis {
-    background-repeat: no-repeat !important;
-    background-position: right bottom !important;
-    background-attachment: scroll !important;
-    background-origin: padding-box !important;
-    background-size: min(88vw, 500px) auto !important;
-    padding-bottom: clamp(64px, 18vw, 160px) !important;
-    overflow-x: clip;
-    isolation: isolate;
+/* Synopsis — text height drives section; cutImage2 sits bottom-right without extra gap below */
+.movie-inside-date.bg-synopsis.mob-bg,
+.movie-inside-date.bg-synopsis.synopsis-layout {
+  padding-top: 0;
+  padding-bottom: 0;
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.synopsis-layout {
+  position: relative;
+  padding-top: 0;
+  padding-bottom: 0;
+  overflow: hidden;
+}
+
+.synopsis-layout__row {
+  position: relative;
+}
+
+.synopsis-cut-deco {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  z-index: 0;
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: min(52%, 560px);
+  max-height: 95%;
+  object-fit: contain;
+  object-position: right bottom;
+  pointer-events: none;
+}
+
+.synopsis-layout .synopsis-pane {
+  position: relative;
+  z-index: 1;
+}
+
+.synopsis-layout:has(.synopsis-cut-deco) .synopsis-pane {
+  padding-right: clamp(12px, 40%, 300px);
+}
+
+
+/* Phones: deco draws upward from bottom — need extra vertical band + smaller bitmap so paragraphs don’t sit on art */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .synopsis-cut-deco {
+    max-width: min(58%, 500px);
+    max-height: 95%;
   }
 
-  .movie-inside-date.bg-synopsis > .row,
-  .movie-inside-date.bg-synopsis .synopsis-pane,
-  .movie-inside-date.bg-synopsis .scroll-over,
-  .movie-inside-date.bg-synopsis .data-content {
-    position: relative;
-    z-index: 1;
+  .synopsis-layout:has(.synopsis-cut-deco) .synopsis-pane {
+    padding-right: clamp(12px, 44%, 340px);
   }
 }
 
-/* Phones: deco draws upward from bottom — need extra vertical band + smaller bitmap so paragraphs don’t sit on art */
 @media (max-width: 767.98px) {
-  .movie-inside-date.bg-synopsis.mob-bg,
-  .movie-inside-date.bg-synopsis {
-    background-size: min(80vw, 310px) auto !important;
-    /* Nudge deco slightly above bottom edge so it sits a bit higher vs copy */
-    background-position: right max(0px, env(safe-area-inset-right, 0px))
-      bottom clamp(20px, 4.5vmin, 40px) !important;
-    padding-bottom: clamp(172px, 50vmin, 295px) !important;
+  .synopsis {
+    margin-bottom: 0;
+    padding-bottom: 0;
   }
 
-  .movie-inside-date.bg-synopsis .synopsis-pane,
-  .movie-inside-date.bg-synopsis .scroll-over,
-  .movie-inside-date.bg-synopsis .data-content,
-  .movie-inside-date.bg-synopsis .col-md-8 {
+  .synopsis-layout {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    overflow: hidden;
+  }
+
+  /* In-flow image: section height ends at image bottom (no gap after deco) */
+  .synopsis-layout__row {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    margin-left: 0;
+    margin-right: 0;
+    margin-bottom: 0;
+    --bs-gutter-x: 0;
+    --bs-gutter-y: 0;
+  }
+
+  .synopsis-layout__row > .col-md-8 {
+    width: 100%;
+    max-width: 100%;
+    padding-left: 0;
+    padding-right: 0;
+    flex: 0 0 auto;
+  }
+
+  .synopsis-cut-deco {
+    position: static;
+    display: block;
+    flex: 0 0 auto;
+    margin: 0;
+    padding: 0;
+    line-height: 0;
+    max-width: min(92vw, 420px);
+    max-height: none;
+    width: auto;
+    height: auto;
+  }
+
+  .synopsis-layout .synopsis-pane {
     background-color: rgba(255, 255, 255, 0.97);
     padding-left: max(12px, env(safe-area-inset-left, 0px));
     padding-right: max(12px, env(safe-area-inset-right, 0px));
-    padding-top: 10px;
-    padding-bottom: 12px;
+    padding-top: 0;
+    padding-bottom: 0;
     border-radius: 4px;
+  }
+
+  .synopsis-layout:has(.synopsis-cut-deco) .synopsis-pane {
+    padding-right: max(12px, env(safe-area-inset-right, 0px));
+  }
+
+  .synopsis-body > *:last-child,
+  .synopsis-body p:last-child {
+    margin-bottom: 0;
   }
 }
 
 @media (max-width: 575.98px) {
-  .movie-inside-date.bg-synopsis.mob-bg,
-  .movie-inside-date.bg-synopsis {
-    background-size: min(74vw, 270px) auto !important;
-    background-position: right max(0px, env(safe-area-inset-right, 0px))
-      bottom clamp(24px, 5vmin, 44px) !important;
-    padding-bottom: clamp(192px, 54vmin, 315px) !important;
+  .synopsis-cut-deco {
+    max-width: min(94vw, 400px);
   }
 }
 
-/* Synopsis panel default deco (legacy .bg-synopsis); cutImage2 overrides via inline style */
 .bg-synopsis {
-  // background: url("/frontend/img/main2.png") no-repeat;
-  background-size: contain;
-  background-position: right bottom;
-  padding-top: 20px;
-  padding-bottom: 30px;
+  padding-top: 0;
+  padding-bottom: 0;
 }
 
 /* Legacy .scroll-over was a 400px scroll box; synopsis uses static .synopsis-pane instead. */
@@ -5580,7 +5773,7 @@ img.doneLoading {
   height: auto;
   max-height: none;
   overflow: visible;
-  padding: 0 15px 32px;
+  padding: 0 15px 0;
 }
 
 .synopsis-pane h4 {
@@ -5602,6 +5795,7 @@ img.doneLoading {
 .synopsis-body {
   font-family: var(--font-karla), "Karla", system-ui, sans-serif;
   font-weight: 300;
+
   p,
   li {
     color: #2a2a2a;
@@ -5610,6 +5804,24 @@ img.doneLoading {
     line-height: 1.85;
     margin: 0 0 1.35em;
   }
+
+  img {
+    display: block;
+    max-width: 100%;
+    width: auto;
+    height: auto;
+    margin: 0 0 1em;
+  }
+
+  > *:last-child,
+  p:last-child,
+  img:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.synopsis-pane > *:last-child {
+  margin-bottom: 0;
 }
 
 @media (max-width: 767px) {
@@ -6567,8 +6779,9 @@ img.doneLoading {
 
 .videos-hero-play__icon {
   filter: drop-shadow(0 6px 20px rgba(0, 0, 0, 0.55));
-  max-width: min(120px, 20vw);
+  max-width: 50%;
   height: auto;
+  width: auto;
 }
 
 /*
@@ -6699,10 +6912,20 @@ img.doneLoading {
   overflow: hidden;
 }
 
-.videos-page-legacy .video-play img:not(.videos-hero-slide__img) {
+.videos-page-legacy .video-play img:not(.videos-hero-slide__img):not(.img-fluid) {
   display: block;
   width: 100%;
   height: auto;
+}
+
+/* Videos page — play overlay icon (`.img-fluid` in hero / strips) */
+.videos-page-legacy .video-play .img-fluid {
+  display: block;
+  max-width: 50%;
+  height: auto;
+  width: auto;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 @media (max-width: 767px) {
@@ -6842,20 +7065,20 @@ img.doneLoading {
   cursor: pointer;
   position: relative;
   margin: 0 !important;
-  color: #a8abb2 !important;
+  color: $grey !important;
   width: auto !important;
   max-width: 200px;
   min-width: 148px;
   height: 40px;
 
   &:focus-visible {
-    outline: 2px solid #a8abb2;
+    outline: 2px solid $grey;
     outline-offset: 2px;
   }
 
   .videos-view-all-svg__frame {
     fill: none;
-    stroke: #a8abb2;
+    stroke: $grey;
     stroke-width: 2;
     stroke-dasharray: 422, 0;
     transition: all 1.35s cubic-bezier(0.19, 1, 0.22, 1);
@@ -6867,11 +7090,12 @@ img.doneLoading {
     letter-spacing: 0.06em;
     pointer-events: none;
     text-transform: uppercase;
+    fill: $grey;
   }
 
   &:hover .videos-view-all-svg__frame,
   &:focus-visible .videos-view-all-svg__frame {
-    stroke: #c9ccd4;
+    stroke: $grey;
     stroke-width: 5;
     stroke-dasharray: 15, 310;
     stroke-dashoffset: 55;
@@ -6880,11 +7104,12 @@ img.doneLoading {
 
   &:hover,
   &:focus-visible {
-    color: #c9ccd4 !important;
+    color: $grey !important;
   }
 
   &:hover .videos-view-all-svg__text,
   &:focus-visible .videos-view-all-svg__text {
+    fill: $grey;
     font-weight: 900;
     letter-spacing: 1px;
   }
@@ -7292,8 +7517,8 @@ img.doneLoading {
 
 .dharma-home-tv {
   padding-top: 100px;
-  /* No padding-bottom — subscribe card is the last child and controls its own spacing */
-  padding-bottom: 0;
+  /* Legacy `.dharma-tv-bg { padding: 100px 0 }` — room for overlap subscribe */
+  padding-bottom: 100px;
 }
 
 @media (max-width: 991px) {
@@ -7341,38 +7566,102 @@ img.doneLoading {
   line-height: 0;
 }
 
+/* Home videos — play overlay icon size (legacy `.img-fluid` in video band) */
+.dharma-home-tv .img-fluid {
+  max-width: 50%;
+  height: auto;
+}
+
 .dharma-home-tv .dharma-home-strip-view-all {
   margin-top: clamp(34px, 5.5vw, 56px);
+}
+
+/* Home videos strip VIEW ALL — muted grey (not brand orange) */
+.dharma-home-tv .dharma-home-strip-view-all .dh-view-all-btn {
+  color: $grey !important;
+
+  rect {
+    stroke: $grey;
+  }
+
+  &:hover,
+  &:focus-visible {
+    color: $grey !important;
+
+    rect {
+      stroke: $grey;
+    }
+  }
+}
+
+/* Legacy `pos-bottom` — subscribe straddles TV (dark) + NEWS (orange) */
+.dharma-home-tv-anchor.dh-relative {
+  position: relative;
+}
+
+.dharma-home-pos-bottom.pos-bottom {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -18px;
+  z-index: 4;
+  width: 100%;
+  margin: 0;
+  padding: 0;
 }
 
 .dharma-home-subscribe-wrap {
   position: relative;
   z-index: 2;
-  /* Air between white subscribe card and orange NEWS band below (home). */
-  padding-bottom: clamp(28px, 4.8vw, 56px);
+  padding-bottom: 0;
+  display: flex;
+  justify-content: center;
+  width: 100%;
 }
 
-/* Subscribe card — exact legacy values: margin: -45px 80px 0; padding: 0 50px
-   (card is now inside dark section so we use positive top margin for spacing) */
+/* Subscribe card — legacy: margin: -45px 80px 0; centred on page */
 .dharma-home-subscribe.subscribe {
   background: #fff;
-  margin: 50px 80px 0;     /* legacy side: 80px; top: spacing from strip */
-  padding: 0 50px;          /* exact legacy padding */
+  margin: -52px auto 0;
+  padding: 0 50px;
   position: relative;
+  max-width: min(1170px, calc(100% - 160px));
+  width: 100%;
+  box-sizing: border-box;
 }
 
 @media (max-width: 991px) {
+  .dharma-home-pos-bottom.pos-bottom {
+    bottom: -26px;
+  }
+
   .dharma-home-subscribe.subscribe {
-    margin: 40px 30px 0;
+    margin: -52px auto 0;
+    max-width: calc(100% - 60px);
     padding: 0 24px;
+  }
+
+  .dharma-home-tv {
+    padding-bottom: 80px;
+  }
+}
+
+@media (max-width: 767px) {
+  .dharma-home-pos-bottom.pos-bottom {
+    bottom: -34px;
   }
 }
 
 @media (max-width: 575px) {
   .dharma-home-subscribe.subscribe {
-    margin: 32px 10px 0;
+    margin: -52px auto 0;
+    max-width: calc(100% - 20px);
     padding: 0 14px;
     text-align: center;
+  }
+
+  .dharma-home-tv {
+    padding-bottom: 100px;
   }
 }
 
@@ -7779,7 +8068,7 @@ img.doneLoading {
   overflow: hidden;
 }
 
-/* News band — eased overlap vs subscribe so NEWS title clears the dark band a bit more. */
+/* News band — overlap subscribe slightly; less pull-up so card sits mostly on TV band */
 .bg-sun.home-news-sun {
   background: $brand-primary;
   margin-top: -40px;
@@ -7792,7 +8081,7 @@ img.doneLoading {
 
 @media (max-width: 767px) {
   .bg-sun.home-news-sun {
-    margin-top: -20px;
+    margin-top: -26px;
     /* Match desktop intent: visible orange gutter L/R while swiping (was 16px — too easy to feel flush). */
     padding: clamp(40px, 6vw, 48px) clamp(20px, 5vw, 32px) 44px clamp(20px, 5vw, 32px);
   }
@@ -7807,7 +8096,7 @@ img.doneLoading {
   line-height: 45%;
   letter-spacing: 0;
   display: block;
-  margin: 35px 0 30px 0;
+  margin: 52px 0 30px 0;
 }
 
 @media (max-width: 767px) {
@@ -8053,25 +8342,54 @@ img.doneLoading {
 /* Social — legacy `frontend/views/content/dharma-world.html` (`/social`) */
 /* ----------------------------------------------------------------------- */
 
-/* Hero: background-image so it always fills the container (never collapses on mobile) */
-.social-page-hero {
-  /* Slightly left-of-center framing — matches perceptual focal point vs plain `center` on wide crops */
-  background: url("/frontend/img/dharma-world-bg.jpg") no-repeat 48% center;
-  background-size: cover;
-  min-height: calc(var(--dh-header-offset, 116px) + 360px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding-top: calc(var(--dh-header-offset, 116px) + 32px);
-  padding-bottom: 48px;
+.site-main:has(.social-page) {
+  flex-grow: 0;
 }
 
-.social-page-hero__inner {
+.social-page {
+  min-height: 0;
+}
+
+/* Hero — full-bleed cover via positioned `Image` (legacy `dharma-world.html` img + overlay) */
+.social-page-hero.top-banner {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  min-height: clamp(420px, 72vh, 820px);
+  background: #0c0c0c;
+}
+
+.social-page-hero__bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.social-page-hero__bg-img {
+  object-fit: cover;
+  object-position: center center;
+}
+
+.social-page-hero__inner,
+.social-page-hero .dharma-word.dh-absulate.middle {
+  top: 50%;
+  left: 50%;
+  right: auto;
+  bottom: auto;
+  transform: translate(-50%, -50%);
+  z-index: 1;
   width: 100%;
   max-width: min(680px, 94vw);
-  margin: 0 auto;
+  margin: 0;
   padding: 0 16px;
   text-align: center;
+  pointer-events: none;
+
+  a,
+  button,
+  .btn {
+    pointer-events: auto;
+  }
 }
 
 .social-page-hero__logo {
@@ -8086,19 +8404,35 @@ img.doneLoading {
   color: #fff;
 }
 
-/* Bands row — side by side on desktop, stacked on mobile */
+/* Bands row — legacy `img-responsive` (no fixed aspect box / fill gap below row) */
 .social-page-bands {
+  margin: 0;
+  padding: 0;
+  line-height: 0;
+  font-size: 0;
+  overflow: hidden;
+
   .social-page-band-row {
     display: flex;
     flex-wrap: nowrap;
+    align-items: flex-start;
+    gap: 0;
+    margin: 0;
   }
 
   .social-page-band-col {
     flex: 1 1 50%;
     min-width: 0;
+    margin: 0;
+    padding: 0;
   }
 
-  .full-image img {
+  .full-image.social-page-band-image {
+    width: 100%;
+    line-height: 0;
+  }
+
+  .social-page-band-img {
     display: block;
     width: 100%;
     height: auto;
@@ -8106,10 +8440,25 @@ img.doneLoading {
   }
 }
 
+/* iPad + mobile — taller hero, centered cover (legacy `_mobile.scss` `.top-banner`) */
+@media (max-width: 1024px) {
+  .social-page-hero.top-banner {
+    min-height: max(55vh, calc(var(--dh-header-offset, 116px) + 320px));
+  }
+
+  .social-page-hero__bg-img {
+    object-fit: cover;
+    object-position: center center;
+  }
+}
+
 @media (max-width: 767.98px) {
-  .social-page-hero {
-    min-height: calc(var(--dh-header-offset, 116px) + 260px);
-    padding-bottom: 32px;
+  .social-page-hero.top-banner {
+    min-height: max(52vh, calc(var(--dh-header-offset, 116px) + 280px));
+  }
+
+  .social-page-hero .mob-mt-20 {
+    margin-top: 20px;
   }
 
   .social-page-bands.min-m-flex .social-page-band-row {
@@ -8120,7 +8469,9 @@ img.doneLoading {
     width: 100%;
     max-width: none;
     flex: none;
+    display: block;
   }
+
 }
 
 .fan-corner-page.top-bannerss {
@@ -8129,8 +8480,13 @@ img.doneLoading {
   min-height: calc(100vh - var(--dh-header-offset, 116px));
 }
 
-.dharma-word.pd-all {
+.fan-corner-page .dharma-word.pd-all {
+  padding: 10% 0;
   padding-top: calc(var(--dh-header-offset) + 24px);
+}
+
+.fan-corner-page .banner-title.lin-min-ht h1 {
+  line-height: 80%;
 }
 
 .fan-corner-title {
@@ -8142,25 +8498,32 @@ img.doneLoading {
   font-size: clamp(15px, 2.2vw, 18px);
 }
 
-/* Dark semi-transparent question card (replaces .bg-transparent to avoid Bootstrap !important override) */
-.fc-question-card {
-  background: rgba(0, 0, 0, 0.4);
+.fan-big-play-btn .img-fluid {
+  max-width: 80%;
+  height: auto;
+}
+
+/* Legacy card — override Bootstrap .bg-transparent !important */
+.fan-corner-page .bg-transparent {
+  background: rgba(0, 0, 0, 0.4) !important;
   padding: 15px;
   border-radius: 20px;
   position: relative;
 }
 
-/* Timer badge — absolutely pinned top-right inside the card, like legacy .bg-transparent .ticker */
-.fc-question-card .ticker {
+.fan-corner-page .bg-transparent .ticker {
   position: absolute;
   right: 15px;
   top: 15px;
   z-index: 2;
-  width: 80px;  /* matches canvas width so right: N px resolves correctly */
+  width: auto;
+  max-width: 100px;
 }
 
-/* tp-head: static column — small 39×25 icon stacked above the 80×80 canvas ring */
-.tp-head {
+/* tp-head: timer stack — badge positions relative to this box (legacy `fan-corner.html`) */
+.fan-corner-page .tp-head {
+  position: relative;
+  display: inline-block;
   text-align: center;
 }
 
@@ -8181,7 +8544,7 @@ img.doneLoading {
   padding: 13px;
 }
 
-.ps-wt {
+.fan-corner-page .tp-head .ps-wt {
   position: absolute;
   top: 29px;
   right: 10px;
@@ -8196,15 +8559,19 @@ img.doneLoading {
   text-align: center;
 }
 
-/* Right padding must clear the 80px timer + 15px card offset on all sizes */
-.padall30 {
-  padding: clamp(16px, 4vw, 30px) 105px clamp(16px, 4vw, 30px) 0;
+.fan-corner-page .padall30 {
+  /* Right padding clears ~80px canvas + badge in top-right corner */
+  padding: 30px 110px 30px 0;
 }
 
-@media (min-width: 768px) {
-  .padall30 {
-    padding-right: clamp(90px, 10vw, 120px);
-  }
+.fan-corner-page .padall0 {
+  padding: 30px 0;
+}
+
+.fan-corner-page .qsn-big h2 {
+  margin: 0;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 .fan-corner-page .ans-opt ul {
@@ -8239,32 +8606,48 @@ img.doneLoading {
   display: inline-block;
   position: relative;
   font-weight: 300;
-  font-size: clamp(1.05rem, 3.2vw, 1.55rem);
-  padding: 2px 8px 2px 32px;
-  margin: 0;
+  font-size: 1.6em;
+  padding: 0 25px 0 20px;
+  margin: 0 auto;
+  height: 0;
+  z-index: 9;
   cursor: pointer;
+  transition: all 0.25s linear;
   color: #fff;
 }
 
 .fan-corner-page .ans-opt .check {
   display: inline-block;
   position: absolute;
-  left: 0;
-  top: 0.55em;
-  border: 2px solid $brand-primary;
+  border: 2px solid #f37021;
   border-radius: 100%;
   height: 13px;
   width: 13px;
-  z-index: 1;
+  top: 9px;
+  left: 4px;
+  z-index: 5;
+  transition: border 0.25s linear;
+  vertical-align: text-top;
+  cursor: pointer;
+}
+
+.fan-corner-page .ans-opt input:checked ~ .check {
+  border: 1px solid $brand-primary;
 }
 
 .fan-corner-page .ans-opt input:checked ~ .check::before {
   content: "";
   display: block;
   position: absolute;
-  inset: -1px;
   border-radius: 100%;
+  height: 13px;
+  width: 13px;
+  top: -1px;
+  left: -1px;
+  margin: auto;
   background: $brand-primary;
+  border: 1px solid #f37021;
+  transition: background 0.25s linear;
 }
 
 .fan-corner-page .ans-opt input:checked ~ label {
@@ -8319,10 +8702,91 @@ img.doneLoading {
   color: #c62828;
 }
 
+.fan-corner-modal-inner .pop-pad {
+  padding: 20px 70px;
+}
+
+/* iPad — keep question clear of timer column */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .fan-corner-page .padall30 {
+    padding: 40px 115px 30px 0;
+  }
+}
+
 @media (max-width: 767.98px) {
+  .fan-corner-page .padall30 {
+    /* Top + right padding so question/options sit below/right of scaled timer */
+    padding: 100px 88px 40px 0;
+  }
+
+  .fan-corner-page .bg-transparent .ticker {
+    right: 4px;
+    top: 4px;
+    max-width: 88px;
+  }
+
+  .fan-corner-page .bg-transparent .ticker .tp-head img {
+    transform: scale(0.5);
+    transform-origin: top right;
+  }
+
+  .fan-corner-page .bg-transparent .ticker .fan-timer-canvas {
+    width: 64px;
+    height: 64px;
+  }
+
+  .fan-corner-page .banner-title.lin-min-ht h1,
+  .fan-corner-page .fan-corner-title {
+    font-size: 40px;
+  }
+
+  .fan-corner-page .change-sc h2 {
+    font-size: 20px;
+  }
+
+  .fan-corner-page .ans-opt ul {
+    padding-left: 10px;
+    text-align: left;
+  }
+
+  .fan-corner-page .ans-opt li {
+    display: block;
+    padding: 5px 0;
+    margin-right: 0;
+  }
+
+  .fan-corner-page .ans-opt label {
+    font-size: 1.2em;
+  }
+
+  .fan-corner-page .btn-n-s .btn-view-more {
+    margin: 0;
+  }
+
+  .fan-corner-page .btn-n-s .btn-view-more .btn {
+    margin: 10px 0;
+  }
+
+  .fan-corner-page .final-score h1 {
+    font-size: 22px;
+  }
+
+  .fan-corner-page .final-score h4 {
+    font-size: 14px;
+  }
+
+  .fan-corner-page .dh-btn-min {
+    width: 80%;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
   .fan-corner-modal-inner .pop-pad {
-    padding-left: 12px !important;
-    padding-right: 12px !important;
+    padding: 20px 0;
+  }
+
+  .fan-corner-modal-inner .f-gin {
+    font-size: 22px;
   }
 }
 
