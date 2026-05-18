@@ -2,24 +2,17 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Autoplay, Navigation, Pagination } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { resolveUploadUrl } from "@/lib/media";
 import { movieSlug } from "@/lib/moviesLayout";
-import { youtubeThumbnailUrl, youtubeWatchUrl } from "@/lib/youtube";
+import { youtubeEmbedUrl, youtubeThumbnailUrl, youtubeVideoId, youtubeWatchUrl } from "@/lib/youtube";
 import { ContactDepartmentEmails } from "@/components/contact/ContactDepartmentEmails";
 import { ContactMapWithAddressPanel } from "@/components/contact/ContactMapWithAddressPanel";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
-
-function slideHrefForHero(s) {
-  const raw = String(s.url || "").trim();
-  if (!raw) return null;
-  if (/^https?:\/\//i.test(raw)) return raw;
-  return youtubeWatchUrl(raw) || null;
-}
 
 /**
  * Hero slide — uses a native <picture> element so the browser only downloads
@@ -167,6 +160,7 @@ export function HomePageContent({
   const [subMsg, setSubMsg] = useState("");
   const [subBusy, setSubBusy] = useState(false);
   const [showSubModal, setShowSubModal] = useState(false);
+  const [videoPopup, setVideoPopup] = useState(null);
   const heroSwiperRef = useRef(null);
   const newsSwiperRef = useRef(null);
   const moviesSectionRef = useRef(null);
@@ -174,6 +168,38 @@ export function HomePageContent({
   const scrollToMovies = () => {
     moviesSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
+
+  function openHomeVideo(item) {
+    const embedSrc = youtubeEmbedUrl(item?.url);
+    if (embedSrc) {
+      setVideoPopup(item);
+      return;
+    }
+    const watch = youtubeWatchUrl(item?.url) || String(item?.url ?? "").trim();
+    if (/^https?:\/\//i.test(watch)) {
+      window.open(watch, "_blank", "noopener,noreferrer");
+    }
+  }
+
+  function closeVideoPopup() {
+    setVideoPopup(null);
+  }
+
+  useEffect(() => {
+    if (!videoPopup) return undefined;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const onKey = (e) => {
+      if (e.key === "Escape") closeVideoPopup();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => {
+      document.body.style.overflow = prev;
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [videoPopup]);
+
+  const videoEmbedSrc = videoPopup ? youtubeEmbedUrl(videoPopup.url) : "";
 
   const slides = useMemo(
     () => (Array.isArray(heroSlides) && heroSlides.length ? heroSlides : []),
@@ -342,11 +368,11 @@ export function HomePageContent({
               <div className="row justify-content-center">
                 <div className="col-12 col-lg-10">
                   <div className="dharma-home-tv-feature video-play text-shadow dh-relative">
-                    <a
-                      href={youtubeWatchUrl(feature.url) || slideHrefForHero(feature) || "#"}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="d-block position-relative"
+                    <button
+                      type="button"
+                      className="dh-video-popup-trigger d-block position-relative w-100 border-0 bg-transparent p-0 text-start"
+                      onClick={() => openHomeVideo(feature)}
+                      aria-label={`Play — ${String(feature.title ?? "featured video")}`}
                     >
                       {featureThumb ?
                         <span className="d-block position-relative w-100 dh-home-feature-thumb">
@@ -361,9 +387,9 @@ export function HomePageContent({
                         </span>
                       : null}
                       <span className="dharma-home-play-overlay dh-absulate">
-                        <Image src="/frontend/img/play-world.png" alt="Play" width={120} height={120} className="img-fluid" />
+                        <Image src="/frontend/img/play-world.png" alt="" width={120} height={120} className="img-fluid" />
                       </span>
-                    </a>
+                    </button>
                   </div>
                 </div>
               </div>
@@ -408,14 +434,18 @@ export function HomePageContent({
                       >
                       {strip.map((row, ri) => {
                         const rawUrl = String(row.url || "").trim();
-                        const watch = /^https?:\/\//i.test(rawUrl) ? rawUrl : youtubeWatchUrl(rawUrl) || "";
                         const thumb =
                           resolveUploadUrl(row.thumbnail) || youtubeThumbnailUrl(row.url) || "";
                         const title = String(row.title || "").slice(0, 80);
                         const key = `${rawUrl}-${title}-${ri}`;
                         return (
                           <SwiperSlide key={key}>
-                            <a href={watch || "#"} target="_blank" rel="noopener noreferrer" className="text-decoration-none">
+                            <button
+                              type="button"
+                              className="dh-video-popup-trigger text-decoration-none border-0 bg-transparent p-0 w-100 text-start"
+                              onClick={() => openHomeVideo(row)}
+                              aria-label={`Play — ${title}`}
+                            >
                               <div className="video-box">
                                 <div className="video-slide-img">
                                   <div className="img-animate dh-relative">
@@ -437,7 +467,7 @@ export function HomePageContent({
                                   <span className="color-white">{title}</span>
                                 </div>
                               </div>
-                            </a>
+                            </button>
                           </SwiperSlide>
                         );
                       })}
@@ -799,6 +829,29 @@ export function HomePageContent({
       <section className="home-contact">
         <ContactDepartmentEmails />
       </section>
+
+      {videoEmbedSrc ?
+        <div
+          className="dh-modal-backdrop"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Video player"
+          onClick={closeVideoPopup}
+        >
+          <div className="dh-modal-frame" onClick={(e) => e.stopPropagation()}>
+            <button type="button" className="dh-modal-close" onClick={closeVideoPopup} aria-label="Close video">
+              ×
+            </button>
+            <iframe
+              key={youtubeVideoId(videoPopup?.url)}
+              title={String(videoPopup?.title ?? "Video")}
+              src={videoEmbedSrc}
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              allowFullScreen
+            />
+          </div>
+        </div>
+      : null}
 
       {/* Subscribe success modal — matches legacy subscribe.html popup */}
       {showSubModal && (
