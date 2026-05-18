@@ -2,8 +2,9 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import { HeaderMovieSearch } from "@/components/layout/HeaderMovieSearch";
 
 const links = [
   { name: "Overview", href: "/overview" },
@@ -29,11 +30,9 @@ const headerIconLinks = [
 ];
 
 export function SiteHeader() {
-  const router = useRouter();
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
-  const [q, setQ] = useState("");
   const [socialDeskOpen, setSocialDeskOpen] = useState(false);
   /** Matches legacy `menu.html` ng-click showSub(menu) — one open submenu key at a time. */
   const [openMobSubKey, setOpenMobSubKey] = useState(null);
@@ -45,12 +44,23 @@ export function SiteHeader() {
     setOpenMobSubKey(null);
   }, [pathname]);
 
-  function submitHeaderSearch(e) {
-    e.preventDefault();
-    const t = q.trim();
-    setSearchOpen(false);
+  function toggleHeaderSearch() {
+    setSearchOpen((v) => !v);
     setMenuOpen(false);
-    router.push(t ? `/movies?q=${encodeURIComponent(t)}` : "/movies");
+  }
+
+  function renderSearchToggle(extraClass = "") {
+    return (
+      <button
+        type="button"
+        className={`my-main-btn dh-header-search-toggle border-0 bg-transparent p-0 ${extraClass}`.trim()}
+        aria-label="Search movies"
+        aria-expanded={searchOpen}
+        onClick={toggleHeaderSearch}
+      >
+        <i className="fa-solid fa-magnifying-glass" aria-hidden />
+      </button>
+    );
   }
 
   /** @param {{ includeSearch?: boolean; onSocialLinkClick?: () => void }} [opts] */
@@ -75,21 +85,7 @@ export function SiteHeader() {
             </a>
           </li>
         ))}
-        {includeSearch ?
-          <li>
-            <button
-              type="button"
-              className="my-main-btn"
-              aria-label="Search movies"
-              onClick={() => {
-                setSearchOpen((v) => !v);
-                setMenuOpen(false);
-              }}
-            >
-              <Image src="/frontend/img/search-light.png" alt="" width={18} height={18} className="w15" />
-            </button>
-          </li>
-        : null}
+        {includeSearch ? <li>{renderSearchToggle()}</li> : null}
       </ul>
     );
   }
@@ -104,9 +100,22 @@ export function SiteHeader() {
                 <div className="col-12 col-xxl-2 text-center px-0 px-xxl-2 dh-header-logo-col">
                   <div className="d-xxl-none dh-header-mob-top w-100">
                     {/* Legacy BS3 navbar-header: logo + toggler (`frontend/views/header.html`) */}
-                    {/* Mobile: centered mark + right hamburger (`minmax + auto + minmax`) — parity with branded mobile shell */}
+                    {/* Mobile: hamburger left, logo center, search right */}
                     <div className="dh-header-mob-bar dh-header-mob-bar--triple dh-navbar-header w-100">
-                      <span className="dh-header-mob-sym-slot" aria-hidden />
+                      <button
+                        type="button"
+                        className="navbar-toggler collapsed border-0 shadow-none dh-header-toggler dh-header-mob-toggle"
+                        aria-label="Toggle navigation"
+                        aria-controls="nav-collapse"
+                        aria-expanded={menuOpen}
+                        onClick={() => {
+                          setMenuOpen((v) => !v);
+                          setSocialDeskOpen(false);
+                          setSearchOpen(false);
+                        }}
+                      >
+                        <span className="navbar-toggler-icon" aria-hidden />
+                      </button>
                       <Link
                         className="d-inline-block dh-header-mob-brand dh-header-mob-brand--centered"
                         href="/"
@@ -121,19 +130,9 @@ export function SiteHeader() {
                           priority
                         />
                       </Link>
-                      <button
-                        type="button"
-                        className="navbar-toggler collapsed border-0 shadow-none dh-header-toggler dh-header-mob-toggle"
-                        aria-label="Toggle navigation"
-                        aria-controls="nav-collapse"
-                        aria-expanded={menuOpen}
-                        onClick={() => {
-                          setMenuOpen((v) => !v);
-                          setSocialDeskOpen(false);
-                        }}
-                      >
-                        <span className="navbar-toggler-icon" aria-hidden />
-                      </button>
+                      <div className="dh-header-mob-actions-slot d-flex align-items-center justify-content-end pe-2">
+                        {renderSearchToggle("dh-header-mob-search-btn")}
+                      </div>
                     </div>
                   </div>
                   <div className="d-none d-xxl-flex align-items-center justify-content-xxl-center gap-2 w-100">
@@ -282,37 +281,13 @@ export function SiteHeader() {
                 </div>
               </div>
             : null}
+            {searchOpen ?
+              <div className="search-movie search-movie-mar my-search site-header-search">
+                <HeaderMovieSearch onClose={() => setSearchOpen(false)} />
+              </div>
+            : null}
           </div>
           <div className="head-curve" aria-hidden="true" />
-          {searchOpen ?
-            <div className="search-movie search-movie-mar my-search site-header-search">
-              <div className="movie-search-pg dh-relative dh-header-search-field-wrap">
-                <div className="search-img">
-                  <Image src="/frontend/img/search-grey.png" alt="" width={22} height={22} />
-                </div>
-                <form onSubmit={submitHeaderSearch}>
-                  <input
-                    type="search"
-                    className="form-control search-in rounded-0"
-                    placeholder="Search for movie"
-                    name="q"
-                    value={q}
-                    onChange={(e) => setQ(e.target.value)}
-                    autoComplete="off"
-                    aria-label="Search for movie"
-                  />
-                </form>
-              </div>
-              <button
-                type="button"
-                className="search-img2 border-0 bg-transparent p-0"
-                onClick={() => setSearchOpen(false)}
-                aria-label="Close search"
-              >
-                <Image src="/frontend/img/error-2.png" alt="" width={24} height={24} />
-              </button>
-            </div>
-          : null}
         </div>
       </nav>
     </header>

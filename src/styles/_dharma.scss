@@ -145,10 +145,12 @@ body {
 /* Legacy Angular header: orange + curve inset from viewport edges (matches content band). */
 .dh-header-shell {
   position: relative;
+  overflow: visible;
 }
 
 /* Same as `frontend/sass/main.scss` `.head-bg` */
 .head-bg {
+  position: relative;
   background: $brand-primary;
   padding: 5px 60px 0;
   margin: 0 60px;
@@ -339,49 +341,55 @@ body {
 }
 
 /* `frontend/sass/main.scss` — frosted circular glyphs (dharmanodeRun) */
-.head-social ul li a i {
-  background: rgba(255, 255, 255, 0.66);
-  font-size: 14px;
-  border-radius: 100%;
-  height: 22px;
-  width: 22px;
+.head-social ul li a i,
+.head-social ul li .my-main-btn i,
+.dh-header-search-toggle i {
   text-align: center;
-  line-height: 24px;
   color: $brand-primary;
-  display: inline-block;
   box-sizing: border-box;
+  background: #ffffffa8;
+  border-radius: 100%;
+  width: 22px;
+  height: 22px;
+  font-size: 14px;
+  line-height: 24px;
+  display: inline-block;
 }
 
 .head-social ul li a:hover i,
-.head-social ul li a:focus-visible i {
+.head-social ul li a:focus-visible i,
+.head-social ul li .my-main-btn:hover i,
+.head-social ul li .my-main-btn:focus-visible i,
+.dh-header-search-toggle:hover i,
+.dh-header-search-toggle:focus-visible i {
   filter: brightness(1.05);
 }
 
-.head-social.dh-list .my-main-btn {
+.dh-header-search-toggle {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  box-sizing: border-box;
-  min-width: 22px;
-  min-height: 22px;
-  padding: 4px !important;
-  border: none;
-  border-radius: 100%;
-  background: rgba(255, 255, 255, 0.66);
+  vertical-align: middle;
   line-height: 0;
+  cursor: pointer;
+}
+
+.head-social.dh-list .my-main-btn,
+.dh-header-search-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  vertical-align: middle;
+  line-height: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
 }
 
 .head-social .my-main-btn:hover,
 .head-social .my-main-btn:focus-visible {
-  background: rgba(255, 255, 255, 0.82) !important;
   outline: 0;
-}
-
-.head-social .my-main-btn img,
-.head-social .my-main-btn .w15 {
-  width: 13px !important;
-  height: auto !important;
-  display: block;
 }
 
 .dh-header-mob-sub-toggler {
@@ -424,7 +432,9 @@ body {
     padding: 0;
   }
 
-  .head-social ul li a i {
+  .head-social ul li a i,
+  .head-social ul li .my-main-btn i,
+  .dh-header-search-toggle i {
     font-size: 12px;
     height: 22px;
     width: 22px;
@@ -438,6 +448,7 @@ body {
   padding-bottom: 0;
   width: 100%;
   max-width: 100%;
+  overflow: visible;
 }
 
 /* `frontend/sass/main.scss` `.my-search` — float panel; mobile falls back to full-width strip */
@@ -449,62 +460,52 @@ body {
   right: 140px;
   top: 60px;
   z-index: 1040;
-  display: flex;
-  align-items: center;
-  flex-wrap: nowrap;
-  gap: 8px;
+  display: block;
   margin: 0;
   padding: 0 4px 8px;
   box-sizing: border-box;
+  overflow: visible;
 }
 
 .home .site-header-search.my-search .movie-search-pg {
-  flex: 1 1 auto;
+  width: 100%;
   min-width: 0;
   position: relative;
+  overflow: visible;
 }
 
-.home .site-header-search.my-search .search-img {
+/* Legacy `main.scss` `.search-img2` — overlays inside the white input, not beside it */
+.site-header-search .movie-search-pg .search-img2 {
   position: absolute;
+  right: 12px;
   top: 50%;
-  left: 10px;
   transform: translateY(-50%);
   z-index: 99;
+  cursor: pointer;
   line-height: 0;
 }
 
-.home .site-header-search.my-search .search-img2 {
-  position: relative;
-  top: auto;
-  right: auto;
-  flex-shrink: 0;
-  line-height: 0;
-}
-
-.home .site-header-search.my-search .search-img2 img {
+.site-header-search .movie-search-pg .search-img2 img {
+  display: block;
   width: 25px;
   height: auto;
 }
 
+/* Mobile/tablet: float search over hero — do not push `.head-curve` in document flow */
 @media (max-width: 1399.98px) {
-  .home .site-header-search.search-movie.my-search {
-    right: 72px;
-    width: 32%;
-    min-width: 240px;
-  }
-}
-
-@media (max-width: 1399.98px) {
-  .home .site-header-search.search-movie.my-search {
-    position: relative;
+  .home .head-bg > .site-header-search.search-movie.my-search {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 100%;
     width: 100% !important;
     max-width: none !important;
     min-width: 0 !important;
-    right: auto !important;
-    top: auto !important;
-    margin: 8px 0 0;
-    padding: 0 16px 10px;
+    margin: 0;
+    padding: 0 16px 12px;
     box-sizing: border-box;
+    overflow: visible;
+    z-index: 1045;
   }
 }
 
@@ -533,9 +534,23 @@ body {
     min-height: 50px;
   }
 
-  .dh-header-mob-bar--triple .dh-header-mob-sym-slot {
+  .dh-header-mob-bar--triple .dh-header-mob-toggle {
     grid-column: 1;
+    justify-self: start;
+    align-self: center;
+    margin-left: 6px !important;
+    padding: 0.45rem 0.52rem !important;
+  }
+
+  .dh-header-mob-bar--triple .dh-header-mob-actions-slot {
+    grid-column: 3;
+    justify-self: end;
+    align-self: center;
     min-height: 1px;
+  }
+
+  .dh-header-mob-search-btn {
+    margin-right: 2px;
   }
 
   .dh-header-mob-bar--triple .dh-header-mob-brand--centered {
@@ -552,14 +567,6 @@ body {
     height: auto;
     margin: 0 auto !important;
     display: block;
-  }
-
-  .dh-header-mob-bar--triple .dh-header-mob-toggle {
-    grid-column: 3;
-    justify-self: end;
-    align-self: center;
-    margin-right: 6px !important;
-    padding: 0.45rem 0.52rem !important;
   }
 
   /*
@@ -692,37 +699,124 @@ body {
   }
 }
 
-/* frontend/sass/main.scss `.search-in` — white type on orange bar */
+/* Header search field — white input on orange bar (legacy `movie-search-pg` / ui-select) */
 .site-header-search .search-in,
-.site-header-search .form-control.search-in {
-  background: transparent;
+.site-header-search .form-control.search-in,
+.site-header-search .movies-search-combobox--header .movies-search-input.search-in {
+  background: #fff;
   border: 1px solid $brand-primary;
   width: 100%;
   height: 45px;
-  padding: 0 12px 0 44px;
-  color: $white;
+  padding: 0 44px 0 44px;
+  color: #333;
   border-radius: 0;
   font-size: 16px;
   box-sizing: border-box;
 }
 
 .site-header-search .search-in::placeholder,
-.site-header-search .form-control.search-in::placeholder {
-  color: $white;
-  opacity: 1;
+.site-header-search .form-control.search-in::placeholder,
+.site-header-search .movies-search-combobox--header .movies-search-input.search-in::placeholder,
+.site-header-search .movies-search-combobox--header .movies-search-input.search-in::-webkit-input-placeholder,
+.site-header-search .movies-search-combobox--header .movies-search-input.search-in::-moz-placeholder {
+  color: $grey !important;
+  opacity: 1 !important;
+  -webkit-text-fill-color: $grey;
 }
 
 .site-header-search .search-in:focus,
-.site-header-search .form-control.search-in:focus {
+.site-header-search .form-control.search-in:focus,
+.site-header-search .movies-search-combobox--header .movies-search-input.search-in:focus {
   outline: 0;
   box-shadow: none;
   border-color: $brand-primary;
-  color: $white;
+  background: #fff;
+  color: #222;
 }
 
 .site-header-search .search-in:focus::placeholder,
-.site-header-search .form-control.search-in:focus::placeholder {
+.site-header-search .form-control.search-in:focus::placeholder,
+.site-header-search .movies-search-combobox--header .movies-search-input.search-in:focus::placeholder {
   color: transparent;
+}
+
+/* Header movie autocomplete — legacy `ui-select` + `movi-src-rslt` (see `header.html`) */
+.site-header-search .movies-search-combobox--header {
+  width: 100%;
+  position: relative;
+  z-index: 2;
+}
+
+.site-header-search .movies-search-combobox--header .movies-search-field,
+.site-header-search .movies-search-combobox--header .movies-search-input-inner {
+  width: 100%;
+}
+
+.site-header-search .movies-search-input-icon--header {
+  left: 10px;
+  width: 22px;
+  height: 22px;
+  z-index: 3;
+}
+
+.site-header-search .movies-search-combobox--header {
+  overflow: visible;
+}
+
+.site-header-search .movies-search-dropdown.movies-search-dropdown--header {
+  z-index: 1060;
+  max-height: min(320px, 55vh);
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+  scrollbar-width: thin;
+  scrollbar-color: #c0c0c0 #f0f0f0;
+}
+
+.site-header-search .movies-search-dropdown.movies-search-dropdown--header::-webkit-scrollbar {
+  width: 8px;
+}
+
+.site-header-search .movies-search-dropdown.movies-search-dropdown--header::-webkit-scrollbar-thumb {
+  background: #b8b8b8;
+  border-radius: 4px;
+}
+
+.site-header-search .movies-search-dropdown.movies-search-dropdown--header::-webkit-scrollbar-track {
+  background: #ececec;
+}
+
+.site-header-search .movies-search-option.movi-src-rslt {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  font-size: 16px;
+}
+
+.site-header-search .movies-search-option.movi-src-rslt:hover,
+.site-header-search .movies-search-option.movi-src-rslt.is-highlighted {
+  font-size: 18px;
+}
+
+.site-header-search .w60 {
+  vertical-align: middle;
+
+  .movies-search-thumb {
+    width: 60px;
+    height: auto;
+    max-height: 54px;
+    object-fit: cover;
+    display: block;
+  }
+}
+
+.site-header-search .movies-search-option-label.display-inline.ml15 {
+  vertical-align: middle;
+  margin-left: 15px;
 }
 
 .custom-menu li a {
@@ -3700,8 +3794,8 @@ img.doneLoading {
   }
 }
 
-/* iPad Air portrait target: 820x1180 */
-@media (min-width: 801px) and (max-width: 900px) {
+/* iPad Mini / narrow tablet portrait (~744+) + iPad Air portrait (~820×1180) — same hero: sun + search strip */
+@media (min-width: 740px) and (max-width: 900px) {
   .news-events-detail > .container,
   .news-events-detail__article-section > .container {
     padding-left: 24px;
@@ -3841,26 +3935,6 @@ img.doneLoading {
     max-width: 100%;
     margin-left: auto;
     margin-right: auto;
-  }
-}
-
-/* Tablet target around 765x1071 */
-@media (min-width: 740px) and (max-width: 800px) {
-  .news-events-detail .news-search {
-    max-width: 640px;
-    margin-left: auto;
-    margin-right: auto;
-  }
-
-  .news-events-detail .movie-inside-curve.m15-top,
-  .news-events-detail .news-detail-card.movie-inner-bg.mrgin-20 {
-    max-width: 640px;
-    margin-left: auto;
-    margin-right: auto;
-  }
-
-  .news-events-detail .mt15.mobile-text-center {
-    justify-content: center;
   }
 }
 
@@ -4395,10 +4469,6 @@ img.doneLoading {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     max-width: 640px;
   }
-
-  .news-events-page .news-title h4 {
-    font-size: 28px;
-  }
 }
 
 @media (max-width: 575.98px) {
@@ -4540,11 +4610,6 @@ img.doneLoading {
   .news-events-page .news-search .custom-dropdown .dropdown-toggle,
   .news-events-detail .news-search .custom-dropdown .dropdown-toggle {
     font-size: 20px;
-  }
-
-  .news-events-page .news-title h4 {
-    font-size: 20px;
-    line-height: 1.1;
   }
 }
 
@@ -4914,6 +4979,15 @@ img.doneLoading {
   padding: 6px 20px;
 }
 
+/* Keeps headline + FB/Twitter on one line on tablet/desktop (`h4` is inline-block). */
+.news-events-detail .share-section.news-share-section .news-share-section__buttons {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  vertical-align: middle;
+}
+
 .news-events-detail .pb40 > h1.font-hammersmith.text-up.line45 {
   font-size: clamp(40px, 4vw, 52px);
   line-height: 0.95;
@@ -4945,12 +5019,18 @@ img.doneLoading {
 }
 
 .news-events-detail .related-news-swiper {
-  padding-bottom: 26px;
+  /* Slide row → dots: readable gap (pagination sits on bottom inset). */
+  padding-bottom: 44px;
+}
+
+.news-events-detail .related-news-swiper .swiper-pagination {
+  bottom: 10px !important;
 }
 
 .news-events-detail .related-news-swiper .swiper-pagination-bullet {
   background: rgba(255, 255, 255, 0.5);
   opacity: 1;
+  margin: 0 10px !important;
 }
 
 .news-events-detail .related-news-swiper .swiper-pagination-bullet-active {
@@ -4987,31 +5067,49 @@ img.doneLoading {
 }
 
 @media (max-width: 767.98px) {
-  /* Mobile-only: headline full width row; Facebook + Twitter together centered underneath */
+  /* Mobile-only: “Share this article” + FB/Twitter centered as a stack */
   .news-events-detail .share-section.news-share-section {
     display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
+    flex-direction: column;
     align-items: center;
-    align-content: center;
+    justify-content: center;
+    text-align: center;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
     row-gap: clamp(10px, 2vw, 16px);
-    column-gap: 10px;
+    padding-left: 12px;
+    padding-right: 12px;
   }
 
   .news-events-detail .share-section.news-share-section > h4 {
-    flex: 1 1 100%;
     width: 100%;
     margin-right: 0 !important;
-    margin-bottom: 10px;
-    text-align: center;
+    margin-bottom: 0 !important;
+    text-align: center !important;
     vertical-align: middle;
     display: block !important;
   }
 
-  .news-events-detail .share-section.news-share-section > .display-inline {
+  .news-events-detail .share-section.news-share-section .news-share-section__buttons {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+  }
+
+  .news-events-detail
+    .share-section.news-share-section
+    .news-share-section__buttons
+    > .display-inline {
     display: inline-flex !important;
     flex: 0 0 auto;
     align-items: center;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
   }
 
   .news-events-detail .share-section h4 {
@@ -7615,8 +7713,8 @@ img.doneLoading {
   padding: 0;
   border: none;
   border-radius: 50%;
-  background: rgba(18, 18, 18, 0.55);
-  color: rgba(230, 230, 230, 0.92);
+  background: #8f8f8f;
+  color: #fff;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -7626,7 +7724,7 @@ img.doneLoading {
     color 0.15s ease;
 
   &:hover {
-    background: rgba(42, 42, 42, 0.78);
+    background: #737373;
     color: #fff;
   }
 

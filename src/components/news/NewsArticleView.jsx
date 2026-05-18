@@ -455,31 +455,33 @@ export function NewsArticleView({ article, related = [] }) {
                   <h4 className="color-white font-bold font-karla display-inline dis-bl">
                     Share this article on
                   </h4>
-                  <div className="display-inline">
-                    <a
-                      href={fbHref}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      aria-label="Share on Facebook"
-                    >
-                      <button type="button" name="button" className="news-share-btn">
-                        <i className="fa-brands fa-facebook-f" aria-hidden />
-                        facebook
-                      </button>
-                    </a>
-                  </div>
-                  <div className="display-inline">
-                    <a
-                      href={twHref}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      aria-label="Share on X"
-                    >
-                      <button type="button" name="button" className="news-share-btn">
-                        <i className="fa-brands fa-twitter" aria-hidden />
-                        twitter
-                      </button>
-                    </a>
+                  <div className="news-share-section__buttons">
+                    <div className="display-inline">
+                      <a
+                        href={fbHref}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label="Share on Facebook"
+                      >
+                        <button type="button" name="button" className="news-share-btn">
+                          <i className="fa-brands fa-facebook-f" aria-hidden />
+                          facebook
+                        </button>
+                      </a>
+                    </div>
+                    <div className="display-inline">
+                      <a
+                        href={twHref}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label="Share on X"
+                      >
+                        <button type="button" name="button" className="news-share-btn">
+                          <i className="fa-brands fa-twitter" aria-hidden />
+                          twitter
+                        </button>
+                      </a>
+                    </div>
                   </div>
                 </div>
 

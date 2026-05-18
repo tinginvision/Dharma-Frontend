@@ -21,7 +21,12 @@ export function MovieSearchCombobox({
   parentSearchBanner,
   onClearBanner,
   initialInputValue = "",
+  variant = "default",
+  placeholder = "Search for a Movie",
+  autoFocus = false,
+  loading = false,
 }) {
+  const isHeader = variant === "header";
   const [query, setQuery] = useState(initialInputValue);
   const [open, setOpen] = useState(false);
   const [highlighted, setHighlighted] = useState(0);
@@ -29,11 +34,17 @@ export function MovieSearchCombobox({
   const containerRef = useRef(null);
   const inputRef = useRef(null);
   const listRef = useRef(null);
-  const listId = "movies-search-listbox";
+  const listId = isHeader ? "movies-header-search-listbox" : "movies-search-listbox";
 
   useEffect(() => {
     setQuery(initialInputValue || "");
   }, [initialInputValue]);
+
+  useEffect(() => {
+    if (!autoFocus) return;
+    const t = window.setTimeout(() => inputRef.current?.focus(), 50);
+    return () => window.clearTimeout(t);
+  }, [autoFocus]);
 
   useEffect(() => {
     if (!parentSearchBanner) setQuery("");
@@ -55,8 +66,10 @@ export function MovieSearchCombobox({
 
   useEffect(() => {
     setHighlighted(0);
-    setVisibleCount(Math.min(DROPDOWN_CHUNK, filtered.length));
-  }, [query, open, filtered.length]);
+    if (!isHeader) {
+      setVisibleCount(Math.min(DROPDOWN_CHUNK, filtered.length));
+    }
+  }, [query, open, filtered.length, isHeader]);
 
   useEffect(() => {
     if (!open || !listRef.current) return;
@@ -101,7 +114,9 @@ export function MovieSearchCombobox({
       e.preventDefault();
       setHighlighted((i) => {
         const next = Math.min(i + 1, len - 1);
-        setVisibleCount((v) => Math.max(v, ceilChunkForIndex(next, DROPDOWN_CHUNK, len)));
+        if (!isHeader) {
+          setVisibleCount((v) => Math.max(v, ceilChunkForIndex(next, DROPDOWN_CHUNK, len)));
+        }
         return next;
       });
     } else if (e.key === "ArrowUp") {
@@ -128,31 +143,46 @@ export function MovieSearchCombobox({
     [filtered.length]
   );
 
-  const displayed = filtered.slice(0, visibleCount);
-  const showList = open && filtered.length > 0;
-  const remaining = filtered.length - visibleCount;
+  const displayed = isHeader ? filtered : filtered.slice(0, visibleCount);
+  const showList = open && !loading && displayed.length > 0;
+  const remaining = isHeader ? 0 : filtered.length - visibleCount;
+  const inputId = isHeader ? "movies-header-search-input" : "movies-search-input";
 
   return (
-    <div ref={containerRef} className="movies-search-combobox text-start">
+    <div
+      ref={containerRef}
+      className={`movies-search-combobox text-start${isHeader ? " movies-search-combobox--header search-drop" : ""}`}
+    >
       <div
         className={`movies-search-field dh-relative${parentSearchBanner ? " movies-search-field--has-clear" : ""}`}
       >
-        <label htmlFor="movies-search-input" className="visually-hidden">
-          Search for a Movie
+        <label htmlFor={inputId} className="visually-hidden">
+          {placeholder}
         </label>
         <div className="movies-search-input-inner dh-relative">
-          <img src="/frontend/img/search-grey.png" alt="" className="movies-search-input-icon" width={22} height={22} />
+          <img
+            src="/frontend/img/search-grey.png"
+            alt=""
+            className={`movies-search-input-icon${isHeader ? " movies-search-input-icon--header" : ""}`}
+            width={22}
+            height={22}
+          />
           <input
             ref={inputRef}
-            id="movies-search-input"
+            id={inputId}
             type="search"
             autoComplete="off"
             role="combobox"
             aria-expanded={showList}
             aria-controls={listId}
             aria-autocomplete="list"
-            className="movies-search-input form-control shadow-none"
-            placeholder="Search for a Movie"
+            aria-busy={loading}
+            className={
+              isHeader ?
+                "movies-search-input search-in form-control rounded-0 shadow-none"
+              : "movies-search-input form-control shadow-none"
+            }
+            placeholder={placeholder}
             value={query}
             onChange={(ev) => {
               setQuery(ev.target.value);
@@ -185,8 +215,12 @@ export function MovieSearchCombobox({
           id={listId}
           role="listbox"
           aria-label={`Movie matches (${filtered.length})`}
-          className="movies-search-dropdown movies-search-dropdown--paginated"
-          onScroll={onDropdownScroll}
+          className={
+            isHeader ?
+              "movies-search-dropdown movies-search-dropdown--header"
+            : "movies-search-dropdown movies-search-dropdown--paginated"
+          }
+          onScroll={isHeader ? undefined : onDropdownScroll}
         >
           {displayed.map((m, i) => {
             const slug = movieSlug(m);
@@ -201,13 +235,23 @@ export function MovieSearchCombobox({
                 aria-posinset={i + 1}
                 aria-setsize={filtered.length}
                 aria-selected={active}
-                className={`movies-search-option ${active ? "is-highlighted" : ""}`}
+                className={`movies-search-option${isHeader ? " movi-src-rslt" : ""} ${active ? "is-highlighted" : ""}`}
                 onMouseEnter={() => setHighlighted(i)}
                 onMouseDown={(ev) => ev.preventDefault()}
                 onClick={() => pick(m)}
               >
-                <img src={thumb} alt="" className="movies-search-thumb" />
-                <span className="movies-search-option-label">{label}</span>
+                {isHeader ?
+                  <>
+                    <span className="display-inline w60">
+                      <img src={thumb} alt="" className="movies-search-thumb" />
+                    </span>
+                    <span className="movies-search-option-label display-inline ml15">{label}</span>
+                  </>
+                : <>
+                    <img src={thumb} alt="" className="movies-search-thumb" />
+                    <span className="movies-search-option-label">{label}</span>
+                  </>
+                }
               </li>
             );
           })}
