@@ -696,9 +696,9 @@ export function HomePageContent({
                       href="/social"
                       className="btn-1 font-hammersmith btn border-0 color-white text-center text-decoration-none home-dharma-world-enter d-inline-block"
                     >
-                      <svg aria-hidden="true" focusable="false" style={{ pointerEvents: "none" }}>
-                        <rect x="0" y="0" fill="none" width="100%" height="100%" />
-                      </svg>
+                        <svg aria-hidden="true" focusable="false" style={{ pointerEvents: "none" }}>
+                          <rect x="0" y="0" fill="none" width="100%" height="100%" />
+                        </svg>
                       <span className="home-dharma-world-enter-label">ENTER</span>
                     </Link>
                   </div>
@@ -763,9 +763,9 @@ export function HomePageContent({
                       href="/social"
                       className="btn-1 font-hammersmith btn border-0 color-white text-center text-decoration-none home-dharma-world-enter d-inline-block"
                     >
-                      <svg aria-hidden="true" focusable="false" style={{ pointerEvents: "none" }}>
-                        <rect x="0" y="0" fill="none" width="100%" height="100%" />
-                      </svg>
+                        <svg aria-hidden="true" focusable="false" style={{ pointerEvents: "none" }}>
+                          <rect x="0" y="0" fill="none" width="100%" height="100%" />
+                        </svg>
                       <span className="home-dharma-world-enter-label">ENTER</span>
                     </Link>
                   </div>
@@ -828,9 +828,9 @@ export function HomePageContent({
                   onClick={() => setShowSubModal(false)}
                   className="btn-1 dh-view-all-btn font-hammersmith color-primary mx-auto mt-3"
                 >
-                  <svg aria-hidden="true" focusable="false" style={{ pointerEvents: "none" }}>
-                    <rect x="0" y="0" fill="none" width="100%" height="100%" />
-                  </svg>
+                        <svg aria-hidden="true" focusable="false" style={{ pointerEvents: "none" }}>
+                          <rect x="0" y="0" fill="none" width="100%" height="100%" />
+                        </svg>
                   <span className="dh-view-all-label">CONTINUE TO SITE</span>
                 </button>
               </div>
