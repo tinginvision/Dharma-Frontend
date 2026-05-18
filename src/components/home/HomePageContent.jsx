@@ -387,7 +387,7 @@ export function HomePageContent({
                         </span>
                       : null}
                       <span className="dharma-home-play-overlay dh-absulate">
-                        <Image src="/frontend/img/play-world.png" alt="" width={120} height={120} className="img-fluid" />
+                        <Image src="/frontend/img/play-world.svg" alt="" width={120} height={120} className="img-fluid" />
                       </span>
                     </button>
                   </div>
@@ -656,10 +656,10 @@ export function HomePageContent({
                     onClick={() => newsSwiperRef.current?.slidePrev()}
                   >
                     <Image
-                      src="/frontend/img/news-right.png"
+                      src="/frontend/img/ARROW-2.svg"
                       alt=""
                       width={40}
-                      height={47}
+                      height={40}
                       className="home-news-slider-arrow-img"
                     />
                   </button>
@@ -670,10 +670,10 @@ export function HomePageContent({
                     onClick={() => newsSwiperRef.current?.slideNext()}
                   >
                     <Image
-                      src="/frontend/img/news-left.png"
+                      src="/frontend/img/ARROW-1.svg"
                       alt=""
                       width={40}
-                      height={47}
+                      height={40}
                       className="home-news-slider-arrow-img"
                     />
                   </button>
