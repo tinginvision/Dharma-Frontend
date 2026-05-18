@@ -270,10 +270,6 @@ function VideosViewAllGraphic({ movieKey }) {
         }
       }}
     >
-      {/*
-        Match Angular template: `<rect x="0" y="0" fill="none" width="100%" height="100%"/>`
-        + label inside the same SVG (no separate DOM text sibling).
-       */}
       <rect className="videos-view-all-svg__frame" x="0" y="0" width="100%" height="100%" fill="none" />
       <text
         className="videos-view-all-svg__text font-hammersmith"
@@ -389,16 +385,16 @@ function HeroSlider({ slides, onVideoOpen }) {
                           eager={i === 0}
                         />
                         <div className="videos-hero-slide__shade" aria-hidden />
-                        <div className="play-btn text-center dh-absulate middle mob-width-auto videos-hero-play">
+                        <span className="dharma-home-play-overlay dh-absulate" aria-hidden>
                           <Image
                             src="/frontend/img/play-world.png"
                             alt=""
-                            width={100}
-                            height={100}
-                            className="img-fluid videos-hero-play__icon d-block mx-auto"
+                            width={120}
+                            height={120}
+                            className="img-fluid"
                             priority={i === 0}
                           />
-                        </div>
+                        </span>
                       </div>
                     </button>
                   </SwiperSlide>

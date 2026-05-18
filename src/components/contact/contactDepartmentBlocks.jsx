@@ -36,7 +36,7 @@ export const CONTACT_EMAIL_BLOCKS_ROW2 = [
   {
     key: "syndication",
     title: "SYNDICATION",
-    src: "/frontend/img/syndication.png",
+    src: "/frontend/img/syndication.svg",
     iconWidth: 28,
     iconHeight: 28,
     lines: <>For info syndication queries email us on</>,

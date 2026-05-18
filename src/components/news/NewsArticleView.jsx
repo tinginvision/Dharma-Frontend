@@ -493,9 +493,14 @@ export function NewsArticleView({ article, related = [] }) {
                     <div className="mobs-slider nav-cl mob-top-em">
                       <Swiper
                         modules={[Pagination, Autoplay]}
-                        slidesPerView={1}
-                        spaceBetween={20}
-                        loop={related.length > 3}
+                        slidesPerView="auto"
+                        spaceBetween={12}
+                        slidesPerGroup={1}
+                        centeredSlides={false}
+                        centerInsufficientSlides={false}
+                        loop={false}
+                        resistanceRatio={0.85}
+                        roundLengths
                         autoplay={
                           related.length > 3
                             ? {
@@ -507,11 +512,13 @@ export function NewsArticleView({ article, related = [] }) {
                         }
                         pagination={{ clickable: true }}
                         breakpoints={{
-                          576: { slidesPerView: 1.4 },
-                          768: { slidesPerView: 2.1 },
-                          992: { slidesPerView: 3 },
+                          992: {
+                            slidesPerView: 3,
+                            spaceBetween: 20,
+                            loop: related.length > 3,
+                          },
                         }}
-                        className="related-news-swiper"
+                        className="related-news-swiper related-news-swiper--peek"
                       >
                         {related.map((item) => {
                           const thumb = relatedThumb(item.imageUrl);
