@@ -38,7 +38,8 @@ export function SiteFooter() {
     <footer className="footer mt-auto">
       <div className="container">
         <div className="row">
-          <div className="col-md-6 col-sm-12">
+          {/* `col-12` required for &lt;576px — without it BS5 keeps two 50% columns and policy links clip off-screen */}
+          <div className="col-12 col-md-6">
             <div className="footer-data dh-list mobile-center">
               <ul className="padding0 margin0">
                 <li className="pointer">
@@ -98,7 +99,7 @@ export function SiteFooter() {
             </div>
           </div>
 
-          <div className="col-md-6 col-sm-12">
+          <div className="col-12 col-md-6">
             <div className="float-right copy mt15 mobile-center pd18 footer-copy-col">
               <p>Copyright © {year} Dharma Productions Pvt. Ltd.</p>
               <p className="float-right mobile-center ting-line mb-0">
