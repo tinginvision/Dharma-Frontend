@@ -97,7 +97,7 @@ export default async function VideosPage({ searchParams }) {
        * the browser cannot discover it until after CSSOM construction; an explicit
        * preload link moves the fetch to the very start of the critical path.
        */}
-      <link rel="preload" as="image" href="/frontend/img/tv-bg.jpg" />
+      <link rel="preload" as="image" href="/frontend/img/tv-bg.jpg?v=2" />
       {heroPreloadSrc ? (
         /* Preload the first hero thumbnail */
         // eslint-disable-next-line @next/next/no-img-element
