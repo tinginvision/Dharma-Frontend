@@ -289,7 +289,8 @@ export function SiteHeader() {
               </div>
             : null}
           </div>
-          <div className="head-curve" aria-hidden="true" />
+          {/* Legacy `frontend/views/header.html` — scalloped ribbon under the orange bar */}
+          <div className="head-curve" aria-hidden />
         </div>
       </nav>
     </header>

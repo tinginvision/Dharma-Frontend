@@ -7,9 +7,9 @@ $white: #ffffff;
 $black: #171717;
 $grey: #6f6f6e;
 
-/* Fixed header total height (orange + curve) — keep heroes aligned under navbar */
+/* Fixed header total height — scales on small screens; safe-area avoids notch overlap */
 :root {
-  --dh-header-offset: 116px;
+  --dh-header-offset: calc(100px + env(safe-area-inset-top, 0px));
 }
 
 @media (max-width: 1399.98px) {
@@ -132,8 +132,7 @@ body {
 
 /*
  * Bootstrap 5 `.navbar > .container-fluid` uses `display:flex` + `justify-content:space-between`.
- * Legacy header has two block siblings (`.head-bg` + `.head-curve`). Flex would pin them in a row;
- * force a vertical stack + full width like `frontend/views/header.html`.
+ * Single block `.head-bg` wraps nav (orange bar).
  */
 .dh-site-navbar > .dh-header-shell.container-fluid {
   display: block !important;
@@ -142,7 +141,7 @@ body {
   flex: 1 1 100%;
 }
 
-/* Legacy Angular header: orange + curve inset from viewport edges (matches content band). */
+/* Legacy Angular-style header band (inset on wide viewports); bottom curve is pure CSS ellipses */
 .dh-header-shell {
   position: relative;
   overflow: visible;
@@ -258,8 +257,10 @@ body {
   display: block;
 }
 
-.dh-header-toggler .navbar-toggler-icon {
-  filter: brightness(0) invert(1);
+.dh-header-hamburger-icon {
+  display: block;
+  flex-shrink: 0;
+  color: rgba(255, 255, 255, 0.96);
 }
 
 .dh-header-toggler .dh-header-toggler-close {
@@ -887,14 +888,22 @@ body {
 }
 
 .footer {
+  position: relative;
+  z-index: 5;
   background-color: $black;
   padding: 10px 0;
+}
+
+.footer-data.dh-list ul {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
 }
 
 .footer-data ul li {
   border-right: 1px solid #b2b2b2;
   padding: 0 6px;
-  line-height: 100%;
+  line-height: 1.35;
   color: #b2b2b2;
   cursor: pointer;
 }
@@ -1048,11 +1057,32 @@ body {
 }
 
 @media (max-width: 767.98px) {
+  .footer {
+    padding-top: 16px;
+    padding-bottom: 16px;
+  }
+
   .footer .mobile-center {
     float: none !important;
     text-align: center;
     margin-left: auto;
     margin-right: auto;
+  }
+
+  .footer-data.dh-list ul {
+    justify-content: center;
+    row-gap: 6px;
+  }
+
+  .footer-data ul li {
+    font-size: 13px;
+    line-height: 1.4;
+    padding: 2px 8px;
+  }
+
+  .footer-copy-col.float-right {
+    float: none !important;
+    width: 100%;
   }
 
   .footer-social.dh-list.mobile-center ul {
@@ -6668,6 +6698,11 @@ img.doneLoading {
     padding-top: 60px;
     padding-bottom: 0;
   }
+
+  /* Videos listing rows — keep clearance above footer (generic `.pb-short` zeros bottom). */
+  .videos-page-legacy .pb-short {
+    padding-bottom: 40px;
+  }
 }
 
 /* Videos page — dharma-tv.html + tv-inside (DharmaNodeRun Angular) */
@@ -6691,6 +6726,8 @@ img.doneLoading {
     position: relative;
     top: 60px;
     margin-top: 0;
+    /* `top` shifts paint only — reserve space so footer does not cover last rows */
+    margin-bottom: 60px;
     padding-top: 50px;
     padding-bottom: 100px;
   }
