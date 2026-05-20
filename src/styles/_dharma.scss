@@ -1243,29 +1243,26 @@ img.doneLoading {
   opacity: 1;
 }
 
+/* tv-bg.jpg bottom rows = #1a1a1c (asset patched); +2px height kills subpixel seam */
+$tv-bg-fill: #1a1a1c;
+$tv-bg-art: "/frontend/img/tv-bg.jpg?v=2";
+$tv-bg-aspect-w: 1917;
+$tv-bg-aspect-h: 1518;
+
 .dharma-tv-bg {
-  background-color: #0d0d0d; /* dark fallback + shows through on tall mobile sections */
-  background-image: url("/frontend/img/tv-bg.jpg");
+  position: relative;
+  container-type: inline-size;
+  background-color: $tv-bg-fill;
+  background-image: url($tv-bg-art);
   background-repeat: no-repeat;
-  background-position: center center;
-  background-size: cover;
-  background-attachment: scroll; /* fixed breaks on iOS */
+  background-position: top center;
+  background-size: 100% calc(100cqw * #{$tv-bg-aspect-h} / #{$tv-bg-aspect-w} + 2px);
 }
 
-/* Tablet portrait 576–991px (iPad Air 820×1180, 1+Tab 765×1071) */
-@media (min-width: 576px) and (max-width: 991px) {
-  .dharma-tv-bg {
-    background-position: 50% 20%;
-    background-size: cover;
-  }
-}
-
-/* Mobile ≤575px (412×915) — keep cover, anchor near top of image */
-@media (max-width: 575px) {
-  .dharma-tv-bg {
-    background-position: 50% 10%;
-    background-size: cover;
-  }
+/* Home: same tone through subscribe overlap */
+.dharma-home-tv-anchor.dh-relative {
+  position: relative;
+  background-color: $tv-bg-fill;
 }
 
 .my-main-btn {
@@ -6878,8 +6875,8 @@ img.doneLoading {
 
 /* Videos listing + `/videos/[movieKey]` detail — same art + fallback as home `.dharma-tv-bg` */
 .dharma-top-bg {
-  background-color: #0d0d0d;
-  background-image: url("/frontend/img/tv-bg.jpg");
+  background-color: $tv-bg-fill;
+  background-image: url($tv-bg-art);
   background-repeat: no-repeat;
   background-position: center top;
   background-size: cover;
@@ -6902,14 +6899,15 @@ img.doneLoading {
   }
 }
 
-/* Mobile + iPad / tablet — legacy tv-bg: contain; `#0d0d0d` fills letterbox (matches home TV band) */
+/* Mobile + iPad / tablet — same tv art + fill as home `.dharma-tv-bg` */
 @media (max-width: 1199.98px) {
   .dharma-top-bg {
-    background-color: #0d0d0d;
-    background-image: url("/frontend/img/tv-bg.jpg");
+    container-type: inline-size;
+    background-color: $tv-bg-fill;
+    background-image: url($tv-bg-art);
     background-repeat: no-repeat;
     background-position: top center;
-    background-size: contain;
+    background-size: 100% calc(100cqw * #{$tv-bg-aspect-h} / #{$tv-bg-aspect-w} + 2px);
     background-attachment: scroll;
     position: relative;
     top: 60px;
@@ -7937,9 +7935,6 @@ img.doneLoading {
 }
 
 /* Legacy `pos-bottom` — subscribe straddles TV (dark) + NEWS (orange) */
-.dharma-home-tv-anchor.dh-relative {
-  position: relative;
-}
 
 .dharma-home-pos-bottom.pos-bottom {
   position: absolute;

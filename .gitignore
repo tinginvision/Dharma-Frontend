@@ -22,6 +22,9 @@
 
 # misc
 .DS_Store
+# Windows reserved device names (e.g. created by `sass ... nul` by mistake)
+nul
+NUL
 *.pem
 
 # debug
