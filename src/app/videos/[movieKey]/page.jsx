@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { VideosTvInsideView } from "@/components/videos/VideosTvInsideView";
+import { buildPageMetadata } from "@/lib/siteMetadata";
 import {
   buildMovieTitleLookups,
   resolveMovieTitleFromTvRow,
@@ -17,6 +18,15 @@ import {
   hasStrapiUrl,
   isStrapiMoviesEnabled,
 } from "@/lib/server/movies/strapi";
+
+export async function generateMetadata({ params }) {
+  const { movieKey: raw } = await params;
+  const movieKey = decodeURIComponent(raw);
+  return buildPageMetadata({
+    title: movieKey,
+    path: `/videos/${encodeURIComponent(movieKey)}`,
+  });
+}
 
 export default async function VideosTvInsidePage({ params, searchParams }) {
   const { movieKey: raw } = await params;

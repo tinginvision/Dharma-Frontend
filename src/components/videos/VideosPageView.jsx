@@ -1,24 +1,29 @@
 "use client";
 
-import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
-import { Autoplay, Navigation } from "swiper/modules";
+import { Autoplay } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { VideosSearchBar } from "@/components/videos/VideosSearchBar";
 import { resolveMovieUrlSlug } from "@/lib/movieModel";
 import { resolveUploadUrl } from "@/lib/media";
 import {
+  youtubeEmbedUrl,
   youtubeThumbnailUrl,
   youtubeThumbnailUrlMax,
   youtubeVideoId,
   youtubeWatchUrl,
 } from "@/lib/youtube";
-import { resolveMovieTitleFromTvRow } from "@/lib/videosTitles";
+import {
+  compareVideosMovieGroupKeys,
+  resolveMovieTitleFromTvRow,
+  videosMovieGroupSortKey,
+} from "@/lib/videosTitles";
 
 import "swiper/css";
-import "swiper/css/navigation";
+/** Main /videos listing: newest-first by `order`, only preview this many clips per movie in the row swiper. */
+const SLIDER_PREVIEW_PER_MOVIE = 4;
 
 function shorten(s, max) {
   const t = s.trim();
@@ -44,8 +49,14 @@ function sortRowsForSearch(rows) {
   );
 }
 
-/** Stable buckets by Tv `movieKey`; headings prefer Movie/catalog names over embedded typos. */
-function groupByMovieKey(rows, movieTitleLookups) {
+/**
+ * Buckets by Tv `movieKey`. Headings use catalog movie name via lookups when available.
+ * Default list order is newest theatrical date first (fallback: CMS upcoming / movie order).
+ * When searching, preserves bucket order derived from alphabetical row sort upstream.
+ */
+function groupByMovieKey(rows, movieTitleLookups, opts = null) {
+  const sortByRelease = !(opts && opts.sortByRelease === false);
+
   const order = [];
   const map = new Map();
 
@@ -66,70 +77,130 @@ function groupByMovieKey(rows, movieTitleLookups) {
     g.items.sort((a, b) => (Number(b.order) || 0) - (Number(a.order) || 0));
   }
 
-  return order.map((movieKey) => {
+  const groups = order.map((movieKey) => {
     const g = map.get(movieKey);
-    const first = g.items[0];
+    const sorted = g.items;
+    const totalForMovie = sorted.length;
+    const items = sorted.slice(0, SLIDER_PREVIEW_PER_MOVIE);
+    const first = sorted[0];
+    const sortKey = videosMovieGroupSortKey(first);
     const movie = resolveMovieTitleFromTvRow(first, movieTitleLookups ?? null);
-    return { movie, movieKey: g.movieKey, items: g.items };
+    return { movie, movieKey: g.movieKey, items, totalForMovie, sortKey };
   });
+
+  if (sortByRelease) {
+    groups.sort((a, b) => {
+      const cmp = compareVideosMovieGroupKeys(a.sortKey, b.sortKey);
+      if (cmp !== 0) return cmp;
+      return String(a.movie).localeCompare(String(b.movie), undefined, {
+        sensitivity: "base",
+      });
+    });
+  }
+
+  return groups.map(({ movie, movieKey, items, totalForMovie }) => ({
+    movie,
+    movieKey,
+    items,
+    totalForMovie,
+  }));
 }
 
-function VideoTile({ item }) {
-  const watch = youtubeWatchUrl(item.url);
+/**
+ * YouTube thumbnail dimensions:
+ *   hqdefault  → 480 × 360 (4:3)
+ *   maxresdefault → 1280 × 720 (16:9, may 404)
+ * We declare 16:9 so the browser reserves space before the image loads → no CLS.
+ */
+const THUMB_W = 480;
+const THUMB_H = 270;
+
+function VideoTile({ item, eager = false, onOpen }) {
   const thumb =
     resolveUploadUrl(item.thumbnail) || youtubeThumbnailUrl(item.url) || "";
   const title = shorten(String(item.title ?? ""), 60);
 
   return (
     <div className="video-box">
-      <div className="video-slide-img em-box">
-        <a
-          href={watch || "#"}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="d-block text-decoration-none"
+      <div className="video-slide-img">
+        <button
+          type="button"
+          className="dh-video-popup-trigger d-block w-100 text-start text-decoration-none border-0 bg-transparent p-0"
+          aria-label={`Play — ${title}`}
+          onClick={() => onOpen(item)}
         >
           <div className="img-animated">
             <div className="img-inside-box em-box hover-sec">
               {thumb ?
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={thumb} alt="" className="img-responsive width100" />
+                <img
+                  src={thumb}
+                  alt=""
+                  width={THUMB_W}
+                  height={THUMB_H}
+                  className="img-responsive width100"
+                  loading={eager ? "eager" : "lazy"}
+                  decoding="async"
+                />
               : null}
             </div>
           </div>
           <div className="video-names mt10">
             <span className="color-white text-cap">{title}</span>
           </div>
-        </a>
+        </button>
       </div>
     </div>
   );
 }
 
-function VideoRowSwiper({ items }) {
+function VideoRowSwiper({ items, onOpen }) {
+  const wrapRef = useRef(null);
+  const [inView, setInView] = useState(false);
+
+  useEffect(() => {
+    const el = wrapRef.current;
+    if (!el || typeof IntersectionObserver === "undefined") {
+      setInView(true);
+      return;
+    }
+    const obs = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setInView(true);
+          obs.disconnect();
+        }
+      },
+      { rootMargin: "200px" },
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+
   return (
-    <div className="videos-tv-swiper-nav min-tp-nm">
+    <div className="videos-tv-swiper-nav" ref={wrapRef}>
       <Swiper
-        modules={[Navigation, Autoplay]}
-        navigation
+        modules={[...(inView ? [Autoplay] : [])]}
         loop={items.length > 3}
-        autoplay={{
-          delay: 4200,
-          disableOnInteraction: false,
-          pauseOnMouseEnter: true,
-        }}
-        slidesPerView={1.15}
+        {...(inView ? {
+          autoplay: {
+            delay: 4200,
+            disableOnInteraction: false,
+            pauseOnMouseEnter: true,
+          },
+        } : {})}
+        slidesPerView="auto"
         spaceBetween={12}
         breakpoints={{
-          576: { slidesPerView: 2, spaceBetween: 14 },
-          768: { slidesPerView: 3, spaceBetween: 16 },
-          992: { slidesPerView: 4, spaceBetween: 14 },
+          576: { spaceBetween: 14 },
+          768: { spaceBetween: 16 },
+          992: { spaceBetween: 14 },
         }}
         className="videos-tv-swiper"
       >
         {items.map((item, idx) => (
           <SwiperSlide key={`${youtubeVideoId(item.url)}-${idx}`}>
-            <VideoTile item={item} />
+            <VideoTile item={item} eager={idx === 0} onOpen={onOpen} />
           </SwiperSlide>
         ))}
       </Swiper>
@@ -160,11 +231,13 @@ function HeroSlideImage({ uploadSrc, videoUrl, eager }) {
     <img
       src={src}
       alt=""
+      width={1280}
+      height={720}
       className="videos-hero-slide__img img-responsive width100 flexslider-slides-img"
       sizes="(max-width: 575px) 88vw, 78vw"
       loading={eager ? "eager" : "lazy"}
       {...(eager ? { fetchPriority: "high" } : {})}
-      decoding="async"
+      decoding={eager ? "sync" : "async"}
       draggable={false}
       onError={tryFallback}
     />
@@ -197,10 +270,6 @@ function VideosViewAllGraphic({ movieKey }) {
         }
       }}
     >
-      {/*
-        Match Angular template: `<rect x="0" y="0" fill="none" width="100%" height="100%"/>`
-        + label inside the same SVG (no separate DOM text sibling).
-       */}
       <rect className="videos-view-all-svg__frame" x="0" y="0" width="100%" height="100%" fill="none" />
       <text
         className="videos-view-all-svg__text font-hammersmith"
@@ -216,9 +285,7 @@ function VideosViewAllGraphic({ movieKey }) {
   );
 }
 
-function MovieVideoBlock({ movie, movieKey, items }) {
-  const showSlider = items.length > 4;
-
+function MovieVideoBlock({ movie, movieKey, items, onOpenVideo }) {
   return (
     <div className="upcoming-movie videos-movie-section search-movie-mar mx-auto w-100 pb-short">
       <div className="title videos-movie-section__title">
@@ -230,16 +297,9 @@ function MovieVideoBlock({ movie, movieKey, items }) {
         </h1>
       </div>
       <div className="upcoming-slider tv-all-slider text-shadow cl-flex tv-ain-tp">
-        {showSlider ?
-          <VideoRowSwiper items={items} />
-        : <div className="row g-3">
-            {items.map((item, idx) => (
-              <div key={`${movie}-${idx}`} className="col-6 col-md-3">
-                <VideoTile item={item} />
-              </div>
-            ))}
-          </div>
-        }
+        {items.length > 0 ?
+          <VideoRowSwiper items={items} onOpen={onOpenVideo} />
+        : null}
         <div className="btn-view-all mt40 mobile-text-center w-100 videos-movie-view-all">
           <VideosViewAllGraphic movieKey={movieKey} />
         </div>
@@ -248,7 +308,7 @@ function MovieVideoBlock({ movie, movieKey, items }) {
   );
 }
 
-function HeroSlider({ slides }) {
+function HeroSlider({ slides, onVideoOpen }) {
   const sorted = [...slides].sort(
     (a, b) => (Number(b.order) || 0) - (Number(a.order) || 0)
   );
@@ -284,7 +344,8 @@ function HeroSlider({ slides }) {
           <div className="videos-hero-swiper-shell w-100 min-w-0">
             <Swiper
               modules={[Autoplay]}
-              loop={sorted.length > 1}
+              /* Loop with 1–2 slides shrinks slide width; legacy full-width hero needs ≥3 for loop */
+              loop={sorted.length >= 3}
               onSwiper={(s) => setHeroSwiper(s)}
               observer
               observeParents
@@ -301,14 +362,13 @@ function HeroSlider({ slides }) {
               {sorted.map((s, i) => {
                 const uploadSrc =
                   typeof s.image === "string" ? resolveUploadUrl(s.image) || "" : "";
-                const watch = youtubeWatchUrl(s.url);
                 return (
                   <SwiperSlide key={i}>
-                    <a
-                      href={watch || "#"}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="videos-hero-slide-link d-block text-decoration-none"
+                    <button
+                      type="button"
+                      className="videos-hero-slide-link dh-video-popup-trigger d-block text-decoration-none w-100 border-0 bg-transparent p-0 text-start"
+                      aria-label={`Play hero video slide ${i + 1}`}
+                      onClick={() => onVideoOpen(s)}
                     >
                       <div className="videos-hero-slide-frame video-play dh-relative videos-hero-slide">
                         <HeroSlideImage
@@ -317,18 +377,18 @@ function HeroSlider({ slides }) {
                           eager={i === 0}
                         />
                         <div className="videos-hero-slide__shade" aria-hidden />
-                        <div className="play-btn text-center dh-absulate middle mob-width-auto videos-hero-play">
+                        <span className="dharma-home-play-overlay dh-absulate" aria-hidden>
                           <Image
-                            src="/frontend/img/play-world.png"
+                            src="/frontend/img/play-world.svg"
                             alt=""
-                            width={100}
-                            height={100}
-                            className="img-fluid videos-hero-play__icon d-block mx-auto"
+                            width={120}
+                            height={120}
+                            className="img-fluid"
                             priority={i === 0}
                           />
-                        </div>
+                        </span>
                       </div>
-                    </a>
+                    </button>
                   </SwiperSlide>
                 );
               })}
@@ -365,10 +425,47 @@ export function VideosPageView({ slider, videos, movieTitleLookups = null, initi
   }, [videos, search]);
 
   const grouped = useMemo(
-    () => groupByMovieKey(filtered, movieTitleLookups),
-    [filtered, movieTitleLookups]
+    () =>
+      groupByMovieKey(filtered, movieTitleLookups, {
+        sortByRelease: !search.trim(),
+      }),
+    [filtered, movieTitleLookups, search]
   );
   const noMovieFound = search.trim().length > 0 && grouped.length === 0;
+
+  const [popupItem, setPopupItem] = useState(null);
+
+  function openClip(item) {
+    const embedSrc = youtubeEmbedUrl(item?.url);
+    if (embedSrc) {
+      setPopupItem(item);
+      return;
+    }
+    const watch = youtubeWatchUrl(item?.url) || String(item?.url ?? "").trim();
+    if (/^https?:\/\//i.test(watch)) {
+      window.open(watch, "_blank", "noopener,noreferrer");
+    }
+  }
+
+  function closePopup() {
+    setPopupItem(null);
+  }
+
+  useEffect(() => {
+    if (!popupItem) return undefined;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const onKey = (e) => {
+      if (e.key === "Escape") closePopup();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => {
+      document.body.style.overflow = prev;
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [popupItem]);
+
+  const embedSrc = popupItem ? youtubeEmbedUrl(popupItem.url) : "";
 
   return (
     <section className="dharma-top-bg videos-page-legacy">
@@ -387,7 +484,7 @@ export function VideosPageView({ slider, videos, movieTitleLookups = null, initi
           </div>
 
           {!search.trim() && slider.length > 0 ?
-            <HeroSlider slides={slider} />
+            <HeroSlider slides={slider} onVideoOpen={openClip} />
           : null}
         </div>
 
@@ -397,15 +494,44 @@ export function VideosPageView({ slider, videos, movieTitleLookups = null, initi
           </div>
         : grouped.length ?
           grouped.map((g) => (
-            <MovieVideoBlock key={g.movieKey} movie={g.movie} movieKey={g.movieKey} items={g.items} />
+            <MovieVideoBlock
+              key={g.movieKey}
+              movie={g.movie}
+              movieKey={g.movieKey}
+              items={g.items}
+              onOpenVideo={openClip}
+            />
           ))
         : !search.trim() ?
           <p className="text-center color-white mt-4 pt-3">
-            No videos loaded — ensure the Sails API is running and set NEXT_PUBLIC_API_URL.
+            No videos loaded — ensure Strapi is running and check STRAPI_URL / STRAPI_API_TOKEN.
           </p>
         : null}
 
       </div>
+
+      {embedSrc ?
+        <div
+          className="dh-modal-backdrop"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Video player"
+          onClick={closePopup}
+        >
+          <div className="dh-modal-frame" onClick={(e) => e.stopPropagation()}>
+            <button type="button" className="dh-modal-close" onClick={closePopup} aria-label="Close video">
+              ×
+            </button>
+            <iframe
+              key={youtubeVideoId(popupItem?.url)}
+              title={String(popupItem?.title ?? popupItem?.name ?? "Video")}
+              src={embedSrc}
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              allowFullScreen
+            />
+          </div>
+        </div>
+      : null}
     </section>
   );
 }

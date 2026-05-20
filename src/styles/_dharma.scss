@@ -1,7 +1,7 @@
 /* Bootstrap is loaded as compiled CSS from layout.tsx */
 
 $brand-primary: #f37021;
-$dark-primary: #d4550e;
+$dark-primary: #da4f09;
 $movies-accent: #f37021;
 $white: #ffffff;
 $black: #171717;
@@ -12,15 +12,9 @@ $grey: #6f6f6e;
   --dh-header-offset: calc(100px + env(safe-area-inset-top, 0px));
 }
 
-@media (max-width: 767px) {
+@media (max-width: 1399.98px) {
   :root {
-    --dh-header-offset: calc(clamp(84px, 18vw + 52px, 98px) + env(safe-area-inset-top, 0px));
-  }
-}
-
-@media (max-width: 380px) {
-  :root {
-    --dh-header-offset: calc(clamp(80px, 15vw + 56px, 94px) + env(safe-area-inset-top, 0px));
+    --dh-header-offset: 118px;
   }
 }
 
@@ -32,18 +26,46 @@ $grey: #6f6f6e;
 
 html {
   -webkit-font-smoothing: antialiased;
+  overflow-x: clip; /* avoids subpixel widen + stray inner scrollbars beside viewport */
 }
 
+/* Legacy heading baseline from dharmanodeRun */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.h1,
+.h2,
+.h3,
+.h4,
+.h5,
+.h6 {
+  font-family: inherit;
+  font-weight: 500;
+  line-height: 1.1;
+  color: inherit;
+}
+
+/* Legacy dharmanodeRun Bootstrap 3-ish body baseline (`main.scss`; Karla faces via Next in `layout.jsx`) */
 body {
   padding-top: 0;
+  -webkit-font-smoothing: antialiased;
+  font-size: 14px;
+  line-height: 1.428571429;
+  color: #333333;
+  background-color: #fff;
+  overflow-x: clip;
 }
 
 .font-hammersmith {
   font-family: var(--font-hammersmith), "Hammersmith One", Georgia, serif;
 }
 
+/* Legacy BS3 stack `frontend/sass/main.scss` */
 .font-karla {
-  font-family: "Karla", sans-serif;
+  font-family: var(--font-karla), "Karla", "Helvetica Neue", "AMRTYPEN", Helvetica, Arial, sans-serif;
 }
 
 .color-primary {
@@ -73,6 +95,7 @@ body {
 .dh-relative {
   position: relative;
 }
+
 .dh-absulate {
   position: absolute;
 }
@@ -121,96 +144,109 @@ body {
 /* Legacy Angular-style header band (inset on wide viewports); bottom curve is pure CSS ellipses */
 .dh-header-shell {
   position: relative;
+  overflow: visible;
 }
 
-/* Orange band + CSS curve — side inset scales down on tablet until full-bleed on phone */
+/* Same as `frontend/sass/main.scss` `.head-bg` */
 .head-bg {
-  margin: 0 clamp(14px, 5vw, 60px);
+  position: relative;
+  background: $brand-primary;
+  padding: 5px 60px 0;
+  margin: 0 60px;
   box-sizing: border-box;
   display: block;
-  /* Curve depth scales with viewport so mobile keeps a visible scallop without overwhelming */
-  --dh-head-curve-depth: clamp(22px, 4.2vmin + 8px, 44px);
-  padding: clamp(10px, 1.35vw, 16px) 0 clamp(8px, 2vw, 14px);
-  background-color: $brand-primary;
-  border-bottom-right-radius: 100% var(--dh-head-curve-depth);
-  border-bottom-left-radius: 100% var(--dh-head-curve-depth);
 }
 
-@media (max-width: 767px) {
-  .dh-site-navbar {
-    /* Fixed bar clears status bar / Dynamic Island */
-    padding-top: env(safe-area-inset-top, 0px);
-    padding-left: env(safe-area-inset-left, 0px);
-    padding-right: env(safe-area-inset-right, 0px);
+@media (max-width: 1200px) {
+  .head-bg {
+    padding: 5px 25px 0;
+    margin: 0 35px;
   }
 
+  .head-curve {
+    margin: -1px 35px;
+  }
+}
+
+/* Phones + tablets + sub-`xxl` viewports: full-bleed bar + ribbon (collapsed navbar until `xxl` — `navbar-expand-xxl` in SiteHeader.jsx). */
+@media (max-width: 1399.98px) {
   .head-bg {
     margin: 0;
-    --dh-head-curve-depth: clamp(18px, 5.8vw + 6px, 36px);
-    padding: clamp(10px, 2.4vw, 14px) 0 clamp(6px, 2vw, 12px);
+    padding: 14px 0 10px;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  /* Keep asset aspect so the scallop overlaps the hero like legacy (concave bite). */
+  .home .dh-header-shell > .head-curve {
+    margin: -19px 0 0;
+    width: 100%;
+    max-width: 100%;
+    aspect-ratio: 1687 / 31;
+    height: auto;
+    max-height: none;
+    min-height: clamp(34px, 11vw, 46px);
+    background-size: 100% auto;
+    background-position: center 56%;
+    background-repeat: no-repeat;
   }
 }
 
-@media (max-width: 380px) {
+/* Tablet / iPad / sub-`xxl` (768–1399): tuck ribbon tighter — parity with legacy feel */
+@media (min-width: 768px) and (max-width: 1399.98px) {
+  .home .dh-header-shell > .head-curve {
+    margin: -19px 0 0;
+  }
+}
+
+/* Extra-narrow: keep bar flush; optional search insets */
+@media (max-width: 479px) {
   .head-bg {
-    --dh-head-curve-depth: clamp(16px, 5vw + 8px, 32px);
+    padding: 10px 0 0;
+  }
+
+  .head-curve {
+    background-position-y: -10px;
+  }
+
+  .home .site-header-search.search-movie.my-search {
+    margin-left: 0;
+    margin-right: 0;
+    padding-left: 12px;
+    padding-right: 12px;
   }
 }
 
-/* Bootstrap 5 “container” ≈ 1140/1320 — match legacy ~1170 content band */
-/* Horizontal band + optional search/drawer */
-/* Tighter left gutter so logo sits farther left like localhost:1337 reference */
 .dh-header-inner.container {
-  max-width: 1170px;
-  padding-bottom: 6px;
-  padding-left: clamp(6px, 2.5vw, 14px);
-  padding-right: clamp(12px, 2.4vw, 22px);
-}
-
-@media (min-width: 768px) {
-  .dh-header-inner.container {
-    padding-left: 0;
-  }
-}
-
-.dh-header-main-row {
-  display: flex;
-  flex-wrap: nowrap;
-  align-items: center;
+  max-width: none;
   width: 100%;
-  gap: 0.5rem;
+  padding: 0;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.head-curve {
+  /* Asset head-curve.png is 1687×31 — never use 100% 100% (shears the ribbon on tablets). */
+  background: url("/frontend/img/head-curve.png") no-repeat center;
+  aspect-ratio: 1687 / 31;
+  height: auto;
+  background-size: 100% auto;
+  background-position: center -10px;
+  margin: -1px 60px;
+  display: block;
+  line-height: 0;
+  font-size: 0;
+  pointer-events: none;
+}
+
+/* Legacy `frontend/views/header.html` — BS3 `.row` inside `.head-bg`; keep bar height stable */
+.dh-header-main-row.row {
   min-height: 46px;
 }
 
-.dh-header-logo-col {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex: 1 1 auto;
-  min-width: 0;
-}
-
 @media (min-width: 768px) {
-  .dh-header-main-row {
-    display: grid;
-    grid-template-columns: minmax(140px, 1fr) auto minmax(140px, 1fr);
-    align-items: center;
-    column-gap: clamp(0.5rem, 1.2vw, 1.15rem);
+  .dh-header-main-row.row {
     min-height: 48px;
-  }
-
-  .dh-header-logo-col {
-    flex: unset;
-    justify-content: flex-start;
-  }
-
-  .dh-header-nav-wrap {
-    justify-self: center;
-    max-width: min(760px, 94vw);
-  }
-
-  .dh-header-social-col {
-    justify-self: end;
   }
 }
 
@@ -227,67 +263,14 @@ body {
   color: rgba(255, 255, 255, 0.96);
 }
 
-@media (max-width: 767px) {
-  .dh-header-inner.container {
-    max-width: 100%;
-    width: 100%;
-    padding-left: max(clamp(12px, 3.8vw, 18px), env(safe-area-inset-left, 0px));
-    padding-right: max(clamp(12px, 3.8vw, 18px), env(safe-area-inset-right, 0px));
-    padding-bottom: 4px;
-  }
-
-  .dh-header-main-row {
-    min-height: 42px;
-    gap: 0.35rem;
-  }
-
-  /* Legacy mobile: logo optically centered; menu stays anchored right */
-  .dh-header-logo-col {
-    position: relative;
-    justify-content: flex-end;
-    align-items: center;
-    width: 100%;
-  }
-
-  .dh-header-logo-col > a.d-inline-block {
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 1;
-  }
-
-  .dh-header-logo {
-    width: auto;
-    max-width: min(210px, 58vw);
-  }
-
-  .dh-header-toggler {
-    flex-shrink: 0;
-    width: clamp(38px, 10.5vw, 44px);
-    height: clamp(38px, 10.5vw, 44px);
-    padding: 0 !important;
-    display: inline-flex !important;
-    align-items: center;
-    justify-content: center;
-    border: 1px solid rgba(255, 255, 255, 0.92) !important;
-    border-radius: 50%;
-    background: transparent;
-    margin-left: auto;
-    position: relative;
-    z-index: 2;
-  }
-
-  .dh-header-toggler:focus-visible {
-    outline: 2px solid rgba(255, 255, 255, 0.85);
-    outline-offset: 2px;
-  }
-}
-
-@media (max-width: 380px) {
-  .dh-header-logo {
-    max-width: min(190px, 54vw);
-  }
+.dh-header-toggler .dh-header-toggler-close {
+  display: block;
+  width: 1.5em;
+  height: 1.5em;
+  font-size: 1.35rem;
+  line-height: 1.5em;
+  text-align: center;
+  color: #fff;
 }
 
 .logo-img {
@@ -309,12 +292,22 @@ body {
   margin-top: 18px;
 }
 
+/* `frontend/sass/main.scss` — mobile collapsed menu icon row (`menu.html` .main-m-marg) */
+.main-m-marg {
+  margin: 9px 12px 0 0;
+}
+
 /* frontend/views/header.html — `.container-fluid.mob-pad0`, `.pull-right`, `.main-pad0` */
 .mob-pad0 {
   padding: 0;
 }
 
 .pull-right {
+  float: right !important;
+}
+
+/* BS3 naming used in `footer.html` (`float-right`) — same behaviour as `.pull-right` */
+.float-right {
   float: right !important;
 }
 
@@ -358,67 +351,106 @@ body {
   text-decoration: none;
 }
 
-/* Reference screenshot: white ring + white glyph (“ghost”), not filled pills */
-.head-social ul li a i {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  box-sizing: border-box;
-  background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.92);
-  color: $white;
-  font-size: 12px;
-  border-radius: 100%;
-  height: 24px;
-  width: 24px;
-  line-height: 1;
+/* `frontend/sass/main.scss` — frosted circular glyphs (dharmanodeRun) */
+.head-social ul li a i,
+.head-social ul li .my-main-btn i,
+.dh-header-search-toggle i {
   text-align: center;
+  color: $brand-primary;
+  box-sizing: border-box;
+  background: #ffffffa8;
+  border-radius: 100%;
+  width: 22px;
+  height: 22px;
+  font-size: 14px;
+  line-height: 24px;
+  display: inline-block;
 }
 
 .head-social ul li a:hover i,
-.head-social ul li a:focus-visible i {
-  background: rgba(255, 255, 255, 0.12);
-  border-color: $white;
+.head-social ul li a:focus-visible i,
+.head-social ul li .my-main-btn:hover i,
+.head-social ul li .my-main-btn:focus-visible i,
+.dh-header-search-toggle:hover i,
+.dh-header-search-toggle:focus-visible i {
+  filter: brightness(1.05);
 }
 
-/* Match icon rings — circular outline + centered glass icon */
-.head-social .my-main-btn {
+.dh-header-search-toggle {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  box-sizing: border-box;
-  width: 24px;
-  height: 24px;
-  min-width: 24px;
-  padding: 0 !important;
-  border: 1px solid rgba(255, 255, 255, 0.92);
-  border-radius: 50%;
+  vertical-align: middle;
+  line-height: 0;
+  cursor: pointer;
+}
+
+.head-social.dh-list .my-main-btn,
+.dh-header-search-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  vertical-align: middle;
+  line-height: 0;
+  padding: 0;
+  border: none;
   background: transparent;
+  cursor: pointer;
 }
 
 .head-social .my-main-btn:hover,
 .head-social .my-main-btn:focus-visible {
-  background: rgba(255, 255, 255, 0.12) !important;
   outline: 0;
-  padding: 0 !important;
 }
 
-.head-social .my-main-btn img,
-.head-social .my-main-btn .w15 {
-  width: 13px !important;
-  height: auto !important;
+.dh-header-mob-sub-toggler {
+  box-shadow: none !important;
+  text-decoration: none !important;
+  line-height: 1;
+}
+
+.dh-header-mob-sub-toggler:hover,
+.dh-header-mob-sub-toggler:focus-visible {
+  color: $white !important;
+  opacity: 0.92;
+}
+
+/* `frontend/views/menu.html` + BS5 — Social submenu */
+.dh-header-nav-dd .dh-header-dropdown {
+  margin: 0;
+  border: none;
+  border-radius: 0;
+  padding: 0.25rem 0;
+  min-width: 11rem;
+}
+
+.dh-header-nav-dd .dh-header-dropdown.show {
   display: block;
 }
 
-@media (max-width: 767px) {
+@media (min-width: 992px) {
+  .dh-header-nav-dd .dh-header-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1040;
+  }
+}
+
+@media (max-width: 1399.98px) {
   .head-social ul li {
     padding: 0;
   }
 
-  .head-social ul li a i {
-    font-size: 11px;
-    height: 24px;
-    width: 24px;
+  .head-social ul li a i,
+  .head-social ul li .my-main-btn i,
+  .dh-header-search-toggle i {
+    font-size: 12px;
+    height: 22px;
+    width: 22px;
+    line-height: 24px;
+    color: $brand-primary;
   }
 }
 
@@ -427,77 +459,384 @@ body {
   padding-bottom: 0;
   width: 100%;
   max-width: 100%;
+  overflow: visible;
 }
 
-/* Header search: legacy `.my-search` is absolute + 25% wide; Next keeps the strip in flow. */
-.site-header-search.search-movie {
-  position: relative;
-  width: 100%;
-  max-width: 100%;
-  right: auto;
-  top: auto;
-  display: flex;
-  align-items: center;
-  flex-wrap: nowrap;
-  gap: 8px;
-  margin: 6px 0 0;
-  padding: 0 0 8px;
+/* `frontend/sass/main.scss` `.my-search` — float panel; mobile falls back to full-width strip */
+.home .site-header-search.search-movie.my-search {
+  position: absolute;
+  width: 25%;
+  min-width: 260px;
+  max-width: min(420px, 92vw);
+  right: 140px;
+  top: 60px;
+  z-index: 1040;
+  display: block;
+  margin: 0;
+  padding: 0 4px 8px;
   box-sizing: border-box;
+  overflow: visible;
 }
 
-.site-header-search .movie-search-pg {
-  flex: 1 1 auto;
+.home .site-header-search.my-search .movie-search-pg {
+  width: 100%;
   min-width: 0;
   position: relative;
+  overflow: visible;
 }
 
-.site-header-search .search-img {
-  position: relative;
-  top: auto;
-  left: auto;
-  flex-shrink: 0;
+/* Legacy `main.scss` `.search-img2` — overlays inside the white input, not beside it */
+.site-header-search .movie-search-pg .search-img2 {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 99;
+  cursor: pointer;
   line-height: 0;
 }
 
-.site-header-search .search-img2 {
-  position: relative;
-  top: auto;
-  right: auto;
-  flex-shrink: 0;
-  line-height: 0;
+.site-header-search .movie-search-pg .search-img2 img {
+  display: block;
+  width: 25px;
+  height: auto;
 }
 
-/* frontend/sass/main.scss `.search-in` — white type on orange bar */
+/* Mobile/tablet: float search over hero — do not push `.head-curve` in document flow */
+@media (max-width: 1399.98px) {
+  .home .head-bg > .site-header-search.search-movie.my-search {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 100%;
+    width: 100% !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    margin: 0;
+    padding: 0 16px 12px;
+    box-sizing: border-box;
+    overflow: visible;
+    z-index: 1045;
+  }
+}
+
+/* Compact header below `xxl` — same shell as phones (matches `navbar-expand-xxl` in `SiteHeader.jsx`). */
+@media (max-width: 1399.98px) {
+  .home .dh-header-main-row.row {
+    min-height: 0;
+  }
+
+  .home .dh-header-logo-col {
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  .dh-header-mob-top {
+    padding-bottom: 2px;
+  }
+
+  /* Legacy BS3.navbar-header + centred mark (screenshot / modern mobile shells) */
+  .dh-header-mob-bar.dh-header-mob-bar--triple.dh-navbar-header {
+    display: grid;
+    grid-template-columns: minmax(48px, 1fr) auto minmax(48px, 1fr);
+    align-items: center;
+    justify-items: stretch;
+    width: 100%;
+    min-height: 50px;
+  }
+
+  .dh-header-mob-bar--triple .dh-header-mob-toggle {
+    grid-column: 1;
+    justify-self: start;
+    align-self: center;
+    margin-left: 6px !important;
+    padding: 0.45rem 0.52rem !important;
+  }
+
+  .dh-header-mob-bar--triple .dh-header-mob-actions-slot {
+    grid-column: 3;
+    justify-self: end;
+    align-self: center;
+    min-height: 1px;
+  }
+
+  .dh-header-mob-search-btn {
+    margin-right: 2px;
+  }
+
+  .dh-header-mob-bar--triple .dh-header-mob-brand--centered {
+    grid-column: 2;
+    justify-self: center;
+    margin: 0 !important;
+    text-align: center;
+    line-height: 0;
+  }
+
+  .home .dh-header-mob-brand.dh-header-mob-brand--centered .dh-header-logo.logo-img {
+    width: 132px;
+    max-width: 132px;
+    height: auto;
+    margin: 0 auto !important;
+    display: block;
+  }
+
+  /*
+   * `frontend/sass/_mobile.scss` — `.navbar-collapse` under orange bar when menu opens:
+   * top border tint + inset edge (not slide-over drawer).
+   */
+  .dh-header-mob-drawer {
+    border-color: rgb(237, 98, 14) !important;
+    border-style: solid;
+    border-width: 1px 0 0;
+    margin-top: 10px;
+    padding: 0 14px 14px;
+    box-shadow: inset 0 0 0 rgba(255, 255, 255, 0.1);
+  }
+
+  .dh-header-mob-drawer .navbar-nav.custom-menu:not(.dh-header-social-ul) {
+    display: flex;
+    flex-direction: column;
+    row-gap: 8px;
+  }
+
+  .dh-header-mob-drawer .custom-menu li a.dh-header-nav-link,
+  .dh-header-mob-drawer .custom-menu li a.dh-mob-submenu-link,
+  .dh-header-mob-drawer .custom-menu li button.dh-mob-sub-toggle-btn {
+    padding: 12px 16px !important;
+    font-size: 14px !important;
+  }
+
+  .dh-header-mob-drawer .dh-mob-nav-split > .dh-header-nav-link {
+    text-align: center !important;
+    padding: 12px 16px !important;
+  }
+
+  .dh-header-mob-drawer .dh-mob-nav-split .dh-mob-sub-toggle-btn {
+    position: absolute;
+    left: calc(50% + 2.1rem);
+    top: 50%;
+    transform: translateY(-50%);
+    color: $white !important;
+    cursor: pointer;
+    line-height: 1;
+    min-width: 28px;
+    padding: 0 !important;
+    margin: 0;
+  }
+
+  .dh-header-mob-drawer .dh-mob-nav-split .dh-mob-sub-toggle-btn i {
+    font-size: 12px;
+  }
+
+  .dh-header-mob-drawer .dh-mob-sub-toggle-btn:focus-visible {
+    outline: 2px solid rgba(255, 255, 255, 0.65);
+    outline-offset: 2px;
+  }
+
+  .dh-header-mob-drawer .mob-mn li a {
+    text-transform: uppercase;
+    font-weight: 600;
+    padding-left: 22px !important;
+    padding-right: 16px !important;
+    padding-top: 10px !important;
+    padding-bottom: 10px !important;
+  }
+
+  .dh-header-mob-drawer .min-f-tp a.dh-mob-submenu-link {
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    padding: 8px 16px !important;
+  }
+
+  /*
+   * Legacy floated `.pull-right` social strip needed a ::after clearfix.
+   * In the Next drawer we use centered flex icons — the pseudo flex-item from
+   * `display:table` clearfix sat after the icons and intercepted taps/clicks on phones.
+   */
+  .dh-header-mob-drawer .nav.navbar-nav::after {
+    content: none;
+    display: none;
+    clear: none;
+  }
+
+  /*
+   * Icons sit outside `.navbar-nav` so taps reliably open external URLs
+   * (Bootstrap nav quirks + submenu rows no longer overlap this strip).
+   */
+  .dh-header-mob-drawer .dh-header-mob-external-social {
+    position: relative;
+    z-index: 14;
+    clear: none;
+    margin-top: 6px;
+    padding-top: 12px;
+    border-top: 1px solid rgba(255, 255, 255, 0.18);
+  }
+
+  .dh-header-mob-drawer .dh-header-mob-external-social .head-social.dh-list ul.dh-header-social-ul li a {
+    position: relative;
+    z-index: 15;
+    padding: 10px 14px !important;
+    font-size: 14px !important;
+    pointer-events: auto !important;
+  }
+
+  .dh-header-mob-drawer .head-social.float-end ul.dh-header-social-ul {
+    justify-content: flex-end !important;
+  }
+
+  .home .dh-header-logo {
+    width: 132px;
+    max-width: 132px;
+    height: auto;
+  }
+}
+
+/* Narrow phones — ribbon + mark */
+@media (max-width: 480px) {
+  .home .dh-header-shell > .head-curve {
+    margin: -21px 0 0;
+    background-position: center 62%;
+    min-height: clamp(30px, 10.5vw, 40px);
+  }
+
+  .home .dh-header-mob-brand.dh-header-mob-brand--centered .dh-header-logo.logo-img,
+  .home .dh-header-logo {
+    width: 124px;
+    max-width: 124px;
+  }
+
+  .dh-header-mob-toggle {
+    padding: 5px !important;
+    margin-right: 4px !important;
+  }
+}
+
+@media (max-width: 479px) {
+  .home .dh-header-mob-brand.dh-header-mob-brand--centered .dh-header-logo.logo-img,
+  .home .dh-header-logo {
+    width: 118px;
+    max-width: 118px;
+  }
+}
+
+/* Header search field — white input on orange bar (legacy `movie-search-pg` / ui-select) */
 .site-header-search .search-in,
-.site-header-search .form-control.search-in {
-  background: transparent;
+.site-header-search .form-control.search-in,
+.site-header-search .movies-search-combobox--header .movies-search-input.search-in {
+  background: #fff;
   border: 1px solid $brand-primary;
   width: 100%;
   height: 45px;
-  padding: 0 12px 0 44px;
-  color: $white;
+  padding: 0 44px 0 44px;
+  color: #333;
   border-radius: 0;
   font-size: 16px;
   box-sizing: border-box;
 }
 
 .site-header-search .search-in::placeholder,
-.site-header-search .form-control.search-in::placeholder {
-  color: $white;
-  opacity: 1;
+.site-header-search .form-control.search-in::placeholder,
+.site-header-search .movies-search-combobox--header .movies-search-input.search-in::placeholder,
+.site-header-search .movies-search-combobox--header .movies-search-input.search-in::-webkit-input-placeholder,
+.site-header-search .movies-search-combobox--header .movies-search-input.search-in::-moz-placeholder {
+  color: $grey !important;
+  opacity: 1 !important;
+  -webkit-text-fill-color: $grey;
 }
 
 .site-header-search .search-in:focus,
-.site-header-search .form-control.search-in:focus {
+.site-header-search .form-control.search-in:focus,
+.site-header-search .movies-search-combobox--header .movies-search-input.search-in:focus {
   outline: 0;
   box-shadow: none;
   border-color: $brand-primary;
-  color: $white;
+  background: #fff;
+  color: #222;
 }
 
 .site-header-search .search-in:focus::placeholder,
-.site-header-search .form-control.search-in:focus::placeholder {
+.site-header-search .form-control.search-in:focus::placeholder,
+.site-header-search .movies-search-combobox--header .movies-search-input.search-in:focus::placeholder {
   color: transparent;
+}
+
+/* Header movie autocomplete — legacy `ui-select` + `movi-src-rslt` (see `header.html`) */
+.site-header-search .movies-search-combobox--header {
+  width: 100%;
+  position: relative;
+  z-index: 2;
+}
+
+.site-header-search .movies-search-combobox--header .movies-search-field,
+.site-header-search .movies-search-combobox--header .movies-search-input-inner {
+  width: 100%;
+}
+
+.site-header-search .movies-search-input-icon--header {
+  left: 10px;
+  width: 22px;
+  height: 22px;
+  z-index: 3;
+}
+
+.site-header-search .movies-search-combobox--header {
+  overflow: visible;
+}
+
+.site-header-search .movies-search-dropdown.movies-search-dropdown--header {
+  z-index: 1060;
+  max-height: min(320px, 55vh);
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+  scrollbar-width: thin;
+  scrollbar-color: #c0c0c0 #f0f0f0;
+}
+
+.site-header-search .movies-search-dropdown.movies-search-dropdown--header::-webkit-scrollbar {
+  width: 8px;
+}
+
+.site-header-search .movies-search-dropdown.movies-search-dropdown--header::-webkit-scrollbar-thumb {
+  background: #b8b8b8;
+  border-radius: 4px;
+}
+
+.site-header-search .movies-search-dropdown.movies-search-dropdown--header::-webkit-scrollbar-track {
+  background: #ececec;
+}
+
+.site-header-search .movies-search-option.movi-src-rslt {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  font-size: 16px;
+}
+
+.site-header-search .movies-search-option.movi-src-rslt:hover,
+.site-header-search .movies-search-option.movi-src-rslt.is-highlighted {
+  font-size: 18px;
+}
+
+.site-header-search .w60 {
+  vertical-align: middle;
+
+  .movies-search-thumb {
+    width: 60px;
+    height: auto;
+    max-height: 54px;
+    object-fit: cover;
+    display: block;
+  }
+}
+
+.site-header-search .movies-search-option-label.display-inline.ml15 {
+  vertical-align: middle;
+  margin-left: 15px;
 }
 
 .custom-menu li a {
@@ -509,7 +848,7 @@ body {
   white-space: nowrap;
 }
 
-@media (max-width: 1199px) and (min-width: 992px) {
+@media (max-width: 1399.98px) and (min-width: 992px) {
   .dh-header-inner .custom-menu.dh-header-nav-list li a {
     padding: 5px 8px !important;
     font-size: 11px !important;
@@ -533,15 +872,15 @@ body {
   gap: 0;
 }
 
-@media (min-width: 768px) {
+@media (min-width: 992px) {
   .dh-header-nav-list.navbar-nav {
     flex-wrap: nowrap !important;
     justify-content: center;
   }
 }
 
-/* Mid widths: tighter copy so seven items + 2.0 stay one row */
-@media (min-width: 768px) and (max-width: 991px) {
+/* Narrow canvas where desktop nav can show: tighter copy (navbar expanded from `xxl` up). */
+@media (min-width: 992px) and (max-width: 1399.98px) {
   .dh-header-inner .custom-menu.dh-header-nav-list li a {
     padding: 5px 5px !important;
     font-size: 10px !important;
@@ -568,6 +907,12 @@ body {
   padding: 0 5px;
 }
 
+.footer-social.dh-list ul {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
 .footer-social ul li a i {
   font-size: 20px;
   background: #424242;
@@ -588,8 +933,169 @@ body {
   margin: 0;
 }
 
+.footer-data ul li a {
+  color: #b2b2b2 !important;
+  text-decoration: none;
+}
+
+.footer-data ul li a:hover {
+  color: #d4d4d4;
+}
+
+.footer-social ul li a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  min-height: 35px;
+  text-decoration: none;
+  color: inherit;
+
+  &:hover,
+  &:focus,
+  &:visited,
+  &:active {
+    text-decoration: none;
+    color: inherit;
+  }
+}
+
+.footer-social ul li a:hover .hover-daily {
+  display: block;
+}
+
+.footer-social ul li a:hover .daily-image {
+  display: none;
+}
+
+.footer-social ul li a .hover-daily {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: none;
+}
+
+.footer-daily-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.footer-daily-link .footer-daily-imgwrap {
+  position: relative;
+  display: block;
+  width: 35px;
+  height: 35px;
+  flex-shrink: 0;
+  line-height: 0;
+}
+
+.footer-daily-imgwrap .daily-image,
+.footer-daily-imgwrap .hover-daily {
+  display: block;
+  width: 35px !important;
+  height: 35px !important;
+  max-width: none;
+  object-fit: contain;
+}
+
+.pd10 {
+  padding-top: 10px;
+}
+
+.pd18 {
+  padding-top: 18px;
+}
+
+/* `main.scss` — Ting unit (`footer.html`) */
+.ting-unit-wrap {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  transform: scale(0.7);
+}
+
+.ting-unit-wrap .made-by-text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.ting-unit-wrap .made-by-text__line {
+  color: #fff;
+  font-family: "Lato", var(--font-karla), "Karla", system-ui, sans-serif;
+  font-weight: 900;
+  background-color: $brand-primary;
+  margin-bottom: 3px;
+  padding: 2px 8px;
+  border-radius: 3px;
+  letter-spacing: 2px;
+  font-size: 11px;
+  text-transform: uppercase;
+  line-height: 1.2;
+}
+
+.ting-unit-wrap img,
+.ting-unit-wrap .footer-ting-logo {
+  display: inline-block;
+  vertical-align: middle;
+  width: 90px;
+  margin-left: 5px;
+  height: auto;
+}
+
+.footer-copy-col {
+  overflow: visible;
+}
+
+@media (max-width: 767.98px) {
+  .footer .mobile-center {
+    float: none !important;
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .footer-social.dh-list.mobile-center ul {
+    justify-content: center;
+  }
+
+  .footer-social ul li a {
+    min-height: 32px;
+  }
+
+  .footer-social ul li a i {
+    font-size: 18px !important;
+    height: 32px !important;
+    width: 32px !important;
+    line-height: 32px !important;
+  }
+
+  .footer-daily-link .footer-daily-imgwrap {
+    width: 32px;
+    height: 32px;
+  }
+
+  .footer-daily-imgwrap .daily-image,
+  .footer-daily-imgwrap .hover-daily {
+    width: 32px !important;
+    height: 32px !important;
+  }
+
+  .footer .ting-unit-wrap {
+    margin: 10px 0 20px;
+    text-align: center;
+    justify-content: center;
+  }
+}
+
 .home-slider {
   position: relative;
+  width: 100%;
+}
+
+.home-hero {
+  width: 100%;
 }
 
 .movie-tab {
@@ -675,13 +1181,62 @@ body {
 }
 
 .img-responsive {
+  display: block;
   max-width: 100%;
   height: auto;
 }
 
+/*
+ * Legacy `main.scss` + Angular — dept icons under `.contact-info` only:
+ * `img { opacity: 0; transition }` then `img.doneLoading { opacity: 1 }`.
+ * Hero/map are outside `.contact-info`, so they stay fully visible.
+ */
+.contact-page .contact-info img {
+  opacity: 0;
+  border: 0;
+  vertical-align: middle;
+  -webkit-transition: opacity 300ms ease;
+  -o-transition: opacity 300ms ease;
+  transition: opacity 300ms ease;
+}
+
+.contact-page .contact-info img.doneLoading {
+  opacity: 1;
+}
+
+/* Stronger specificity than line above — `main.scss` `.info-icon img` */
+.contact-page .contact-info .info-icon img {
+  display: inline-block;
+  vertical-align: sub;
+}
+
+img.doneLoading {
+  opacity: 1;
+}
+
 .dharma-tv-bg {
-  background: url("/frontend/img/video-bg.jpg") no-repeat center;
+  background-color: #0d0d0d; /* dark fallback + shows through on tall mobile sections */
+  background-image: url("/frontend/img/tv-bg.jpg");
+  background-repeat: no-repeat;
+  background-position: center center;
   background-size: cover;
+  background-attachment: scroll; /* fixed breaks on iOS */
+}
+
+/* Tablet portrait 576–991px (iPad Air 820×1180, 1+Tab 765×1071) */
+@media (min-width: 576px) and (max-width: 991px) {
+  .dharma-tv-bg {
+    background-position: 50% 20%;
+    background-size: cover;
+  }
+}
+
+/* Mobile ≤575px (412×915) — keep cover, anchor near top of image */
+@media (max-width: 575px) {
+  .dharma-tv-bg {
+    background-position: 50% 10%;
+    background-size: cover;
+  }
 }
 
 .my-main-btn {
@@ -715,15 +1270,317 @@ body {
   min-height: 60vh;
 }
 
+/* Matches `frontend/sass/main.scss` `.dharma-title-bg` (Next serves from `/public/frontend/img/`). */
+.dharma-title-bg {
+  background: url("/frontend/img/home-contact.jpg") no-repeat;
+  background-size: cover;
+  padding: 200px 0 0;
+
+  .title h1 {
+    font-size: clamp(42px, 7vw, 90px);
+  }
+}
+
+.home-contact {
+  padding: 50px 0;
+
+  /*
+   * Same `.descp` as `.contact-page .contact-info` — homepage cannot wrap the whole strip in
+   * `.contact-page` (would apply `.contact-page .contact-info img { opacity: 0 }` to Next `<Image>`s).
+   */
+  .contact-info .contact-info__head {
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 6px;
+    flex-wrap: nowrap;
+    margin: 0 auto 6px;
+    max-width: 100%;
+  }
+
+  .contact-info .contact-info__icon.info-icon {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: baseline;
+    justify-content: center;
+    margin-right: 5px;
+    width: auto;
+    height: auto;
+    line-height: 0;
+  }
+
+  .contact-info .contact-info__title {
+    font-family: var(--font-karla), "Karla", "Helvetica Neue", "AMRTYPEN", Helvetica, Arial, sans-serif;
+    font-size: 30px;
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: 0;
+    hyphens: manual;
+    text-wrap: balance;
+    text-align: center;
+    color: $brand-primary;
+    margin: 0;
+    padding: 0;
+    min-width: 0;
+  }
+
+  .contact-info .descp {
+    margin-top: 10px;
+    clear: both;
+    text-align: center;
+
+    p {
+      font-family: var(--font-karla), "Karla", "Helvetica Neue", "AMRTYPEN", Helvetica, Arial, sans-serif;
+      font-size: 14px;
+      line-height: 1.428571429;
+      margin: 0;
+      color: #333333;
+    }
+
+    a {
+      color: $brand-primary;
+      font-weight: 700;
+      word-break: break-word;
+    }
+  }
+}
+
+/* Contact — `frontend/views/content/contact-us.html` + main.scss `.map` / `.add-show` */
+.contact-page {
+  .padd-all-side {
+    padding: 50px 0 30px;
+    box-sizing: border-box;
+  }
+
+  .contact-page__hero-img {
+    height: auto;
+    object-fit: cover;
+  }
+
+  .contact-info {
+    /*
+     * Dept row mirrors legacy markup feel: BS3 `.h2` 30px, Karla bold, `#f37021`;
+     * `body`-sized copy `#333` / `14px` / `line-height ~1.4286`.
+     */
+    .contact-info__head {
+      display: flex;
+      align-items: baseline;
+      justify-content: center;
+      gap: 6px;
+      flex-wrap: nowrap;
+      margin: 0 auto 6px;
+      max-width: 100%;
+    }
+
+    .contact-info__icon.info-icon {
+      flex: 0 0 auto;
+      display: inline-flex;
+      align-items: baseline;
+      justify-content: center;
+      margin-right: 5px;
+      width: auto;
+      height: auto;
+      line-height: 0;
+    }
+
+    .contact-info__title {
+      flex: 0 1 auto;
+      font-family: var(--font-karla), "Karla", "Helvetica Neue", "AMRTYPEN", Helvetica, Arial, sans-serif;
+      font-size: 30px;
+      font-weight: 700;
+      line-height: 1.1;
+      letter-spacing: 0;
+      hyphens: manual;
+      text-wrap: balance;
+      text-align: center;
+      min-width: 0;
+      margin: 0;
+      padding: 0;
+      color: $brand-primary;
+    }
+
+    .descp {
+      margin-top: 10px;
+      clear: both;
+      text-align: center;
+
+      p {
+        font-family: var(--font-karla), "Karla", "Helvetica Neue", "AMRTYPEN", Helvetica, Arial, sans-serif;
+        font-size: 14px;
+        line-height: 1.428571429;
+        margin: 0;
+        color: #333333;
+      }
+
+      a {
+        color: $brand-primary;
+        font-weight: 700;
+        word-break: break-word;
+      }
+    }
+  }
+
+  .map {
+    background-color: $brand-primary;
+    color: $white;
+
+    p {
+      line-height: 100%;
+    }
+
+    span {
+      display: block;
+      margin-top: 25px;
+    }
+  }
+
+  .add-show {
+    right: 0;
+    bottom: 64px;
+    padding: 30px;
+    background-color: $brand-primary;
+    color: $white;
+    max-width: min(360px, calc(100vw - 28px));
+    z-index: 40;
+    text-align: left;
+    transition:
+      opacity 300ms ease,
+      transform 300ms ease;
+
+    h4 {
+      font-size: 1.05rem;
+      font-weight: 700;
+    }
+
+    p {
+      font-size: 14px;
+      line-height: 1.35;
+      color: inherit;
+      margin: 0;
+    }
+
+    span {
+      display: block;
+      margin-top: 25px;
+    }
+  }
+}
+
+.contact-page__map-root {
+  position: relative;
+  width: 100%;
+}
+
+.contact-page__map-root--loading .contact-page__map-canvas--skeleton {
+  animation: dh-contact-map-pulse 1.1s ease-in-out infinite alternate;
+}
+
+@keyframes dh-contact-map-pulse {
+  from {
+    opacity: 0.55;
+  }
+  to {
+    opacity: 0.9;
+  }
+}
+
+.contact-page__map-canvas {
+  height: 500px;
+  width: 100%;
+}
+
+.contact-page__map-fallback {
+  min-height: 500px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 28px 20px;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+.contact-page__map-iframe {
+  border: 0;
+  display: block;
+}
+
+.contact-page__map-iframe-open {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  z-index: 10;
+}
+
+.contact-page__map-iframe-link {
+  display: inline-block;
+  background: $brand-primary;
+  color: $white;
+  font-size: 12px;
+  padding: 5px 10px;
+  border-radius: 3px;
+  text-decoration: none;
+
+  &:hover {
+    background: darken($brand-primary, 8%);
+    color: $white;
+  }
+}
+
+.contact-page__map--failed.contact-page__map-canvas {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: $white;
+}
+
+@media (max-width: 767.98px) {
+  .contact-page .min-add.add-show {
+    bottom: 16px;
+  }
+
+  .contact-page .add-show {
+    padding: 20px;
+    font-size: 14px;
+  }
+
+  /* Dept tiles — icon above heading + body copy on narrow viewports */
+  .contact-page .contact-info .contact-info__head,
+  .home-contact .contact-info .contact-info__head {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: nowrap;
+    margin-bottom: 10px;
+  }
+
+  .contact-page .contact-info .contact-info__icon.info-icon,
+  .home-contact .contact-info .contact-info__icon.info-icon {
+    margin-right: 0;
+    align-items: center;
+  }
+
+  .contact-page .contact-info .contact-info__title,
+  .home-contact .contact-info .contact-info__title {
+    font-size: 22px;
+  }
+}
+
 /* Pull hero under fixed navbar like original layout */
 .home-hero {
   margin-top: calc(-1 * var(--dh-header-offset));
   padding-top: var(--dh-header-offset);
 }
 
+/*
+ * layout.jsx: body is `d-flex flex-column min-vh-100`; main uses `flex-grow-1`.
+ * Default flex item `min-height: auto` can make <main> a secondary scroll container in some browsers
+ * → two vertical scrollbars. `min-height: 0` keeps page scroll on the viewport only.
+ */
 .site-main {
   padding-top: 0;
-  min-height: 50vh;
+  min-height: 0;
 }
 
 .btn-primary {
@@ -764,118 +1621,684 @@ body {
   padding: 7px 30px 5px;
 }
 
-/*
- * Movies — DharmaNodeRun / localhost:1337 movies: light grey wash with softer centre and
- * slightly darker shoulders (radial spotlight + subtle left/right vignette).
- * First gradient in list paints above the radial; base `#e5e5e5` anchors the tone.
- */
+/* Movies — `movie-up.jpg` ≥1400px; ≤991.98px + large touch tablets (below) mirror mobile plate. */
+/* Movies — Desktop */
 .dharma-movies-bg {
   position: relative;
-  z-index: 0;
-  background-color: #e5e5e5;
-  background-image:
-    linear-gradient(
-      90deg,
-      rgba(0, 0, 0, 0.06) 0%,
-      rgba(0, 0, 0, 0.02) 12%,
-      transparent 30%,
-      transparent 70%,
-      rgba(0, 0, 0, 0.02) 88%,
-      rgba(0, 0, 0, 0.06) 100%
-    ),
-    radial-gradient(ellipse 95% 82% at 50% 30%, #fbfbfb 0%, rgba(251, 251, 251, 0.5) 40%, transparent 72%);
+  display: flex;
+  flex-direction: column;
+  background-color: #ececec;
+  background-image: url("/frontend/img/movie-up.jpg");
   background-repeat: no-repeat;
-  background-size: 100% 100%, 100% 100%;
-  padding: calc(var(--dh-header-offset) + 120px) 0 0;
+  background-size: cover;
+  background-position: center top;
+  background-clip: padding-box;
+  padding-inline: env(safe-area-inset-left, 0px)
+    env(safe-area-inset-right, 0px);
 }
 
-.movies-hero-wallpaper {
-  position: absolute;
-  z-index: 0;
-  left: 0;
-  right: 0;
-  /* Below fixed navbar + curve the bitmap was painting underneath the orange strip
-     (fixtures looked “gone”). Nudge mural down like DharmaNodeRun reference. */
-  top: clamp(12px, 2.2vw, 28px);
-  pointer-events: none;
-  background-color: transparent;
-  line-height: 0;
-  overflow: visible;
-}
-
-.movies-hero-wallpaper__img {
-  display: block;
-  width: 100%;
-  height: auto;
-}
-
-/* Tablet/desktop — clamp mural height; overflow clips from bottom only, width stays 100%. */
-@media screen and (min-width: 768px) {
-  .movies-hero-wallpaper {
-    max-height: min(620px, 58vh);
-    overflow: hidden;
+/* Short desktop canvases */
+@media (min-width: 992px) and (max-height: 760px) {
+  .dharma-movies-bg {
+    padding-bottom: clamp(12px, 2vh, 28px);
   }
 }
 
-.dharma-movies-bg > section {
+/* All mobiles + tablets */
+@media (max-width: 991.98px) {
+  .dharma-movies-bg {
+
+    background-image: url("/frontend/img/mobile-movies.jpg");
+    background-repeat: no-repeat;
+
+    /* MAIN FIX */
+    background-size: cover;
+
+    background-position: center top;
+
+    /* Reduce excessive height */
+    padding-top: clamp(55px, 10vw, 90px);
+
+    padding-bottom: clamp(8px, 3vw, 24px);
+
+    padding-inline:
+      env(safe-area-inset-left, 0px)
+      env(safe-area-inset-right, 0px);
+
+    background-clip: padding-box;
+
+    overflow-x: hidden;
+    overflow-y: hidden;
+  }
+
+  .dharma-movies-bg .movies-hero-search-wrap {
+    margin-bottom: clamp(0.8rem, 3vw, 1.6rem);
+  }
+}
+
+/* Extra small phones — keep padding-only here; background tuning for odd heights lives in later queries */
+/* Redmi Note 10S / short heights */
+@media (orientation: portrait)
+  and (max-width: 420px)
+  and (max-height: 760px) {
+
+  .dharma-movies-bg {
+
+    background-position: center 60px !important;
+
+    padding-top: 42px !important;
+    padding-bottom: 6px !important;
+  }
+}
+
+
+
+/* 393×738 / 390×740 */
+@media (orientation: portrait)
+  and (min-width: 390px)
+  and (max-width: 420px)
+  and (min-height: 700px)
+  and (max-height: 760px) {
+
+  .dharma-movies-bg {
+
+    background-position: center 60px !important;
+
+    padding-top: 50px !important;
+    padding-bottom: 8px !important;
+  }
+}
+
+/* Redmi Note 10S */
+@media (orientation: portrait)
+  and (min-width: 390px)
+  and (max-width: 420px) {
+
+  .dharma-movies-bg {
+
+    background-image: url("/frontend/img/mobile-movies.jpg");
+    background-repeat: no-repeat;
+
+    /* BEST FOR REDMI NOTE 10S */
+    background-size: cover;
+
+    /* Proper focal position */
+    background-position: center 55px;
+
+    background-color: #ececec;
+
+    /* Reduce section height */
+    padding-top: 52px !important;
+    padding-bottom: 10px !important;
+
+    overflow-x: hidden;
+    overflow-y: hidden;
+  }
+
+  .dharma-movies-bg .movies-hero-search-wrap {
+    margin-bottom: 0.8rem;
+  }
+}
+
+/* 461×1021 / tall Android phones */
+@media (orientation: portrait)
+  and (min-width: 430px)
+  and (max-width: 480px)
+  and (min-height: 950px)
+  and (max-height: 1050px) {
+
+  .dharma-movies-bg {
+
+    background-image: url("/frontend/img/mobile-movies.jpg");
+    background-repeat: no-repeat;
+
+    /* Better for tall phones */
+    background-size: cover;
+
+    /* Slightly lower focal point */
+    background-position: center 55px;
+
+    background-color: #ececec;
+
+    /* Balanced spacing */
+    padding-top: 58px !important;
+    padding-bottom: 5px !important;
+
+    overflow-x: hidden;
+    overflow-y: hidden;
+  }
+
+  .dharma-movies-bg .movies-hero-search-wrap {
+    margin-bottom:0.8rem;
+  }
+}
+
+/* Upcoming stripe: spacing only — same `.dharma-movies-bg` image continues underneath. */
+.dharma-movies-bg > section.dharma-top-pad.slider-nav {
   position: relative;
-  z-index: 1;
-}
-
-@media screen and (max-width: 991px) {
-  .dharma-movies-bg {
-    padding: calc(var(--dh-header-offset) + clamp(68px, 10vw, 96px)) 0 0;
-  }
-
-  .movies-hero-wallpaper {
-    top: clamp(32px, 6.5vw, 58px);
-  }
-}
-
-@media screen and (max-width: 767px) {
-  .dharma-movies-bg {
-    padding: calc(var(--dh-header-offset) + clamp(72px, 20vw, 108px)) 0 clamp(1.35rem, 5vw, 2.35rem);
-  }
-
-  .movies-hero-wallpaper {
-    max-height: none;
-    overflow: visible;
-    top: clamp(48px, 12vw, 88px);
-  }
-
-  .movies-page-hero {
-    padding-left: env(safe-area-inset-left, 0px);
-    padding-right: env(safe-area-inset-right, 0px);
-  }
-
-  .movies-hero-head {
-    margin-top: clamp(0.25rem, 2vw, 0.75rem);
-    margin-bottom: clamp(1rem, 4vw, 1.5rem);
-  }
-
-  .movies-head-xl {
-    font-size: clamp(2.35rem, 11vw, 3.25rem);
-  }
-}
-
-@media screen and (max-width: 480px) {
-  .dharma-movies-bg {
-    padding: calc(var(--dh-header-offset) + clamp(64px, 22vw, 100px)) 0 clamp(1.1rem, 4vw, 1.85rem);
-  }
-}
-
-@media screen and (max-width: 360px) {
-  .dharma-movies-bg {
-    padding: calc(var(--dh-header-offset) + clamp(56px, 24vw, 92px)) 0 1rem;
-  }
-}
-
-.movies-page-hero {
-  position: relative;
+  flex-shrink: 0;
   background: transparent;
 }
 
+/* Hero: content over shared wrapper plate (no second `movie-up.jpg` paint). */
+.movies-page-hero {
+  position: relative;
+  flex-shrink: 0;
+  background: transparent;
+  padding: calc(var(--dh-header-offset) + 84px) 0 clamp(1rem, 3vw, 1.75rem);
+}
+
+@media (max-width: 991.98px) {
+  .movies-page-hero {
+    padding-top: calc(var(--dh-header-offset) + 48px);
+    min-height: clamp(300px, 52vh, 520px);
+  }
+}
+
+@media (max-width: 575px) {
+  .movies-page-hero {
+    padding-top: calc(var(--dh-header-offset) + 28px);
+    min-height: clamp(260px, 44vh, 440px);
+  }
+}
+
+/* Movies narrow portrait: gutters + Upcoming rhythm (wrapper art is `mobile-movies.jpg` when `≤991.98px`). */
+@media (max-width: 820.98px) {
+  /* Upcoming band — less air between search field and “Upcoming Releases”. */
+  .dharma-movies-bg .movies-page-hero {
+    padding-bottom: clamp(0.35rem, 2vw, 0.75rem);
+  }
+
+  .dharma-movies-bg .movies-hero-head {
+    margin-bottom: clamp(0.45rem, 1.75vw, 0.85rem);
+  }
+
+  .dharma-movies-bg section.dharma-top-pad.slider-nav {
+    padding-top: 10px;
+  }
+
+  .dharma-movies-bg .upcoming-movie.movies-upcoming-stack {
+    margin-top: 0 !important;
+  }
+
+  .dharma-movies-bg .container {
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+  }
+
+  .dharma-movies-bg2 .orange-bg > .container,
+  .dharma-movies-bg3 .orange-bg > .container {
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+  }
+
+  .dharma-movies-bg .movies-page-hero .head-title {
+    margin-top: 0;
+    margin-bottom: clamp(0.5rem, 2.25vw, 0.875rem);
+  }
+
+  /* Handset locks to `60px` in ≤767 rule — here scales gracefully on 768–820 portrait. */
+  .dharma-movies-bg .movies-head-xl {
+    font-size: clamp(52px, 8vw, 60px);
+    line-height: 0.95;
+  }
+
+  .dharma-movies-bg .search-movie.search-movie-mar {
+    max-width: 100%;
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .dharma-movies-bg .movies-upcoming-row {
+    gap: 0;
+  }
+
+  .dharma-movies-bg .movies-upcoming-card-column {
+    max-width: 100%;
+  }
+
+  .dharma-movies-bg .ml15,
+  .dharma-movies-bg2 .ml15,
+  .dharma-movies-bg3 .ml15 {
+    margin-left: 8px;
+  }
+
+  .dharma-movies-bg3 .mob-slider.movies-past-mob-slider {
+    scroll-padding-inline: max(16px, env(safe-area-inset-left, 0px))
+      max(16px, env(safe-area-inset-right, 0px));
+  }
+}
+
+/* Movies — ≥768 only: slim side gutters / wide column (past “78vw”; handsets `≤767` unchanged). */
+@media (min-width: 768px) {
+  .dharma-movies-bg .container {
+    padding-left: max(6px, env(safe-area-inset-left, 0px));
+    padding-right: max(6px, env(safe-area-inset-right, 0px));
+  }
+
+  .dharma-movies-bg2 .orange-bg > .container,
+  .dharma-movies-bg3 .orange-bg > .container {
+    max-width: min(1120px, 98vw);
+    padding-left: max(6px, env(safe-area-inset-left, 0px));
+    padding-right: max(6px, env(safe-area-inset-right, 0px));
+  }
+
+  .dharma-movies-bg .search-movie.search-movie-mar {
+    max-width: min(1120px, 98vw);
+  }
+
+  .dharma-movies-bg .movies-upcoming-card-column {
+    max-width: min(1120px, 98vw);
+  }
+}
+
+/*
+ * Movies — iPad-class tablets (≥768 × ≤991.98): keep `mobile-movies.jpg` sizing identical to phones
+ * (see `@media max-width 991.98px`); only typography / hero / section rhythm differ here.
+ */
+@media (min-width: 768px) and (max-width: 991.98px) {
+  .dharma-movies-bg {
+    background-position: 55% clamp(42px, 10vw, 82px);
+  }
+
+  .dharma-movies-bg .movies-page-hero {
+    padding-top: calc(var(--dh-header-offset) + clamp(12px, 2vw, 26px));
+    padding-bottom: 0;
+    /* Same band idea as ≤991 — avoid locking 800px min-height (pushed Upcoming far down). */
+    min-height: clamp(220px, 32vh, 400px);
+  }
+
+  .dharma-movies-bg .movies-head-xl {
+    font-size: clamp(58px, 7.75vw, 88px);
+    line-height: 0.96;
+  }
+
+  .dharma-movies-bg .movies-hero-search-wrap {
+    margin-bottom: 0;
+  }
+
+  .dharma-movies-bg section.dharma-top-pad.slider-nav {
+    padding-top: 0;
+    margin-top: clamp(-14px, -1.5vw, -6px);
+  }
+
+  /* Wider-than-820 iPad widths still had Bootstrap `.mt-4` on `.upcoming-movie` — gap under search */
+  .dharma-movies-bg .upcoming-movie.movies-upcoming-stack {
+    margin-top: 0 !important;
+  }
+
+  .dharma-movies-bg .movies-upcoming-swiper-inner .swiper-pagination {
+    margin-top: 12px;
+  }
+
+  .dharma-movies-bg2 {
+    padding: clamp(64px, 9vw, 96px) 0 clamp(40px, 6vh, 56px);
+  }
+
+  .dharma-movies-bg3 {
+    padding: clamp(32px, 5vw, 44px) 0 clamp(48px, 7vh, 64px);
+  }
+}
+
+/*
+ * iPad Pro class & other large touch tablets (992–1366): same `mobile-movies.jpg` plate + hero
+ * rhythm as iPad Air — mouse laptops in this width keep `movie-up.jpg` (no `(hover: none)` match).
+ */
+@media (min-width: 992px) and (max-width: 1366.98px) {
+  @media (hover: none) and (pointer: coarse) {
+    .dharma-movies-bg {
+      background-image: url("/frontend/img/mobile-movies.jpg");
+      background-repeat: no-repeat;
+      background-size: cover;
+      background-position: 55% clamp(42px, 10vw, 82px);
+      padding-top: 120px;
+      padding-bottom: 100px;
+      padding-inline: env(safe-area-inset-left, 0px) env(safe-area-inset-right, 0px);
+      background-clip: padding-box;
+    }
+
+    .dharma-movies-bg .movies-hero-search-wrap {
+      margin-bottom: 0;
+    }
+
+    .movies-page-hero {
+      padding-top: calc(var(--dh-header-offset) + 48px);
+      min-height: clamp(300px, 52vh, 520px);
+    }
+
+    .dharma-movies-bg .movies-page-hero {
+      padding-top: calc(var(--dh-header-offset) + clamp(12px, 2vw, 26px));
+      padding-bottom: 0;
+      min-height: clamp(220px, 32vh, 400px);
+    }
+
+    .dharma-movies-bg .movies-head-xl {
+      font-size: clamp(58px, 7.75vw, 88px);
+      line-height: 0.96;
+    }
+
+    .dharma-movies-bg section.dharma-top-pad.slider-nav {
+      padding-top: 0;
+      margin-top: clamp(-14px, -1.5vw, -6px);
+    }
+
+    .dharma-movies-bg .upcoming-movie.movies-upcoming-stack {
+      margin-top: 0 !important;
+    }
+
+    .dharma-movies-bg .movies-upcoming-swiper-inner .swiper-pagination {
+      margin-top: 12px;
+    }
+
+    .dharma-movies-bg2 {
+      padding: clamp(64px, 9vw, 96px) 0 clamp(40px, 6vh, 56px);
+    }
+
+    .dharma-movies-bg3 {
+      padding: clamp(32px, 5vw, 44px) 0 clamp(48px, 7vh, 64px);
+    }
+  }
+}
+
+/*
+ * Landscape “phone runway” (large iPhones etc. ~667–932 wide, shallow ≤475px tall):
+ * trims hero/search band that `52vh`/desktop padding would exaggerate sideways.
+ */
+@media (orientation: landscape) and (max-height: 475px) and (min-width: 667px) and (max-width: 932px) {
+  .dharma-movies-bg {
+    padding-top: clamp(40px, 6.5vw, 64px);
+    padding-bottom: clamp(14px, 3.5vh, 32px);
+  }
+
+  .dharma-movies-bg .movies-page-hero {
+    min-height: clamp(112px, 24vh, 210px);
+    padding-top: calc(var(--dh-header-offset) + 6px);
+    padding-bottom: 0.2rem;
+  }
+
+  .dharma-movies-bg .movies-head-xl {
+    font-size: clamp(34px, min(7vw, 7.5vh), 50px);
+    line-height: 0.91;
+    letter-spacing: 0.02em;
+  }
+
+  .dharma-movies-bg .movies-hero-search-wrap {
+    margin-bottom: clamp(0.35rem, 1.85vw, 0.85rem);
+  }
+
+  .dharma-movies-bg section.dharma-top-pad.slider-nav {
+    padding-top: 6px;
+  }
+
+  /* `min(1120px, 98vw)` under `≥768` still applies; keep section bands from feeling “stuck” top */
+  .dharma-movies-bg2 {
+    padding: clamp(28px, 5vw, 52px) 0 clamp(22px, 4vh, 40px);
+  }
+
+  .dharma-movies-bg3 {
+    padding: clamp(18px, 3.5vw, 32px) 0 clamp(26px, 5vh, 44px);
+  }
+}
+
+/* Handsets (`_mobile.scss` xs): same mobile plate, smaller bottom pad + hide carousel arrows */
+@media (max-width: 767.98px) {
+  .dharma-movies-bg {
+    padding-bottom: 14px;
+  }
+
+  /* Tighter gap under Upcoming carousel before Recent Releases (.dharma-movies-bg2) */
+  .dharma-movies-bg section.dharma-top-pad.slider-nav {
+    padding-bottom: 0;
+  }
+
+  .dharma-movies-bg .movies-upcoming-swiper-inner {
+    padding-bottom: 4px;
+  }
+
+  .dharma-movies-bg .movies-upcoming-swiper-inner .swiper-pagination {
+    margin-top: 8px;
+  }
+
+  .dharma-movies-bg .movies-upcoming-arrow,
+  .dharma-movies-bg .movies-upcoming-arrow--placeholder {
+    display: none !important;
+  }
+
+  .dharma-movies-bg .movies-head-xl {
+    font-size: 60px;
+  }
+}
+
+/*
+ * Narrow portrait tablets (e.g. OnePlus Pad / Tab ~765×1071): width `< md` so Bootstrap &
+ * handset rules treated it as a phone. Tall min-height excludes typical phones (~900+).
+ */
+@media (min-width: 720px) and (max-width: 767.98px) and (min-height: 900px) {
+  /* Past Releases: desktop grid + four-up on this band (hide horizontal strip) */
+  .dharma-movies-bg3 .movies-past-grid-row.mobile-row.hidden-xs.d-none.d-md-block {
+    display: block !important;
+  }
+
+  .dharma-movies-bg3 .movies-past-mob-rail.d-md-none {
+    display: none !important;
+  }
+
+  .dharma-movies-bg3 .mobile-row.movies-past-grid-row .col-flex {
+    flex: 0 0 25%;
+    max-width: 25%;
+  }
+
+  .dharma-movies-bg .container {
+    padding-left: max(6px, env(safe-area-inset-left, 0px));
+    padding-right: max(6px, env(safe-area-inset-right, 0px));
+  }
+
+  .dharma-movies-bg2 .orange-bg > .container,
+  .dharma-movies-bg3 .orange-bg > .container {
+    max-width: min(1120px, 98vw);
+    padding-left: max(6px, env(safe-area-inset-left, 0px));
+    padding-right: max(6px, env(safe-area-inset-right, 0px));
+  }
+
+  .dharma-movies-bg .search-movie.search-movie-mar {
+    max-width: min(1120px, 98vw);
+  }
+
+  .dharma-movies-bg .movies-upcoming-card-column {
+    max-width: min(1120px, 98vw);
+  }
+
+  .dharma-movies-bg {
+    padding-top: clamp(48px, 7vw, 76px);
+    padding-bottom: clamp(44px, 8vh, 72px);
+  }
+
+  .dharma-movies-bg .movies-page-hero {
+    padding-top: calc(var(--dh-header-offset) + clamp(10px, 1.85vw, 22px));
+    padding-bottom: clamp(0.25rem, 1vw, 0.55rem);
+    min-height: clamp(190px, 25vh, 360px);
+  }
+
+  .dharma-movies-bg .movies-head-xl {
+    font-size: clamp(52px, 7.35vw, 74px);
+    line-height: 0.95;
+  }
+
+  .dharma-movies-bg .movies-hero-search-wrap {
+    margin-bottom: clamp(0.25rem, 1vw, 0.55rem);
+  }
+
+  .dharma-movies-bg section.dharma-top-pad.slider-nav {
+    padding-top: clamp(4px, 0.9vw, 12px);
+  }
+
+  .dharma-movies-bg .upcoming-movie.movies-upcoming-stack {
+    margin-top: 0 !important;
+  }
+
+  .dharma-movies-bg .movies-upcoming-swiper-inner .swiper-pagination {
+    margin-top: 11px;
+  }
+
+  .dharma-movies-bg2 {
+    padding: clamp(52px, 8vw, 82px) 0 clamp(36px, 5.5vh, 52px);
+  }
+
+  .dharma-movies-bg3 {
+    padding: clamp(28px, 4.5vw, 40px) 0 clamp(44px, 6.5vh, 56px);
+  }
+
+  /* Show Upcoming chevrons; placeholders keep spacer width (`visibility:hidden` base) */
+  .dharma-movies-bg .movies-upcoming-arrow {
+    display: flex !important;
+  }
+
+  .dharma-movies-bg .movies-upcoming-arrow--placeholder {
+    display: inline-flex !important;
+  }
+
+  /* Undo handset `overflow-x: clip` widening if any — swiper arrows need room */
+  .movies-upcoming-outer {
+    overflow: visible !important;
+  }
+}
+
+/* Tall narrow portrait (iPhones incl. Pro Max ~430×932, 11–16-class + tall Android ~412×736+): focal + tighter hero */
+@media (max-width: 432px) and (min-height: 800px) {
+  .dharma-movies-bg {
+    background-position: center clamp(64px, 12vw, 100px);
+    /* Pull plate up vs global `padding-top: 120px` at `≤991` — stacks with hero `header-offset` */
+    padding-top: 90px;
+  }
+
+  /* Less hero band vs ≤575 `min-height` / padding — headline + search ride higher with less vertical dead air */
+  .dharma-movies-bg .movies-page-hero {
+    padding-top: max(0px, calc(var(--dh-header-offset) - 6px));
+    padding-bottom: 0;
+    min-height: clamp(135px, 20vh, 220px);
+  }
+
+  .dharma-movies-bg .movies-head-xl {
+    line-height: 0.84;
+  }
+}
+
+/* Portrait large iPhones (incl. 14 Pro Max ~430-wide) — safe-area gutters + home-indicator vs fixed `14px` */
+@media (max-width: 432px) {
+  .dharma-movies-bg .container,
+  .dharma-movies-bg2 .orange-bg > .container,
+  .dharma-movies-bg3 .orange-bg > .container {
+    padding-left: max(12px, env(safe-area-inset-left, 0px));
+    padding-right: max(12px, env(safe-area-inset-right, 0px));
+  }
+
+  .dharma-movies-bg {
+    padding-bottom: max(14px, env(safe-area-inset-bottom, 0px));
+  }
+
+  /* Sub-vi max width for dynamic toolbar / Zoomed Display still using `.search-movie-mar` cap */
+  .dharma-movies-bg .search-movie.search-movie-mar {
+    max-width: min(1120px, 94vw);
+  }
+}
+
+/*
+ * Mid-height narrow portrait (e.g. 393×793): height under 800px so it misses `min-height: 800px` tweaks;
+ * `100% auto` + `center top` was cropping badly vs iPad / taller phones. Use `cover` + vh-based anchor.
+ */
+@media (orientation: portrait) and (max-width: 420px) and (min-height: 720px) and (max-height: 799.98px) {
+  .dharma-movies-bg {
+    background-image: url("/frontend/img/mobile-movies.jpg");
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center calc(16% + 3.5dvh);
+    background-color: #ececec;
+    padding-top: clamp(56px, 9dvh, 82px);
+    padding-bottom: clamp(18px, 4.5dvh, 36px);
+    overflow-x: clip;
+  }
+}
+
+/* iPhone 14 / 15 Pro Max class (~412–432 wide × ≥900 tall portrait): scales “Movies” vs fixed `60px` at `≤767` */
+@media (orientation: portrait) and (min-width: 412px) and (max-width: 432px) and (min-height: 900px) {
+  .dharma-movies-bg .movies-head-xl {
+    font-size: clamp(54px, 12.85vw, 62px);
+    line-height: 0.932;
+    letter-spacing: 0.028em;
+  }
+
+  .dharma-movies-bg .movies-page-hero .head-title {
+    margin-bottom: clamp(0.42rem, 2vw, 0.76rem);
+  }
+}
+
+/*
+ * Ultra-narrow Android / Zoomed UI (~≤360, e.g. Galaxy S8+ logical width) + tiny iPhone SE (320).
+ * Tighter inset than `≤432` block; stacks after Pro Max rules.
+ */
+@media (max-width: 360px) {
+  .dharma-movies-bg .container,
+  .dharma-movies-bg2 .orange-bg > .container,
+  .dharma-movies-bg3 .orange-bg > .container {
+    padding-left: max(8px, env(safe-area-inset-left, 0px));
+    padding-right: max(8px, env(safe-area-inset-right, 0px));
+  }
+
+  .dharma-movies-bg .movies-head-xl {
+    font-size: clamp(30px, 9.4vw, 44px);
+    line-height: 0.91;
+    letter-spacing: 0.018em;
+  }
+
+  .dharma-movies-bg .f55,
+  .dharma-movies-bg2 .f55,
+  .dharma-movies-bg3 .f55 {
+    font-size: clamp(20px, 6.35vw, 27px);
+  }
+
+  .dharma-movies-bg .search-movie.search-movie-mar {
+    max-width: min(1120px, 98vw);
+  }
+}
+
+/*
+ * Short portrait canvases (iPhone SE 667px tall, Galaxy S8+ ~740, budget 16:9 phones):
+ * avoid tall `52vh` hero eating the fold; trim top plate vs global `120px` at `≤991`.
+ */
+@media (max-width: 420px) and (max-height: 760px) and (orientation: portrait) {
+  .dharma-movies-bg {
+    padding-top: clamp(52px, 13.5vw, 84px);
+    padding-bottom: max(12px, env(safe-area-inset-bottom, 0px));
+  }
+
+  .dharma-movies-bg .movies-page-hero {
+    min-height: clamp(152px, 34vh, 268px);
+    padding-top: calc(var(--dh-header-offset) + 12px);
+    padding-bottom: 0.28rem;
+  }
+
+  .dharma-movies-bg .movies-head-xl {
+    font-size: clamp(38px, 10.5vw, 54px);
+    line-height: 0.925;
+  }
+
+  .dharma-movies-bg .movies-hero-search-wrap {
+    margin-bottom: clamp(0.52rem, 3.35vw, 1.05rem);
+  }
+}
+
+@media (max-width: 400px) {
+  .dharma-movies-bg .movies-search-field .movies-search-input,
+  .dharma-movies-bg .movies-hero-search-wrap .movies-search-input {
+    min-height: 46px;
+    height: auto;
+    box-sizing: border-box;
+  }
+}
+
 .movies-hero-head {
+  margin-top: 0;
   margin-bottom: clamp(1rem, 3vw, 1.75rem);
 }
 
@@ -894,6 +2317,77 @@ body {
   background: url("/frontend/img/movie-bottom.jpg") no-repeat;
   background-size: cover;
   padding: 40px 0 60px;
+}
+
+/*
+ * Past Releases — `< md`: parity with Angular `movies.html` `.mob-slider` flex-slider
+ * (`item-width="207"`, `item-margin="20"`). Legacy hides arrows via `.mob-slider .flex-direction-nav`.
+ * Smooth horizontal swipe: containment + inertia (`-webkit-overflow-scrolling`), snap finish.
+ */
+.dharma-movies-bg3 .mob-slider.movies-past-mob-slider {
+  overflow-x: auto;
+  overflow-y: visible;
+  margin-bottom: 1.35rem;
+  /* iOS momentum + scroll chaining kept on the strip (fewer glitches vs page scroll). */
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+  overscroll-behavior-y: auto;
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: max(8px, env(safe-area-inset-left, 0px))
+    max(8px, env(safe-area-inset-right, 0px));
+  scrollbar-width: none;
+}
+
+.dharma-movies-bg3 .mob-slider.movies-past-mob-slider:focus-visible {
+  outline: 2px solid rgba($brand-primary, 0.65);
+  outline-offset: 2px;
+}
+
+.dharma-movies-bg3 .mob-slider.movies-past-mob-slider::-webkit-scrollbar {
+  display: none;
+}
+
+.dharma-movies-bg3 .mob-slider .flex-direction-nav {
+  display: none !important;
+}
+
+.dharma-movies-bg3 .movies-past-mob-strip {
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: flex-start;
+  gap: 20px;
+  width: max-content;
+  padding-bottom: 6px;
+  box-sizing: border-box;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+.dharma-movies-bg3 .movies-past-mob-slide {
+  flex: 0 0 207px;
+  width: 207px;
+  max-width: 207px;
+  scroll-snap-align: start;
+  scroll-snap-stop: normal;
+  box-sizing: border-box;
+  text-align: center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dharma-movies-bg3 .mob-slider.movies-past-mob-slider {
+    scroll-snap-type: x proximity;
+  }
+}
+
+/* Tablets/phones — use `cover` like desktop (`100% auto` pinned width only: tall sections left
+ * most of `movie-middle.jpg` / `movie-bottom.jpg` effectively “outside” the painted band). */
+@media (max-width: 991.98px) {
+  .dharma-movies-bg2,
+  .dharma-movies-bg3 {
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+  }
 }
 
 .orange-bg.movies-orange-band {
@@ -925,6 +2419,8 @@ body {
   .video-name {
     font-size: 18px;
     margin-left: 5px;
+    /* Legacy `main.scss`: titles read as links (`#f37021`); wins over `a.text-reset` on whole-card Next `<Link>`. */
+    color: $brand-primary !important;
   }
 
   .flex-control-nav.flex-control-paging {
@@ -943,6 +2439,21 @@ body {
   }
 }
 
+/* iPhone SE / Galaxy S8+ class width — proportional “Movies” + section rails (covers 375 & 389-wide SE) */
+@media (max-width: 389px) {
+  .dharma-movies-bg .movies-head-xl {
+    font-size: clamp(37px, 10.65vw, 52px);
+    line-height: 0.93;
+    letter-spacing: 0.02em;
+  }
+
+  .dharma-movies-bg .f55,
+  .dharma-movies-bg2 .f55,
+  .dharma-movies-bg3 .f55 {
+    font-size: clamp(25px, 7.45vw, 33px);
+  }
+}
+
 /* Recent + Past sections must share the same content band as the Upcoming card
    column, otherwise their `.container` is wider than the Swiper above and the
    whole block looks shifted right. Mirrors `.movies-upcoming-card-column`. */
@@ -954,8 +2465,14 @@ body {
 @media (max-width: 575px) {
   .dharma-movies-bg2 .orange-bg > .container,
   .dharma-movies-bg3 .orange-bg > .container {
-    max-width: min(1120px, 88vw);
+    max-width: 100%;
   }
+}
+
+/* A little air under “Recent Releases” / “Past Releases” (head `<h1>` uses `.mb0`). */
+.dharma-movies-bg2 .recent-movie .title,
+.dharma-movies-bg3 .upcoming-movie .title {
+  margin-bottom: clamp(12px, 2.4vw, 28px);
 }
 
 /* Legacy .f120 ~120px on large screens */
@@ -1035,6 +2552,12 @@ body {
 .movies-search-combobox {
   position: relative;
   width: 100%;
+  /*
+   * Dropdown floats over page content (`z-index` on `.movies-search-dropdown`).
+   * Combobox establishes a stacking context so the open list reliably paints above the
+   * Upcoming Releases band without needing a high z-index on the entire `.movies-page-hero`.
+   */
+  z-index: 10;
 }
 
 .movies-search-field {
@@ -1047,13 +2570,23 @@ body {
 }
 
 .movies-search-input-icon {
+  /*
+   * Avoid `translateY(-50%)`: subpixel layering often makes tiny PNGs look soft/blurry
+   * on retina mobile; inset + margin:auto centers crisply without a transform.
+   */
   position: absolute;
   left: 14px;
-  top: 50%;
-  transform: translateY(-50%);
+  top: 0;
+  bottom: 0;
+  width: 22px;
+  height: 22px;
+  margin-top: auto;
+  margin-bottom: auto;
   z-index: 2;
   pointer-events: none;
-  opacity: 0.62;
+  display: block;
+  object-fit: contain;
+  // opacity: 0.62;
 }
 
 .movies-search-input {
@@ -1128,6 +2661,25 @@ body {
   background: #ececec;
 }
 
+/* Chunked list (~3 rows); more rows load on scroll — see `MovieSearchCombobox.jsx` */
+.movies-search-dropdown.movies-search-dropdown--paginated {
+  max-height: min(248px, 42vh);
+}
+
+.movies-search-scroll-hint {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  pointer-events: none;
+}
+
+.movies-search-scroll-hint-inner {
+  padding: 8px 14px;
+  background: rgba(0, 0, 0, 0.04);
+  color: #555;
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+}
+
 .movies-search-option {
   display: flex;
   flex-direction: row;
@@ -1184,6 +2736,23 @@ body {
   }
 }
 
+/* Home — Upcoming / Released: four posters per row on iPad Air class widths (Bootstrap md–lg tablet).
+ * Mirrors `.dharma-movies-bg3` past grid density; avoids 3-up from generic `max-width: 991px` alone. */
+@media (min-width: 768px) and (max-width: 991.98px) {
+  .dharma-home .mobile-row .col-flex {
+    flex: 0 0 25%;
+    max-width: 25%;
+  }
+}
+
+/* Movies — Past Releases on iPad / compact canvases (768–1366): four posters per row (`20%` = five-up is default above 1366). */
+@media (min-width: 768px) and (max-width: 1366.98px) {
+  .dharma-movies-bg3 .mobile-row .col-flex {
+    flex: 0 0 25%;
+    max-width: 25%;
+  }
+}
+
 @media (max-width: 575px) {
   .mobile-row .col-flex {
     flex: 0 0 50%;
@@ -1227,7 +2796,18 @@ body {
 
 .movies-upcoming-outer {
   width: 100%;
-  overflow: hidden;
+  /*
+   * Previously `overflow: hidden` clipped the Swiper (slides / pagination / gutters) —
+   * especially noticeable under the Movies hero search row; keep bleed visible horizontally.
+   */
+  overflow-x: clip;
+  overflow-y: visible;
+}
+
+@media (min-width: 768px) {
+  .movies-upcoming-outer {
+    overflow: visible;
+  }
 }
 
 .movies-upcoming-row {
@@ -1251,14 +2831,17 @@ body {
   padding-bottom: 8px;
   background: transparent !important;
   width: 100%;
+  overflow: visible;
 }
 
 .movies-upcoming-swiper-inner .swiper-wrapper {
   background: transparent;
+  align-items: flex-start;
 }
 
 .movies-upcoming-swiper-inner .swiper-slide {
   background: transparent;
+  height: auto;
 }
 
 .movies-upcoming-slide {
@@ -1309,15 +2892,45 @@ body {
     font-size: 14px;
   }
   .movies-upcoming-card-column {
-    max-width: min(1120px, 88vw);
+    max-width: min(1120px, 82vw);
+  }
+
+  .dharma-movies-bg .movies-upcoming-card-column {
+    max-width: min(1120px, 82vw);
   }
 }
 
 .movies-upcoming-frame {
-  border: 1px solid rgba(0, 0, 0, 0.06);
-  background: #fff;
-  box-shadow: 0 4px 22px rgba(0, 0, 0, 0.12);
-  overflow: hidden;
+  border: none;
+  background: transparent;
+  box-shadow: none;
+  overflow: visible;
+}
+
+/* `next/image` fill + responsive breakpoints (movies / PSI) */
+.movies-upcoming-slide-img-holder {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1600 / 713;
+
+  img {
+    object-fit: contain;
+    object-position: top center;
+    background-color: transparent;
+  }
+}
+
+.movies-recent-medium-inner {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 715 / 405;
+}
+
+.movies-past-thumb-inner {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 280 / 380;
+  max-height: 360px;
 }
 
 .movies-upcoming-meta {
@@ -1371,65 +2984,140 @@ body {
   vertical-align: top;
   object-fit: contain;
   object-position: top center;
-  background-color: #fff;
+  background-color: transparent;
 }
-
 /* "VIEW ALL" button — port of frontend/sass/main.scss `.btn-view-more` / `.btn-1`.
    An SVG `<rect>` draws the 2px orange outline; on hover the rect's
    stroke-dasharray is animated for the chase effect. */
+/* On viewports ≤ xs max (767px), centred — matches legacy `_mobile.scss` + `$screen-xs-max` */
+@media (max-width: 767.98px) {
+  .btn-view-more .mobile-center,
+  .btn-view-all .mobile-center,
+  .btn-view-enter .mobile-center {
+    float: none !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    text-align: center;
+  }
+}
+
 .btn-view-more {
-  .btn-1 {
-    background: transparent;
-    border: none;
-    font-weight: 100;
+  display: flow-root; /* contain floats without clipping SVG stroke (was `overflow: auto`) */
+  overflow: visible;
+}
+
+/* VIEW ALL — same as frontend/sass/main.scss `.btn-view-more` + `.btn-1` + `.btn`
+   (no Bootstrap `.btn`; Hammersmith comes from `.font-hammersmith` on the element). */
+.dh-view-all-btn {
+  display: block;
+  position: relative;
+  overflow: visible; /* `stroke` on `<rect>` sits half outside path; don’t clip any edge */
+  background: transparent; /* `.btn-1` */
+  border: none;
+  border-radius: 0;
+  font-family: var(--font-hammersmith), "Hammersmith One", Georgia, serif;
+  font-size: 16px; /* `.btn` */
+  font-weight: 400; /* `.btn` wins over `.btn-1` font-weight: 100 in legacy source order */
+  line-height: 1.42857143;
+  text-decoration: none !important;
+  text-transform: uppercase;
+  text-align: center;
+  color: $brand-primary !important;
+  cursor: pointer;
+  width: 100%;
+  max-width: 160px;
+  padding: 10px 0 8px;
+  box-sizing: border-box;
+
+  &:is(button) {
+    -webkit-appearance: none;
+    appearance: none;
     cursor: pointer;
-    padding: 0;
-    &:hover {
-      background: rgba(225, 51, 45, 0);
-      font-weight: 900;
-      letter-spacing: 1px;
-      rect {
-        stroke-width: 5;
-        stroke-dasharray: 15, 310;
-        stroke-dashoffset: 55;
-        transition: all 1.35s cubic-bezier(0.19, 1, 0.22, 1);
-      }
-    }
-    svg {
-      height: 40px;
-      left: 0;
-      position: absolute;
-      top: 0;
-      width: 100%;
-      pointer-events: none;
-    }
+    font-family: var(--font-hammersmith), "Hammersmith One", Georgia, serif;
+    font-size: 16px;
+    font-weight: 400;
+  }
+
+  svg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%; /* match padded box — fixed 40px clipped the bottom stroke on one side */
+    overflow: visible;
+    pointer-events: none; /* CSS fallback — inline style on element is the hard guard */
+    box-sizing: border-box;
+  }
+
+  rect {
+    fill: none;
+    stroke: $brand-primary;
+    stroke-width: 2;
+    vector-effect: non-scaling-stroke;
+    shape-rendering: geometricPrecision;
+    stroke-dasharray: 422, 0;
+    transition: all 1.35s cubic-bezier(0.19, 1, 0.22, 1);
+  }
+
+  .dh-view-all-label {
+    position: relative;
+    z-index: 1;
+  }
+
+  &:hover {
+    background: rgba(225, 51, 45, 0);
+    color: $brand-primary !important;
+    font-weight: 900;
+    letter-spacing: 1px;
+    text-decoration: none !important;
+
     rect {
-      fill: none;
-      stroke: $brand-primary;
-      stroke-width: 2;
-      stroke-dasharray: 422, 0;
+      stroke-width: 5;
+      stroke-dasharray: 15, 310;
+      stroke-dashoffset: 55;
       transition: all 1.35s cubic-bezier(0.19, 1, 0.22, 1);
     }
   }
-  .btn {
-    color: $brand-primary;
-    cursor: pointer;
-    display: block;
-    font-size: 16px;
-    font-weight: 400;
-    position: relative;
-    text-decoration: none;
-    text-transform: uppercase;
-    vertical-align: middle;
-    width: 100%;
-    max-width: 160px;
-    padding: 10px 0 8px;
-    margin: 0 auto;
+}
+
+/* `.btn-view-all` — main.scss: grey outline + inline-block `.btn` */
+.btn-view-all .dh-view-all-btn {
+  display: inline-block;
+  width: auto;
+  max-width: 160px;
+  color: $grey !important;
+
+  rect {
+    stroke: $grey;
+  }
+
+  &:hover {
+    color: $grey !important;
+
+    rect {
+      stroke: $grey;
+    }
+  }
+}
+
+/* Legacy home videos: `.btn-view-all` + `.color-primary` on the same anchor → orange */
+.btn-view-all .dh-view-all-btn.color-primary {
+  color: $brand-primary !important;
+
+  rect {
+    stroke: $brand-primary;
+  }
+
+  &:hover {
+    color: $brand-primary !important;
+
+    rect {
+      stroke: $brand-primary;
+    }
   }
 }
 
 .display-inline {
-  display: inline-block;
+  display: inline-block !important;
 }
 
 .dharma-top-pad {
@@ -1633,6 +3321,444 @@ body {
 }
 
 /* ----------------------------------------------------------------------- */
+/* Privacy + Disclaimer + CSR Policy — parity with                                */
+/* `frontend/views/content/privacy-policy.html` / `disclaimer.html`                   */
+/* + `.middle` positioning `frontend/sass/main.scss` / `_mobile.scss`               */
+/* ----------------------------------------------------------------------- */
+
+.privacy-page,
+.disclaimer-page,
+.csr-policy-page {
+  font-family: var(--font-karla), Karla, "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.428571429;
+  color: #333;
+  -webkit-font-smoothing: antialiased;
+  /*
+   * Fixed `SiteHeader`: same idea as `.home-hero` — pull page band under the bar for a flush
+   * handoff, but pad so the hero/title render *below* the navbar (not clipped behind it).
+   */
+  margin-top: calc(-1 * var(--dh-header-offset));
+  padding-top: var(--dh-header-offset);
+}
+
+/* Hero band (`privacy.jpg` **1920×947**) — Privacy + Disclaimer.
+ * Reference widths: Desktop ~1440 / ~1536, iPad Air ~820, tablets ~765, phones ~412.
+ * Intrinsic height @ W ≈ `W × 947÷1920`; capped by viewport so short laptops (~1440×700)
+ * and tall phones/tablets stay usable (`dvh` includes mobile browser chrome). */
+.privacy-page .privacy-page__banner.banner.dh-relative,
+.disclaimer-page .disclaimer-page__banner.banner.dh-relative,
+.csr-policy-page .csr-policy-page__banner.banner.dh-relative {
+  position: relative;
+  display: block;
+  width: 100%;
+  overflow: hidden;
+  aspect-ratio: 1920 / 947;
+  background-color: #1a1512;
+  max-height: min(
+    calc((100vw * 947) / 1920),
+    calc(94dvh - var(--dh-header-offset))
+  );
+}
+
+/* Short wide desktop (~1440×700, 1536×700-class) — keep fold + title visible */
+@media (min-width: 1200px) and (max-height: 760px) {
+  .privacy-page .privacy-page__banner.banner.dh-relative,
+  .disclaimer-page .disclaimer-page__banner.banner.dh-relative,
+.csr-policy-page .csr-policy-page__banner.banner.dh-relative {
+    max-height: min(
+      calc((100vw * 947) / 1920),
+      calc(52dvh - (var(--dh-header-offset) * 0.35)),
+      500px
+    );
+  }
+}
+
+/* Roomier short desktop (~1440×780) — allow a bit more band than ultrashort laptops */
+@media (min-width: 1200px) and (min-height: 761px) and (max-height: 860px) {
+  .privacy-page .privacy-page__banner.banner.dh-relative,
+  .disclaimer-page .disclaimer-page__banner.banner.dh-relative,
+.csr-policy-page .csr-policy-page__banner.banner.dh-relative {
+    max-height: min(
+      calc((100vw * 947) / 1920),
+      calc(62dvh - (var(--dh-header-offset) * 0.4)),
+      620px
+    );
+  }
+}
+
+.privacy-page .privacy-page__hero-img,
+.disclaimer-page .disclaimer-page__hero-img,
+.csr-policy-page .csr-policy-page__hero-img {
+  object-fit: cover;
+  object-position: center center;
+}
+
+/* Legacy extra-tight laptops — complements block above without double-clamping Disclaimer */
+@media (min-width: 1024px) and (max-width: 1199.98px) and (max-height: 780px) {
+  .privacy-page .privacy-page__banner.banner.dh-relative,
+  .disclaimer-page .disclaimer-page__banner.banner.dh-relative,
+.csr-policy-page .csr-policy-page__banner.banner.dh-relative {
+    max-height: min(
+      calc((100vw * 947) / 1920),
+      calc(50dvh),
+      440px
+    );
+  }
+}
+
+/* BS3-aligned content band widths (reuse overview container caps). */
+.privacy-page .privacy-page__container {
+  @media (min-width: 768px) and (max-width: 991.98px) {
+    max-width: 750px;
+  }
+
+  @media (min-width: 992px) and (max-width: 1199.98px) {
+    max-width: 970px;
+  }
+
+  @media (min-width: 1200px) {
+    max-width: 1170px;
+  }
+}
+
+.disclaimer-page .disclaimer-page__container {
+  @media (min-width: 768px) and (max-width: 991.98px) {
+    max-width: 750px;
+  }
+
+  @media (min-width: 992px) and (max-width: 1199.98px) {
+    max-width: 970px;
+  }
+
+  @media (min-width: 1200px) {
+    max-width: 1170px;
+  }
+}
+
+.csr-policy-page .csr-policy-page__container {
+  @media (min-width: 768px) and (max-width: 991.98px) {
+    max-width: 750px;
+  }
+
+  @media (min-width: 992px) and (max-width: 1199.98px) {
+    max-width: 970px;
+  }
+
+  @media (min-width: 1200px) {
+    max-width: 1170px;
+  }
+}
+
+/* Copy band: predictable horizontal rhythm (matches ~15–22px gutters on 412-wide devices) */
+.privacy-page .privacy-page__copy-section,
+.disclaimer-page .disclaimer-page__copy-section,
+.csr-policy-page .csr-policy-page__copy-section {
+  box-sizing: border-box;
+}
+
+.privacy-page .privacy-page__data-abt.data-abt,
+.disclaimer-page .disclaimer-page__data-abt.data-abt,
+.csr-policy-page .csr-policy-page__data-abt.data-abt {
+  box-sizing: border-box;
+}
+
+@media (max-width: 575.98px) {
+  .privacy-page .privacy-page__container {
+    padding-left: max(14px, env(safe-area-inset-left));
+    padding-right: max(14px, env(safe-area-inset-right));
+  }
+
+  .disclaimer-page .disclaimer-page__container {
+    padding-left: max(14px, env(safe-area-inset-left));
+    padding-right: max(14px, env(safe-area-inset-right));
+  }
+
+  .csr-policy-page .csr-policy-page__container {
+    padding-left: max(14px, env(safe-area-inset-left));
+    padding-right: max(14px, env(safe-area-inset-right));
+  }
+
+  .privacy-page .privacy-page__data-abt.data-abt {
+    padding-bottom: clamp(20px, 5vw, 30px);
+  }
+
+  .disclaimer-page .disclaimer-page__data-abt.data-abt,
+.csr-policy-page .csr-policy-page__data-abt.data-abt {
+    padding-bottom: clamp(20px, 5vw, 30px);
+  }
+}
+
+@media (min-width: 576px) and (max-width: 991.98px) {
+  .privacy-page .privacy-page__container {
+    padding-left: max(18px, env(safe-area-inset-left));
+    padding-right: max(18px, env(safe-area-inset-right));
+  }
+
+  .disclaimer-page .disclaimer-page__container {
+    padding-left: max(18px, env(safe-area-inset-left));
+    padding-right: max(18px, env(safe-area-inset-right));
+  }
+
+  .csr-policy-page .csr-policy-page__container {
+    padding-left: max(18px, env(safe-area-inset-left));
+    padding-right: max(18px, env(safe-area-inset-right));
+  }
+}
+
+.privacy-page .banner-title.dh-absulate,
+.disclaimer-page .banner-title.dh-absulate,
+.csr-policy-page .banner-title.dh-absulate {
+  position: absolute;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.privacy-page .banner-title.middle,
+.disclaimer-page .banner-title.middle,
+.csr-policy-page .banner-title.middle {
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;
+}
+
+.privacy-page .banner-title .privacy-page__hero-title.f120,
+.disclaimer-page .banner-title .disclaimer-page__hero-title.f120,
+.csr-policy-page .banner-title .csr-policy-page__hero-title.f120,
+.privacy-page .banner-title .f120,
+.disclaimer-page .banner-title .f120,
+.csr-policy-page .banner-title .f120 {
+  font-family: var(--font-hammersmith), "Hammersmith One", Georgia, "Times New Roman", Times, serif;
+  line-height: 1.06;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  text-shadow: 0 2px 24px rgba(0, 0, 0, 0.35);
+  hyphens: none;
+  overflow-wrap: break-word;
+}
+
+/* Typography scale keyed to typical devices: Android ~412; 765 tab; iPad Air 820; desktops 1440–1536 */
+.privacy-page .banner-title .f120,
+.disclaimer-page .banner-title .f120,
+.csr-policy-page .banner-title .f120 {
+  font-size: clamp(2.875rem, 5.5vw + 1rem, 7.5rem); /* fallback fluid layer */
+}
+
+/* ≤ ~430px — Android portrait (412×915 etc.) */
+@media (max-width: 430px) {
+  .privacy-page .banner-title .f120,
+  .disclaimer-page .banner-title .f120,
+.csr-policy-page .banner-title .f120 {
+    font-size: clamp(2.625rem, 12vw + 0.85rem, 3.375rem);
+    line-height: 1.07;
+    padding: 0 10px;
+  }
+
+  .privacy-page .banner-title.dh-absulate,
+  .disclaimer-page .banner-title.dh-absulate,
+.csr-policy-page .banner-title.dh-absulate {
+    padding: 0 env(safe-area-inset-right) 0 env(safe-area-inset-left);
+  }
+}
+
+@media (min-width: 431px) and (max-width: 599px) {
+  .privacy-page .banner-title .f120,
+  .disclaimer-page .banner-title .f120,
+.csr-policy-page .banner-title .f120 {
+    font-size: clamp(3.125rem, 9vw + 0.85rem, 4.25rem);
+  }
+}
+
+/* 600–899px — tablet portrait / small tablet (765, 820-ish alongside Bootstrap md) */
+@media (min-width: 600px) and (max-width: 899.98px) {
+  .privacy-page .banner-title .f120,
+  .disclaimer-page .banner-title .f120,
+.csr-policy-page .banner-title .f120 {
+    font-size: clamp(4.125rem, 7.5vw + 1.75rem, 5.875rem);
+  }
+}
+
+@media (min-width: 900px) and (max-width: 1199.98px) {
+  .privacy-page .banner-title .f120,
+  .disclaimer-page .banner-title .f120,
+.csr-policy-page .banner-title .f120 {
+    font-size: clamp(5.25rem, 5.5vw + 2.75rem, 6.875rem);
+  }
+}
+
+@media (min-width: 1200px) and (max-width: 1439.98px) {
+  .privacy-page .banner-title .f120,
+  .disclaimer-page .banner-title .f120,
+.csr-policy-page .banner-title .f120 {
+    font-size: clamp(5.875rem, 4vw + 3.75rem, 7.375rem);
+  }
+}
+
+@media (min-width: 1440px) {
+  .privacy-page .banner-title .f120,
+  .disclaimer-page .banner-title .f120,
+.csr-policy-page .banner-title .f120 {
+    font-size: clamp(6rem, 3.5vw + 3rem, 7.5rem); /* cap ≈120px */
+  }
+}
+
+.privacy-page .data-abt h4 {
+  font-family: inherit;
+  font-size: 18px;
+  line-height: 1.3;
+  font-weight: 700;
+  margin: 0 0 14px;
+  color: #333;
+}
+
+.disclaimer-page .data-abt .disclaimer-page__casting-heading {
+  font-family: inherit;
+  font-size: 18px;
+  line-height: 1.35;
+  font-weight: 700;
+  margin: 0 0 14px;
+  color: #333;
+}
+
+.csr-policy-page .data-abt .csr-policy-page__doc-title {
+  font-family: inherit;
+  font-size: 18px;
+  line-height: 1.35;
+  font-weight: 700;
+  margin: 0 0 14px;
+  color: #333;
+}
+
+.csr-policy-page .data-abt .csr-policy-page__section-heading {
+  font-family: inherit;
+  font-size: 18px;
+  line-height: 1.35;
+  font-weight: 700;
+  margin: 24px 0 14px;
+  color: #333;
+}
+
+.csr-policy-page .csr-policy-page__definitions,
+.csr-policy-page .csr-policy-page__definitions-sub {
+  margin: 0 0 12px;
+  padding-left: 1.25rem;
+  color: #333;
+  font-size: 14px;
+  line-height: 1.428571429;
+}
+
+.csr-policy-page .csr-policy-page__definitions > li {
+  margin-bottom: 10px;
+}
+
+.csr-policy-page .csr-policy-page__definitions-sub {
+  margin-top: 8px;
+  list-style-type: disc;
+}
+
+.csr-policy-page .data-abt a {
+  color: $brand-primary;
+  text-decoration: underline;
+}
+
+.privacy-page .data-abt p,
+.disclaimer-page .data-abt p,
+.csr-policy-page .data-abt p {
+  margin: 0 0 12px;
+  color: #333;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.428571429;
+}
+
+.privacy-page .data-abt p:last-child,
+.disclaimer-page .data-abt p:last-child,
+.csr-policy-page .data-abt p:last-child {
+  margin-bottom: 0;
+}
+
+@media (max-width: 767.98px) {
+  /*
+   * Navbar / orange curve overlaps top of hero on phones & small tabs (~412→~820 wide).
+   * Bias headline slightly downward for **both** Privacy + Disclaimer vs pure 50%/50%.
+   */
+  .privacy-page .banner-title.middle,
+  .disclaimer-page .banner-title.middle,
+.csr-policy-page .banner-title.middle {
+    width: 100%;
+    top: 56%;
+    transform: translate(-50%, -50%);
+  }
+
+  .privacy-page .privacy-page__data-abt.data-abt p {
+    font-size: 13px;
+  }
+
+  .disclaimer-page .disclaimer-page__data-abt.data-abt p {
+    font-size: 13px;
+  }
+
+  .csr-policy-page .csr-policy-page__data-abt.data-abt p {
+    font-size: 13px;
+  }
+
+  .privacy-page .privacy-page__data-abt.data-abt h4 {
+    font-size: clamp(13px, 1.85vw + 10px, 17px);
+    line-height: 1.35;
+  }
+
+  .disclaimer-page .disclaimer-page__data-abt.data-abt .disclaimer-page__casting-heading {
+    font-size: clamp(13px, 1.85vw + 10px, 17px);
+    line-height: 1.35;
+  }
+
+  .csr-policy-page .csr-policy-page__data-abt.data-abt .csr-policy-page__section-heading,
+  .csr-policy-page .csr-policy-page__data-abt.data-abt .csr-policy-page__doc-title {
+    font-size: clamp(13px, 1.85vw + 10px, 17px);
+    line-height: 1.35;
+  }
+
+  .csr-policy-page .csr-policy-page__definitions,
+  .csr-policy-page .csr-policy-page__definitions-sub {
+    font-size: 13px;
+  }
+}
+
+/* Short landscape / cramped height — shrink band + tighten title (privacy + disclaimer). */
+@media (max-width: 900px) and (max-height: 520px) {
+  .privacy-page .privacy-page__banner.banner.dh-relative,
+  .disclaimer-page .disclaimer-page__banner.banner.dh-relative,
+.csr-policy-page .csr-policy-page__banner.banner.dh-relative {
+    max-height: min(72dvh, 300px);
+  }
+
+  .privacy-page .banner-title .f120,
+  .disclaimer-page .banner-title .f120,
+.csr-policy-page .banner-title .f120 {
+    font-size: clamp(1.875rem, 8dvh + 0.65rem, 3.1rem) !important;
+    line-height: 1.05;
+  }
+
+  .privacy-page .banner-title.middle,
+  .disclaimer-page .banner-title.middle,
+.csr-policy-page .banner-title.middle {
+    top: 58%;
+    transform: translate(-50%, -50%);
+  }
+}
+
+@media (min-width: 1024px) and (max-height: 760px) {
+  .privacy-page .banner-title .f120,
+  .disclaimer-page .banner-title .f120,
+.csr-policy-page .banner-title .f120 {
+    font-size: clamp(3rem, 8dvh + 1.25rem, 5.65rem);
+  }
+}
+
+/* Typography + headline scales above target ~412-wide through ~1536-wide viewports. */
+
+/* ----------------------------------------------------------------------- */
 /* Movie inside page — parity with DharmaNodeRun frontend/sass/main.scss   */
 /* + frontend/sass/_mobile.scss (movie-inside-bg, curve, inner-bg, tabs).*/
 /* ----------------------------------------------------------------------- */
@@ -1646,7 +3772,7 @@ body {
 }
 
 .movie-inside-bg {
-  background: url("/frontend/img/main3.jpg");
+  // background: url("/frontend/img/main3.jpg");
   padding-top: 45%;
   background-size: cover !important;
   background-repeat: no-repeat !important;
@@ -1663,9 +3789,1682 @@ body {
   background-size: 100% 100%;
 }
 
+/* Keep legacy curve look even when `m15-top` utility class is present in markup. */
+.movie-inside-curve.m15-top {
+  background: url("/frontend/img/movie-inside-bg.png") no-repeat;
+  height: 20px;
+  margin-top: -37px;
+  z-index: 99;
+  position: relative;
+  background-size: 100% 100%;
+}
+
+@media (max-width: 480px) {
+  .movie-inside-curve,
+  .movie-inside-curve.m15-top {
+    height: 10px;
+  }
+}
+
+/* Keep detail page curve width aligned with article card width. */
+.news-events-detail .movie-inside-curve.m15-top {
+  max-width: 1000px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Keep hero row (sun + search) aligned to same content width as curve/card. */
+.news-events-detail > .container,
+.news-events-detail__article-section > .container {
+  max-width: 1000px;
+}
+
 .movie-inner-bg {
   background-color: #fff;
   position: relative;
+}
+
+/* News article `/news-events/[id]` — parity with Angular `news-detail.html` + `frontend/sass/main.scss`. */
+/* Legacy `.bg-primary { background-color: #ea611a }` — do not use Bootstrap `.bg-primary` (blue). */
+.news-events-detail {
+  background-color: #ea611a;
+  min-height: calc(100vh - 105px);
+  padding-bottom: 40px;
+}
+
+.news-events-detail__hero-row {
+  padding-top: 1rem;
+}
+
+.news-events-detail .dharma-sun img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+/* Nudge `sun.png` slightly lower in the hero (detail only — listing uses its own layout rules). */
+.news-events-detail .dharma-sun {
+  margin-top: clamp(10px, 1.85vw, 22px);
+}
+
+@media (min-width: 768px) {
+  .news-events-detail .news-search {
+    padding-top: 150px;
+    max-width: 700px;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .news-events-detail .news-search {
+    padding-top: 25px;
+  }
+}
+
+.news-events-detail .news-search input:focus {
+  outline: 0;
+}
+
+.news-events-detail .news-search input:focus::placeholder {
+  color: transparent;
+}
+
+/* iPad Mini/Air portrait-landscape: avoid cramped 4/8 split header. */
+@media (min-width: 768px) and (max-width: 1023.98px) {
+  .news-events-detail__hero-row > .col-md-4,
+  .news-events-detail__hero-row > .col-sm-4,
+  .news-events-detail__hero-row > .col-md-8,
+  .news-events-detail__hero-row > .col-sm-8 {
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
+
+  .news-events-detail .dharma-sun,
+  .news-events-page .dharma-sun {
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .news-events-detail .dharma-sun img,
+  .news-events-page .dharma-sun img {
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .news-events-detail .news-search {
+    max-width: min(700px, 100%);
+    margin-left: auto;
+    margin-right: auto;
+    padding-top: 32px;
+  }
+
+  .news-events-detail .mt15.mobile-text-center {
+    justify-content: center;
+  }
+
+  .news-events-detail .movie-inside-curve.m15-top,
+  .news-events-detail .news-detail-card.movie-inner-bg.mrgin-20 {
+    max-width: min(700px, 100%);
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+
+/* Desktop targets: 1440x700, 1440x900, 1536x864 */
+@media (min-width: 1366px) {
+  .news-events-detail .news-search {
+    max-width: 700px;
+  }
+
+  .news-events-detail .movie-inside-curve.m15-top,
+  .news-events-detail .news-detail-card.movie-inner-bg.mrgin-20 {
+    max-width: 1000px;
+  }
+}
+
+/* iPad Mini / narrow tablet portrait (~744+) + iPad Air portrait (~820×1180) — same hero: sun + search strip */
+@media (min-width: 740px) and (max-width: 900px) {
+  .news-events-detail > .container,
+  .news-events-detail__article-section > .container {
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+
+  .news-events-detail__hero-row > .col-md-4,
+  .news-events-detail__hero-row > .col-sm-4 {
+    flex: 0 0 33.333333%;
+    max-width: 33.333333%;
+  }
+
+  .news-events-detail__hero-row > .col-md-8,
+  .news-events-detail__hero-row > .col-sm-8 {
+    flex: 0 0 66.666667%;
+    max-width: 66.666667%;
+  }
+
+  .news-events-detail .dharma-sun {
+    text-align: left;
+  }
+
+  .news-events-detail .dharma-sun img {
+    width: 100%;
+    max-width: 340px;
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  .news-events-detail .news-search {
+    max-width: 100%;
+    margin-left: 0;
+    margin-right: 0;
+    padding-top: 105px;
+    padding-bottom: 18px;
+    position: relative;
+    z-index: 120;
+  }
+
+  .news-events-detail .mt15.mobile-text-center {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    align-items: baseline;
+    gap: 10px;
+    margin-top: 6px;
+    margin-bottom: 14px;
+    position: relative;
+    z-index: 120;
+  }
+
+  .news-events-detail .mt15.mobile-text-center .date-select,
+  .news-events-detail .mt15.mobile-text-center .btn-go {
+    margin-left: 0 !important;
+  }
+
+  .news-events-detail .movie-inside-curve.m15-top,
+  .news-events-detail .news-detail-card.movie-inner-bg.mrgin-20 {
+    max-width: 700px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .news-events-detail .movie-inside-curve.m15-top {
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: -20px;
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    background-position: center top;
+  }
+}
+
+/* iPad Pro/tablet-large: keep sun image from rendering oversized */
+@media (min-width: 1024px) and (max-width: 1366px) {
+  .news-events-detail .news-search {
+    max-width: 520px;
+    margin-left: 0;
+    margin-right: 0;
+    padding-top: 110px;
+  }
+
+  .news-events-detail .search-movie {
+    width: 100%;
+    max-width: 100%;
+    position: relative;
+  }
+
+  .news-events-detail .search-movie .search-date {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    height: 44px;
+    box-sizing: border-box;
+    padding: 0 12px 0 42px;
+    background: #da4f09;
+    border: 1px solid #da4f09;
+  }
+
+  .news-events-detail .search-movie .search-img {
+    top: 12px;
+    left: 12px;
+  }
+
+  .news-events-detail .mt15.mobile-text-center {
+    justify-content: flex-start;
+    gap: 12px;
+    margin-top: 8px;
+    margin-bottom: 14px;
+  }
+
+  .news-events-detail .movie-inside-curve.m15-top,
+  .news-events-detail .news-detail-card.movie-inner-bg.mrgin-20 {
+    max-width: 780px;
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .news-events-detail .news-detail-card.movie-inner-bg.mrgin-20 {
+    box-sizing: border-box;
+  }
+
+  .news-events-detail .movie-inside-curve.m15-top {
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    background-position: center top;
+  }
+
+  .news-events-detail .dharma-sun {
+    text-align: center;
+  }
+
+  .news-events-detail .dharma-sun img {
+    width: min(260px, 62vw);
+    max-width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+
+/* Android mobile target around 412x915 */
+@media (min-width: 390px) and (max-width: 430px) {
+  .news-events-detail > .container,
+  .news-events-detail__article-section > .container {
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+
+  .news-events-detail .search-movie .search-date {
+    height: 42px;
+  }
+}
+
+.news-events-detail .search-movie .search-img {
+  position: absolute;
+  top: 12px;
+  left: 10px;
+  z-index: 99;
+}
+
+.news-events-detail .search-movie .search-img img {
+  display: block;
+  width: 18px;
+  height: auto;
+}
+
+.news-events-detail .search-movie .search-date {
+  height: 45px;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+.news-events-detail .mt15.mobile-text-center {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.news-events-detail .mt15.mobile-text-center .date-select,
+.news-events-detail .mt15.mobile-text-center .btn-go {
+  margin-left: 0 !important;
+}
+
+/* Same Karla stack as `/news-events` listing hero — keeps search + Month/Year + Go aligned. */
+.news-events-detail .news-search {
+  font-family: var(--font-karla), "Karla", "Helvetica Neue", "AMRTYPEN", Helvetica, Arial, sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  width: 100%;
+}
+
+/* Underline dropdowns align with listing: same left edge / width as `.search-movie`, not floated center. */
+.news-events-detail .news-search .mt15.mobile-text-center {
+  justify-content: flex-start;
+  align-items: baseline;
+  width: 100%;
+  gap: 10px;
+}
+
+/* Angular `news-detail.html` clear control (legacy `.search-img2`) */
+.news-events-detail .search-movie .search-img2 img {
+  width: 25px;
+  height: auto;
+  display: block;
+}
+
+.news-events-detail .search-movie button.search-img2 {
+  position: absolute;
+  right: 12px;
+  top: 10px;
+  z-index: 99;
+}
+
+/* Nested listing grid on detail (avoid double orange band — only reuse `.news-events-page` card styles). */
+.news-events-detail .news-events-detail__listing-skin.news-events-page {
+  background: transparent !important;
+  min-height: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+/* News list page (`/news-events`) — keep parity with legacy Angular styling. */
+.news-events-page {
+  background-color: #ea611a !important;
+  min-height: calc(100vh - 105px);
+  padding-top: 0;
+  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + clamp(52px, 6.5vw, 72px));
+}
+
+.news-events-page > .container:first-child {
+  padding-top: calc(env(safe-area-inset-top, 0px) + clamp(36px, 7vw, 68px));
+}
+
+/* Listing hero sun + search row — slightly tighter gutters than Bootstrap default */
+.news-events-page > .container > .row {
+  --bs-gutter-x: 1rem;
+  --bs-gutter-y: 0;
+}
+
+@media (max-width: 991.98px) {
+  .news-events-page > .container > .row {
+    --bs-gutter-y: 0.375rem;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .news-events-page > .container > .row {
+    --bs-gutter-y: 0.25rem;
+  }
+}
+
+/* News listing responsive tuning by target device sizes:
+   Desktop (1440/1536), iPad Air (820), 1+ Tab (~765), Android (~412). */
+.news-events-page > .container {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+@media (min-width: 1366px) {
+  .news-events-page > .container {
+    max-width: 1240px;
+  }
+
+  .news-events-page .news-search {
+    max-width: 700px;
+  }
+
+  .news-events-page .movie-news-grid {
+    max-width: 1120px;
+  }
+}
+
+@media (min-width: 801px) and (max-width: 900px) {
+  .news-events-page > .container {
+    max-width: 760px;
+  }
+
+  .news-events-page .news-search {
+    max-width: 700px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .news-events-page .movie-news-grid {
+    max-width: 700px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 740px) and (max-width: 800px) {
+  .news-events-page > .container {
+    max-width: 700px;
+  }
+
+  .news-events-page .news-search {
+    max-width: 640px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .news-events-page .movie-news-grid {
+    max-width: 640px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 390px) and (max-width: 430px) {
+  .news-events-page > .container {
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+
+  .news-events-page .search-movie .search-date {
+    height: 42px;
+  }
+}
+
+/* Legacy `main.scss`: body / filters use Karla; only `.custom-dropdown .dropdown-menu li a` uses Hammersmith. */
+.news-events-page .news-search {
+  padding-top: 0;
+  margin-top: 0;
+  font-family: var(--font-karla), "Karla", "Helvetica Neue", "AMRTYPEN", Helvetica, Arial, sans-serif;
+}
+
+/* Sun + Search — two-column layout (`sm`/`md`+): vertically center graphic + form strip to each other. */
+@media (min-width: 576px) {
+  .news-events-page > .container:first-child > .row {
+    align-items: stretch;
+  }
+
+  .news-events-page > .container:first-child > .row > [class*="col-"]:first-child,
+  .news-events-page > .container:first-child > .row > [class*="col-"]:last-child {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .news-events-page > .container:first-child .news-search {
+    padding-top: 0;
+    margin-top: 0;
+    width: 100%;
+  }
+}
+
+/*
+ * Narrower viewports (iPad portrait / compact tablet): same flex math as desktop, but vw-based
+ * nudge (~1.85vw) lands too shallow vs wide monitors — bump form down so alignment matches `.news-events-page` hero.
+ */
+@media (min-width: 576px) and (max-width: 1199.98px) {
+  .news-events-page > .container:first-child .news-search {
+    padding-top: clamp(18px, 3.1vw, 44px);
+  }
+}
+
+/* Wide desktop: keep light offset (looks correct beside sun at 1240–1440+) */
+@media (min-width: 1200px) {
+  .news-events-page > .container:first-child .news-search {
+    padding-top: clamp(10px, 1.85vw, 22px);
+    margin-top: 0;
+    width: 100%;
+  }
+}
+
+
+@media (max-width: 767.98px) {
+  /* Stacked handset / narrow tablet: reopen space beneath sun graphic */
+  .news-events-page .news-search {
+    padding-top: clamp(18px, 4.5vw, 40px);
+  }
+}
+
+/* Month / Year / Go live under Search — span same width band + share bottom alignment (avoid centered cluster vs full-bleed field). */
+.news-events-page .news-search > .mt15.mobile-text-center,
+.news-events-detail .news-search > .mt15.mobile-text-center {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: flex-start;
+  column-gap: 1.25rem;
+  row-gap: 10px;
+  width: 100%;
+}
+
+.news-events-page .news-search > .mt15.mobile-text-center .display-inline.date-select.ml15,
+.news-events-page .news-search > .mt15.mobile-text-center .btn-go.ml15,
+.news-events-detail .news-search > .mt15.mobile-text-center .display-inline.date-select.ml15,
+.news-events-detail .news-search > .mt15.mobile-text-center .btn-go.ml15 {
+  margin-left: 0 !important;
+}
+
+@media (max-width: 575.98px) {
+  .news-events-page .news-search > .mt15.mobile-text-center,
+  .news-events-detail .news-search > .mt15.mobile-text-center {
+    justify-content: center;
+    align-items: baseline;
+  }
+}
+
+.news-events-page .search-movie .search-img {
+  position: absolute;
+  top: 12px;
+  left: 10px;
+  z-index: 99;
+}
+
+.news-events-page .search-movie .search-date {
+  background: #da4f0a;
+  border: 1px solid #da4f0a;
+  width: 100%;
+  height: 45px;
+  padding: 0 12px 0 45px;
+  color: #fff;
+  font-size: 16px;
+  font-family: var(--font-karla), "Karla", "Helvetica Neue", "AMRTYPEN", Helvetica, Arial, sans-serif;
+}
+
+.news-events-page .search-movie .search-date::placeholder {
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.news-events-page .search-movie .search-date:focus {
+  outline: 0;
+}
+
+/* Legacy `news-events.html`: `.dropdown.custom-dropdown` + `ul.dropdown-menu` (not native `<select>`) */
+.news-events-page .news-search .custom-dropdown,
+.news-events-detail .news-search .custom-dropdown {
+  position: relative;
+  display: inline-block;
+  vertical-align: middle;
+
+  .dropdown-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 0;
+    min-height: 45px;
+    box-sizing: border-box;
+    background: transparent;
+    color: #fff;
+    border: none;
+    border-bottom: 1px solid #fff;
+    padding: 6px 0 5px;
+    font-size: 20px;
+    line-height: 1.42857143;
+    font-weight: 400;
+    cursor: pointer;
+    font-family: var(--font-karla), "Karla", "Helvetica Neue", "AMRTYPEN", Helvetica, Arial, sans-serif;
+    min-width: 5.5rem;
+    text-align: left;
+    box-shadow: none;
+
+    /* BS5 injects its own caret on `.dropdown-toggle::after`; legacy uses `select-arrow.png` only */
+    &::after,
+    &::before {
+      display: none !important;
+      content: none !important;
+    }
+
+    &:focus {
+      outline: 0;
+      box-shadow: none;
+      border-bottom-color: #fff;
+      color: #fff;
+    }
+
+    img {
+      padding-left: 15px;
+      display: block;
+      flex-shrink: 0;
+    }
+  }
+
+  .dropdown-menu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 1060;
+    min-width: 115px;
+    max-height: min(40vh, 260px);
+    margin: 4px 0 0;
+    padding: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    list-style: none;
+    background-color: #fff;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 4px;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
+    -webkit-overflow-scrolling: touch;
+
+    &.show {
+      display: block;
+    }
+
+    li {
+      margin: 0;
+      padding: 0;
+
+      .news-events-dropdown__item {
+        display: block;
+        width: 100%;
+        padding: 10px 20px;
+        margin: 0;
+        border: none;
+        background: none;
+        color: $black;
+        font-family: var(--font-hammersmith), "Hammersmith One", Georgia, serif;
+        font-size: 14px;
+        text-align: left;
+        cursor: pointer;
+        box-sizing: border-box;
+        line-height: 1.42857143;
+
+        &:hover,
+        &:focus {
+          text-decoration: none;
+          color: #fff !important;
+          background-color: #ea611a;
+          outline: 0;
+        }
+      }
+    }
+  }
+}
+
+.news-events-page .news-events-filters__select {
+  appearance: none;
+  background-color: transparent;
+  color: #fff;
+  border: none;
+  border-bottom: 1px solid #fff;
+  cursor: pointer;
+  margin-right: 10px;
+  padding: 7px 24px 4px 6px;
+  font-size: 20px;
+  background-image: url("/frontend/img/select-arrow.png");
+  background-repeat: no-repeat;
+  background-position: right 4px center;
+  background-size: 10px auto;
+  min-width: 80px;
+}
+
+.news-events-page .news-events-filters__select option {
+  color: #171717;
+  background: #fff;
+}
+
+.news-events-page .btn-go button {
+  background: transparent;
+  border: none;
+  color: #fff;
+  font-family: var(--font-karla), "Karla", "Helvetica Neue", "AMRTYPEN", Helvetica, Arial, sans-serif;
+  font-size: 22px;
+  font-weight: 400;
+  line-height: 1.42857143;
+  padding: 0;
+  vertical-align: middle;
+  vertical-align: -webkit-baseline-middle;
+}
+
+.news-events-page .btn-go button:focus {
+  outline: 0;
+}
+
+/* Match legacy `<button class="btn">Go</button>` without Bootstrap chrome */
+.news-events-page .btn-go button.btn {
+  background-color: transparent !important;
+  border: none !important;
+  border-radius: 0;
+  box-shadow: none !important;
+  color: #fff !important;
+  font-family: var(--font-karla), "Karla", "Helvetica Neue", "AMRTYPEN", Helvetica, Arial, sans-serif !important;
+  padding: 0;
+  vertical-align: baseline;
+
+  &:hover,
+  &:focus-visible {
+    color: #fff !important;
+    background-color: transparent !important;
+  }
+}
+
+.news-events-page .news-search .btn-go button,
+.news-events-detail .news-search .btn-go button {
+  min-height: 45px;
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  line-height: 1.25;
+}
+
+.news-events-page .movie-news-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  max-width: 920px;
+  margin: 0 auto;
+}
+
+.news-events-page .masonry-box {
+  background: #1a1a1a;
+  box-shadow: none;
+  padding: 0;
+}
+
+.news-events-page .movie-news-grid .masonry-brick > a,
+.news-events-page .movie-news-grid .masonry-brick > a:hover,
+.news-events-page .movie-news-grid .masonry-brick > a:focus,
+.news-events-page .movie-news-grid .masonry-brick > a:visited {
+  text-decoration: none;
+  color: inherit;
+}
+
+.news-events-page .masonry-box .padd10 {
+  background: #171717;
+  padding: 10px 10px 8px;
+}
+
+.news-events-page .masonry-box .img-animate {
+  overflow: hidden;
+  background: #111319;
+}
+
+.news-events-page .masonry-box .img-animate img {
+  width: 100%;
+  height: auto;
+  display: block;
+  transition:
+    transform 300ms ease,
+    filter 300ms ease;
+}
+
+.news-events-page .movie-news-grid .masonry-brick > a:hover .img-animate img,
+.news-events-page .movie-news-grid .masonry-brick > a:focus-visible .img-animate img {
+  transform: scale(1.03);
+  filter: brightness(0.88);
+}
+
+.news-events-page .news-title h4 {
+  color: #f37021;
+  font-size:18px;
+  line-height: 1.1;
+  font-family: var(--font-karla), Karla, sans-serif;
+  font-weight: 500;
+  margin: 0;
+  transition: color 200ms ease;
+}
+
+.news-events-page .movie-news-grid .masonry-brick > a:hover .news-title h4,
+.news-events-page .movie-news-grid .masonry-brick > a:focus-visible .news-title h4 {
+  color: #da4f09;
+}
+
+.news-events-page .news-date .f12 {
+  color: #d7d7d7;
+  font-size: 11px;
+}
+
+.news-events-page .cast-credit .btn {
+  min-width: 96px;
+}
+
+@media (max-width: 991.98px) {
+  .news-events-page .movie-news-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    max-width: 640px;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .news-events-detail .dharma-sun,
+  .news-events-page .dharma-sun {
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .news-events-detail .dharma-sun img,
+  .news-events-page .dharma-sun img {
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .news-events-detail > .container,
+  .news-events-detail__article-section > .container {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .news-events-detail__hero-row,
+  .news-events-detail__article-section .row {
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  .news-events-detail__hero-row > [class*="col-"],
+  .news-events-detail__article-section .row > [class*="col-"] {
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  .news-events-detail .movie-inside-curve.m15-top,
+  .news-events-detail .news-detail-card.movie-inner-bg.mrgin-20 {
+    width: 100%;
+    max-width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .news-events-detail .news-detail-card.movie-inner-bg.mrgin-20 {
+    padding-left: 18px;
+    padding-right: 18px;
+  }
+
+  .news-events-detail {
+    overflow-x: hidden;
+  }
+
+  .news-events-detail .container,
+  .news-events-detail .row {
+    max-width: 100%;
+  }
+
+  .news-events-page .news-search {
+    padding-top: 12px;
+  }
+
+  .news-events-detail .news-search {
+    max-width: 100%;
+    width: 100%;
+    box-sizing: border-box;
+    padding-bottom: 28px;
+    position: relative;
+    z-index: 3;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .news-events-detail .search-movie .search-date {
+    height: 42px;
+    width: 100%;
+  }
+
+  .news-events-detail .news-search .mt15.mobile-text-center {
+    justify-content: center;
+    align-items: baseline;
+    width: 100%;
+  }
+
+  .news-events-detail .mt15.mobile-text-center {
+    text-align: center;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 10px;
+    margin-bottom: 18px;
+    position: relative;
+    z-index: 3;
+  }
+
+  .news-events-detail .mt15.mobile-text-center .date-select,
+  .news-events-detail .mt15.mobile-text-center .btn-go {
+    margin-left: 0 !important;
+  }
+
+  .news-events-page .mobile-text-center {
+    text-align: center;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+
+  .news-events-page .mobile-text-center .date-select,
+  .news-events-page .mobile-text-center .btn-go {
+    margin-left: 0 !important;
+  }
+
+  .news-events-page .movie-news-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    max-width: 100%;
+    gap: 10px;
+  }
+
+  @media (max-width: 389.98px) {
+    .news-events-page .movie-news-grid {
+      grid-template-columns: minmax(0, 1fr);
+      max-width: 240px;
+      gap: 10px;
+    }
+  }
+
+  .news-events-page .news-events-filters__select {
+    font-size: 18px;
+    min-width: 80px;
+    margin-right: 0;
+    padding: 7px 22px 4px 4px;
+    background-position: right 4px center;
+  }
+
+  /* Legacy `_mobile.scss` does not shrink Month/Year — keep `main.scss` 20px toggles */
+  .news-events-page .news-search .custom-dropdown .dropdown-toggle,
+  .news-events-detail .news-search .custom-dropdown .dropdown-toggle {
+    font-size: 20px;
+  }
+}
+
+/* Small tablets (e.g. 765px) should not use narrow-phone card width */
+@media (min-width: 576px) and (max-width: 767.98px) {
+  .news-events-page .mobile-text-center {
+    text-align: center;
+  }
+
+  .news-events-detail .mt15.mobile-text-center {
+    text-align: center;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .news-events-page .movie-news-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    max-width: 640px;
+    gap: 12px;
+  }
+}
+
+/* iPad Air range (820x1180) */
+@media (min-width: 768px) and (max-width: 991.98px) {
+  .news-events-page .mobile-text-center,
+  .news-events-detail .mt15.mobile-text-center {
+    text-align: center;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .news-events-page .mobile-text-center .date-select,
+  .news-events-page .mobile-text-center .btn-go,
+  .news-events-detail .mt15.mobile-text-center .date-select,
+  .news-events-detail .mt15.mobile-text-center .btn-go {
+    margin-left: 0 !important;
+  }
+}
+
+/* Desktop range (1440x700 / 1440x900 / 1536x864) */
+@media (min-width: 1366px) {
+  .news-events-page .mobile-text-center,
+  .news-events-detail .mt15.mobile-text-center {
+    justify-content: center;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 18px;
+  }
+}
+
+
+/* Legacy `.search-date` — dark orange field; match `/news-events` sizing (full-width band below sun). */
+.news-events-detail .search-movie .search-date {
+  background: #da4f0a;
+  border: 1px solid #da4f0a;
+  width: 100%;
+  height: 45px;
+  padding: 0 12px 0 45px;
+  color: $white;
+  font-size: 16px;
+  font-family: var(--font-karla), "Karla", "Helvetica Neue", "AMRTYPEN", Helvetica, Arial, sans-serif;
+  -webkit-appearance: textfield;
+  box-sizing: border-box;
+}
+
+/* Prevent overflow from legacy `.search-date` sizing. */
+.news-events-detail .search-movie,
+.news-events-detail .search-movie .search-date {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.news-events-detail .search-movie .search-date::placeholder {
+  color: $white;
+}
+
+.news-events-detail .search-in,
+.news-events-detail .search-date {
+  background: transparent;
+  border: 1px solid $brand-primary;
+  width: 100%;
+  height: 45px;
+  padding: 0 0 0 45px;
+  color: $white;
+}
+
+.news-events-detail input[type="search"] {
+  -webkit-appearance: none;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+.news-events-detail .img-responsive {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+.news-events-detail img.doneLoading {
+  opacity: 1;
+}
+
+.news-events-detail .date-select {
+  vertical-align: middle;
+}
+
+.news-events-detail .news-events-filters__select {
+  appearance: none;
+  background-color: transparent;
+  color: $white;
+  border: none;
+  border-bottom: 1px solid $white;
+  cursor: pointer;
+  margin-right: 10px;
+  padding: 7px 28px 6px 6px;
+  font-size: 18px;
+  min-width: 6.5rem;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%23ffffff' d='M6 8 0 0h12z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  background-size: 11px 7px;
+}
+
+.news-events-detail .news-events-filters__select:focus {
+  outline: none;
+  border-bottom-color: $white;
+}
+
+.news-events-detail .news-events-filters__select option {
+  color: $black;
+  background-color: $white;
+}
+
+/* Legacy `.btn-go` — Karla / 22px / baseline alignment (`main.scss` + Bootstrap body) */
+.news-events-detail .btn-go button {
+  background: transparent;
+  border: none;
+  color: $white;
+  font-family: var(--font-karla), "Karla", "Helvetica Neue", "AMRTYPEN", Helvetica, Arial, sans-serif;
+  font-size: 22px;
+  font-weight: 400;
+  line-height: 1.42857143;
+  padding: 0;
+  vertical-align: middle;
+  vertical-align: -webkit-baseline-middle;
+  cursor: pointer;
+}
+
+.news-events-detail .btn-go button:hover {
+  color: $white;
+  opacity: 0.92;
+}
+
+.news-events-detail .btn-go button:focus {
+  color: $white;
+  outline: 0;
+  box-shadow: none;
+}
+
+/* Match listing: `<button class="btn">Go</button>` without Bootstrap chrome */
+.news-events-detail .btn-go button.btn {
+  background-color: transparent !important;
+  border: none !important;
+  border-radius: 0;
+  box-shadow: none !important;
+  color: #fff !important;
+  font-family: var(--font-karla), "Karla", "Helvetica Neue", "AMRTYPEN", Helvetica, Arial, sans-serif !important;
+  font-size: 22px;
+  font-weight: 400;
+  line-height: 1.42857143;
+  padding: 0;
+  vertical-align: middle;
+  vertical-align: -webkit-baseline-middle;
+
+  &:hover,
+  &:focus-visible {
+    color: #fff !important;
+    background-color: transparent !important;
+  }
+}
+
+/* News detail typography — larger parity with live Dharma site (hero titles read ~32–40px). */
+.news-events-detail .news-detail-title {
+  font-size: clamp(28px, 2.6vw, 42px);
+  font-weight: 700;
+  line-height: 1.16;
+  letter-spacing: -0.01em;
+}
+
+.news-events-detail .news-detail-date {
+  font-size: 12px;
+  color: #9a9a9a;
+}
+
+/* Match legacy card shell exactly (same as `.mrgin-20` + `.movie-inner-bg`). */
+.news-events-detail .news-detail-card.movie-inner-bg.mrgin-20 {
+  padding: 0 26px;
+  background-color: #fff;
+  position: relative;
+  max-width: 1000px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+
+@media (max-width: 767.98px) {
+  /* `sun.png` — keep readable but not billboard-sized next to stacked filters */
+  .news-events-detail .dharma-sun,
+  .news-events-page .dharma-sun {
+    max-width: clamp(140px, 38vw, 200px);
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .news-events-detail .dharma-sun img,
+  .news-events-page .dharma-sun img {
+    max-width: 100%;
+    width: auto;
+    height: auto;
+  }
+}
+
+.news-events-detail .top-set.news-detail-date {
+  padding: 4px 0 10px;
+}
+
+/* Body: readable on white */
+.news-events-detail .news-detail-body.news-data,
+.news-events-detail .movie-inner-bg .news-data {
+  padding: 16px 0 24px;
+  color: $black;
+  font-size: 17px;
+  line-height: 1.65;
+}
+
+@media (min-width: 992px) {
+  .news-events-detail .news-detail-body.news-data,
+  .news-events-detail .movie-inner-bg .news-data {
+    font-size: 18px;
+    line-height: 1.7;
+  }
+}
+
+.news-events-detail .news-detail-body.news-data p,
+.news-events-detail .movie-inner-bg .news-data p {
+  color: $black;
+  margin-bottom: 1rem;
+  font-size: inherit;
+}
+
+.news-events-detail .news-detail-body.news-data a,
+.news-events-detail .movie-inner-bg .news-data a {
+  color: $brand-primary;
+}
+
+.news-events-detail .banner-news {
+  border-top: 1px solid #c8c8c8;
+  padding: 8px 0 8px;
+}
+
+@media (min-width: 768px) {
+  .news-events-detail .banner-news {
+    padding: 9px 0 10px;
+  }
+}
+
+/* Related heading — scale up with page */
+.news-events-detail .pb40 > h1.font-hammersmith.text-up.line45 {
+  font-size: clamp(26px, 3vw, 34px);
+  line-height: 1.1;
+}
+
+.news-events-detail .share-section h4 {
+  font-size: 1.125rem;
+}
+
+@media (min-width: 768px) {
+  .news-events-detail .share-section h4 {
+    font-size: 1.25rem;
+  }
+}
+
+/* Legacy `.share-section` buttons */
+.news-events-detail .share-section button {
+  background: #fff;
+  color: #383838;
+  border: none;
+  padding: 6px 20px;
+  border-radius: 2px;
+  font-size: 18px;
+  margin: 0 4px;
+  font-weight: 700;
+}
+
+@media (min-width: 768px) {
+  .news-events-detail .share-section button {
+    font-size: 20px;
+    padding: 6px 22px;
+  }
+}
+
+.news-events-detail .share-section button i {
+  vertical-align: middle;
+  border-right: 1px solid;
+  padding: 0 8px 0 1px;
+  margin: 0 8px 0 0;
+}
+
+.news-events-detail .share-section button:focus,
+.news-events-detail .share-section button:active {
+  outline: 0;
+}
+
+.news-events-detail .img-animate {
+  overflow: hidden;
+}
+
+.news-events-detail .img-animate img {
+  width: 100%;
+  height: auto;
+  display: block;
+  transition: transform 300ms ease;
+}
+
+.news-events-detail .img-animate:hover img {
+  transform: scale(1.1);
+}
+
+.news-events-detail .black-bg .news-title h4 {
+  font-size: 1.05rem;
+  line-height: 1.35;
+}
+
+@media (min-width: 768px) {
+  .news-events-detail .black-bg .news-title h4 {
+    font-size: 1.125rem;
+  }
+}
+
+/* Bottom area parity tweak: share strip + related cards like dharmanodeRun */
+.news-events-detail .share-section {
+  margin-top: 15px;
+}
+
+.news-events-detail .share-section h4 {
+  font-size: 24px;
+  line-height: 1;
+  margin-right: 10px;
+  vertical-align: middle;
+}
+
+.news-events-detail .news-share-section .news-share-btn {
+  font-family: "karla";
+  font-size: 26px;
+  line-height: 1.2;
+  text-transform: lowercase;
+  padding: 6px 20px;
+}
+
+/* Keeps headline + FB/Twitter on one line on tablet/desktop (`h4` is inline-block). */
+.news-events-detail .share-section.news-share-section .news-share-section__buttons {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  vertical-align: middle;
+}
+
+.news-events-detail .pb40 > h1.font-hammersmith.text-up.line45 {
+  font-size: clamp(40px, 4vw, 52px);
+  line-height: 0.95;
+  margin-left: 0 !important;
+  margin-bottom: 16px !important;
+  margin-top: 30px !important;
+}
+
+.news-events-detail .related-articles-title {
+  color: #cc4a21;
+  font-size: clamp(40px, 4vw, 52px);
+  line-height: 0.95;
+  letter-spacing: 1px;
+  margin-left: 0 !important;
+  margin-bottom: 16px !important;
+}
+
+.news-events-detail .related-article-col {
+  margin-bottom: 0;
+}
+
+.news-events-detail .related-article-card {
+  background-color: #111319;
+}
+
+.news-events-detail .related-article-card .img-animate img {
+  aspect-ratio: 1.23 / 1;
+  object-fit: cover;
+}
+
+.news-events-detail .related-news-swiper {
+  padding-bottom: 36px;
+}
+
+.news-events-detail .related-news-swiper .swiper-pagination {
+  bottom: 8px !important;
+}
+
+.news-events-detail .related-news-swiper .swiper-pagination-bullet {
+  background: rgba(255, 255, 255, 0.5);
+  opacity: 1;
+  margin: 0 10px !important;
+}
+
+.news-events-detail .related-news-swiper .swiper-pagination-bullet-active {
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.news-events-detail .related-article-copy {
+  padding: 12px 12px 10px;
+  min-height: 106px;
+}
+
+.news-events-detail .related-article-card .news-title.h60 {
+  min-height: 58px;
+}
+
+.news-events-detail .related-article-card .news-title h4.related-article-title {
+  color: #fff;
+  font-family: var(--font-karla), "Karla", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.15;
+  text-transform: none;
+}
+
+.news-events-detail .related-article-card .news-date .f12 {
+  font-size: 13px;
+  color: #919191 !important;
+}
+
+.news-events-detail .related-article-date {
+  color: #a0a0a0 !important;
+  font-size: 11px;
+  text-transform: uppercase;
+}
+
+@media (max-width: 767.98px) {
+  /* Mobile-only: “Share this article” + FB/Twitter centered as a stack */
+  .news-events-detail .share-section.news-share-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    row-gap: clamp(10px, 2vw, 16px);
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  .news-events-detail .share-section.news-share-section > h4 {
+    width: 100%;
+    margin-right: 0 !important;
+    margin-bottom: 0 !important;
+    text-align: center !important;
+    vertical-align: middle;
+    display: block !important;
+  }
+
+  .news-events-detail .share-section.news-share-section .news-share-section__buttons {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+  }
+
+  .news-events-detail
+    .share-section.news-share-section
+    .news-share-section__buttons
+    > .display-inline {
+    display: inline-flex !important;
+    flex: 0 0 auto;
+    align-items: center;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+
+  .news-events-detail .share-section h4 {
+    font-size: 20px;
+    margin-bottom: 10px;
+  }
+  .news-events-detail .news-share-section .news-share-btn {
+    font-size: 18px;
+    padding: 6px 12px;
+  }
+  .news-events-detail .related-articles-title {
+    font-size: 34px;
+    line-height: 1;
+  }
+  .news-events-detail .related-article-col {
+    margin-bottom: 20px;
+  }
+}
+
+/* Mobile + iPad: 1 full card + ½ of next on the right (left-aligned; no previous-slide peek) */
+@media (max-width: 991.98px) {
+  .news-events-detail .related-articles-section {
+    overflow: hidden;
+  }
+
+  .news-events-detail .related-articles-section .mobs-slider {
+    overflow: hidden;
+    padding-left: clamp(12px, 4vw, 18px);
+    padding-right: 0;
+  }
+
+  .news-events-detail .related-news-swiper.related-news-swiper--peek {
+    overflow: hidden;
+    padding-bottom: 36px;
+  }
+
+  .news-events-detail .related-news-swiper .swiper-wrapper {
+    align-items: stretch;
+  }
+
+  .news-events-detail .related-news-swiper .swiper-slide {
+    width: calc((100% - 12px) / 1.5) !important;
+    flex-shrink: 0;
+    height: auto;
+    box-sizing: border-box;
+  }
+
+  .news-events-detail .related-article-card {
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .news-events-detail .related-article-card .img-animate {
+    overflow: hidden;
+  }
+
+  .news-events-detail .related-article-card .img-animate img {
+    aspect-ratio: 16 / 10;
+    object-fit: cover;
+    object-position: center top;
+    display: block;
+    width: 100%;
+  }
+
+  .news-events-detail .related-article-copy {
+    min-height: 0;
+    padding: 8px 10px 10px;
+  }
+
+  .news-events-detail .related-article-card .news-title.h60 {
+    min-height: 42px;
+  }
+
+  .news-events-detail .related-article-card .news-title h4.related-article-title {
+    font-size: 14px;
+    line-height: 1.2;
+  }
+
+  .news-events-detail .related-article-date {
+    font-size: 10px;
+  }
+
+  .news-events-detail .pb40.related-articles-section > h1.font-hammersmith {
+    font-size: clamp(28px, 7vw, 34px);
+    margin-left: 12px !important;
+  }
+}
+
+@media (min-width: 992px) {
+  /*
+   * Do not use `width: auto` here — Swiper sets slide width from `slidesPerView: 3` + gap;
+   * `width: auto !important` made each slide content-sized (big vs small cards).
+   */
+  .news-events-detail .related-news-swiper.related-news-swiper--peek .swiper-wrapper {
+    align-items: stretch;
+  }
+
+  .news-events-detail .related-news-swiper.related-news-swiper--peek .swiper-slide {
+    height: auto;
+    flex-shrink: 0;
+    box-sizing: border-box;
+    display: flex;
+  }
+
+  .news-events-detail .related-news-swiper.related-news-swiper--peek .swiper-slide > a {
+    flex: 1;
+    width: 100%;
+    display: flex;
+    min-height: 0;
+  }
+
+  .news-events-detail .related-news-swiper.related-news-swiper--peek .related-article-card {
+    flex: 1;
+    width: 100%;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border-radius: 2px;
+  }
+
+  .news-events-detail .related-news-swiper.related-news-swiper--peek .related-article-card .img-animate {
+    flex-shrink: 0;
+    overflow: hidden;
+  }
+
+  .news-events-detail .related-news-swiper.related-news-swiper--peek .related-article-copy {
+    flex: 1;
+    min-height: 0;
+  }
+
+  /* Same visible image frame on every slide (covers odd source proportions). */
+  .news-events-detail .related-news-swiper.related-news-swiper--peek .related-article-card .img-animate img {
+    width: 100%;
+    aspect-ratio: 16 / 10;
+    object-fit: cover;
+    object-position: center top;
+    display: block;
+  }
+
+  /* Dots sit in normal flow — avoids large empty band under slides (legacy flex: bottom -15px). */
+  .news-events-detail .related-news-swiper {
+    padding-bottom: 0;
+  }
+
+  .news-events-detail .related-news-swiper .swiper-pagination {
+    position: relative;
+    bottom: auto !important;
+    margin-top: 12px;
+    line-height: 0;
+  }
+}
+
+.h60 {
+  min-height: 60px;
+}
+
+@media (max-width: 767.98px) {
+  .mob-top-em {
+    margin-bottom: 20px;
+  }
+  .dis-bl {
+    display: block;
+  }
+  .text-c-m {
+    text-align: center;
+  }
+  .mobile-text-center {
+    text-align: center;
+  }
+}
+
+/* News detail: small-tablet fix (e.g. 765x738) should not use phone-only layout */
+@media (min-width: 576px) and (max-width: 767.98px) {
+  .news-events-detail .news-search {
+    padding-top: 80px;
+    max-width: 640px;
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .news-events-detail__hero-row {
+    margin-left: -15px;
+    margin-right: -15px;
+  }
+
+  .news-events-detail__hero-row > [class*="col-"] {
+    padding-left: 15px;
+    padding-right: 15px;
+  }
+
+  .news-events-detail .movie-inside-curve.m15-top,
+  .news-events-detail .news-detail-card.movie-inner-bg.mrgin-20 {
+    max-width: 640px;
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .news-events-detail .news-detail-card.movie-inner-bg.mrgin-20 {
+    padding-left: 30px;
+    padding-right: 30px;
+  }
+}
+
+.m15-top {
+  margin-top: 15px;
+}
+.mrgin-20 {
+  padding: 0 30px;
+}
+.makePointer {
+  cursor: pointer;
+}
+.black-bg {
+  background-color: $black;
+}
+.padd10 {
+  padding: 10px;
+}
+.banner-news {
+  border-top: 1px solid #9e9e9e;
+  padding: 25px 20px 10px;
+}
+.top-set {
+  padding: 5px 0 20px;
+  display: block;
 }
 
 .movie-inside-date {
@@ -1676,9 +5475,12 @@ body {
 @media (max-width: 767px) {
   .movie-inside-bg {
     padding: 360px 25px 0;
-    background-size: cover;
+    background-size: 100% auto !important;
+    background-position: center top !important;
+    background-repeat: no-repeat !important;
     background-attachment: scroll !important;
   }
+
   .movie-inside-date {
     padding-left: 15px;
     padding-right: 15px;
@@ -1708,10 +5510,7 @@ body {
 
 @media (max-width: 767px) {
   .movie-inner-bg {
-    margin-top: -1px;
-  }
-  .bg-synopsis {
-    background: none !important;
+    margin-top: 0;
   }
   .m-title {
     h1 {
@@ -1723,7 +5522,9 @@ body {
 @media (max-width: 575px) {
   .movie-inside-bg {
     padding: 210px 10px 0;
-    background-size: cover !important;
+    background-size: 100% auto !important;
+    background-position: center top !important;
+    background-repeat: no-repeat !important;
   }
   .m-title h1 {
     font-size: 20px;
@@ -1888,13 +5689,20 @@ body {
   }
 }
 
-/* Horizontal tab scroller on small screens (replaces Angular flex-slider). */
+/* Horizontal tab scroller on small screens (replaces Angular flex-slider). Scrollbar hidden — drag / trackpad / touch still scrolls. */
 .movie-inside-tabs-mob {
   flex-wrap: nowrap !important;
   overflow-x: auto;
   overflow-y: hidden;
   -webkit-overflow-scrolling: touch;
-  scrollbar-width: thin;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
+  }
 
   .movie-inside-tab-btn {
     flex: 0 0 auto;
@@ -1906,19 +5714,179 @@ body {
   }
 }
 
+/* Movie detail — tablets / iPad: Synopsis·Cast·Gallery·Awards row scrolls sideways like `.movie-inside-tabs-mob` on phones */
+@media (min-width: 768px) and (max-width: 1366.98px) {
+  .movie-tabs .all-tabs .btn-group,
+  .all-tabs .btn-group {
+    flex-wrap: nowrap !important;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    max-width: 100%;
+    overscroll-behavior-x: contain;
+
+    &::-webkit-scrollbar {
+      display: none;
+      width: 0;
+      height: 0;
+    }
+  }
+
+  .movie-tabs .all-tabs .btn-group .movie-inside-tab-btn,
+  .movie-tabs .all-tabs .btn-group > .btn,
+  .all-tabs .btn-group .movie-inside-tab-btn,
+  .all-tabs .btn-group > .btn {
+    flex: 0 0 auto !important;
+    min-width: 120px;
+    white-space: nowrap;
+  }
+
+  .movie-tabs .all-tabs .btn-group .movie-inside-tab-btn:first-child,
+  .movie-tabs .all-tabs .btn-group > .btn:first-child,
+  .all-tabs .btn-group .movie-inside-tab-btn:first-child,
+  .all-tabs .btn-group > .btn:first-child {
+    padding-left: 24px !important;
+  }
+}
+
 .vs-dis {
   .flex-control-nav {
     display: none;
   }
 }
 
-/* Synopsis panel default deco (legacy .bg-synopsis); cutImage2 overrides via inline style */
+/* Synopsis — text height drives section; cutImage2 sits bottom-right without extra gap below */
+.movie-inside-date.bg-synopsis.mob-bg,
+.movie-inside-date.bg-synopsis.synopsis-layout {
+  padding-top: 0;
+  padding-bottom: 0;
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.synopsis-layout {
+  position: relative;
+  padding-top: 0;
+  padding-bottom: 0;
+  overflow: hidden;
+}
+
+.synopsis-layout__row {
+  position: relative;
+}
+
+.synopsis-cut-deco {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  z-index: 0;
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: min(52%, 560px);
+  max-height: 95%;
+  object-fit: contain;
+  object-position: right bottom;
+  pointer-events: none;
+}
+
+.synopsis-layout .synopsis-pane {
+  position: relative;
+  z-index: 1;
+}
+
+.synopsis-layout:has(.synopsis-cut-deco) .synopsis-pane {
+  padding-right: clamp(12px, 40%, 300px);
+}
+
+
+/* Phones: deco draws upward from bottom — need extra vertical band + smaller bitmap so paragraphs don’t sit on art */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .synopsis-cut-deco {
+    max-width: min(58%, 500px);
+    max-height: 95%;
+  }
+
+  .synopsis-layout:has(.synopsis-cut-deco) .synopsis-pane {
+    padding-right: clamp(12px, 44%, 340px);
+  }
+}
+
+@media (max-width: 767.98px) {
+  .synopsis {
+    margin-bottom: 0;
+    padding-bottom: 0;
+  }
+
+  .synopsis-layout {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    overflow: hidden;
+  }
+
+  /* In-flow image: section height ends at image bottom (no gap after deco) */
+  .synopsis-layout__row {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    margin-left: 0;
+    margin-right: 0;
+    margin-bottom: 0;
+    --bs-gutter-x: 0;
+    --bs-gutter-y: 0;
+  }
+
+  .synopsis-layout__row > .col-md-8 {
+    width: 100%;
+    max-width: 100%;
+    padding-left: 0;
+    padding-right: 0;
+    flex: 0 0 auto;
+  }
+
+  .synopsis-cut-deco {
+    position: static;
+    display: block;
+    flex: 0 0 auto;
+    margin: 0;
+    padding: 0;
+    line-height: 0;
+    max-width: min(92vw, 420px);
+    max-height: none;
+    width: auto;
+    height: auto;
+  }
+
+  .synopsis-layout .synopsis-pane {
+    background-color: rgba(255, 255, 255, 0.97);
+    padding-left: max(12px, env(safe-area-inset-left, 0px));
+    padding-right: max(12px, env(safe-area-inset-right, 0px));
+    padding-top: 0;
+    padding-bottom: 0;
+    border-radius: 4px;
+  }
+
+  .synopsis-layout:has(.synopsis-cut-deco) .synopsis-pane {
+    padding-right: max(12px, env(safe-area-inset-right, 0px));
+  }
+
+  .synopsis-body > *:last-child,
+  .synopsis-body p:last-child {
+    margin-bottom: 0;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .synopsis-cut-deco {
+    max-width: min(94vw, 400px);
+  }
+}
+
 .bg-synopsis {
-  background: url("/frontend/img/main2.png") no-repeat;
-  background-size: contain;
-  background-position: right bottom;
-  padding-top: 20px;
-  padding-bottom: 30px;
+  padding-top: 0;
+  padding-bottom: 0;
 }
 
 /* Legacy .scroll-over was a 400px scroll box; synopsis uses static .synopsis-pane instead. */
@@ -1938,7 +5906,7 @@ body {
   height: auto;
   max-height: none;
   overflow: visible;
-  padding: 0 15px 32px;
+  padding: 0 15px 0;
 }
 
 .synopsis-pane h4 {
@@ -1960,6 +5928,7 @@ body {
 .synopsis-body {
   font-family: var(--font-karla), "Karla", system-ui, sans-serif;
   font-weight: 300;
+
   p,
   li {
     color: #2a2a2a;
@@ -1968,6 +5937,24 @@ body {
     line-height: 1.85;
     margin: 0 0 1.35em;
   }
+
+  img {
+    display: block;
+    max-width: 100%;
+    width: auto;
+    height: auto;
+    margin: 0 0 1em;
+  }
+
+  > *:last-child,
+  p:last-child,
+  img:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.synopsis-pane > *:last-child {
+  margin-bottom: 0;
 }
 
 @media (max-width: 767px) {
@@ -2269,10 +6256,40 @@ body {
   animation: dh-gallery-brick-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
+/* News tab — same entrance + hover overlay as video cards */
+.movie-news-grid--animated .masonry-brick.masonry-link {
+  animation: dh-gallery-brick-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@for $i from 1 through 18 {
+  .movie-news-grid--animated .masonry-brick.masonry-link:nth-child(#{$i}) {
+    animation-delay: #{($i - 1) * 0.055}s;
+  }
+}
+.movie-news-grid .masonry-link:hover .img-animates .overlay {
+  opacity: 1;
+}
+.movie-news-grid .movie-news-card:focus-within .img-animates .overlay {
+  opacity: 1;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .movie-gallery-grid--animated .masonry-brick.masonry-link {
     animation: none;
     opacity: 1;
+    transform: none;
+  }
+  .movie-news-grid--animated .masonry-brick.masonry-link {
+    animation: none;
+    animation-delay: 0s !important;
+    opacity: 1;
+    transform: none;
+  }
+  .movie-news-grid--reveal .masonry-brick.masonry-link {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  .img-animates:hover .img-hv {
     transform: none;
   }
   .movie-gallery-grid .masonry-box.img-animate img {
@@ -2281,6 +6298,20 @@ body {
   .movie-gallery-grid .masonry-brick.masonry-link:hover .masonry-box.img-animate img {
     transform: none;
   }
+}
+
+/* News list page scroll reveal (legacy-like stagger as cards enter viewport). */
+.movie-news-grid--reveal .masonry-brick.masonry-link {
+  opacity: 0;
+  transform: translateY(16px);
+  transition:
+    opacity 420ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 420ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.movie-news-grid--reveal .masonry-brick.masonry-link.is-visible {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 /* Videos */
@@ -2307,6 +6338,10 @@ body {
   width: 100%;
   height: auto;
   display: block;
+  transition: transform 0.35s ease;
+}
+.img-animates:hover .img-hv {
+  transform: scale(1.08);
 }
 .overlay {
   position: absolute;
@@ -2444,10 +6479,25 @@ body {
       margin: 0;
     }
   }
+  .awards-name {
+    font-family: var(--font-karla), "Karla", "Helvetica Neue", "AMRTYPEN", Helvetica, Arial, sans-serif;
+  }
   .awards-name ul li {
     font-size: 16px;
     line-height: 200%;
     list-style: none;
+    font-weight: 400;
+    text-transform: none;
+    span {
+      font-weight: inherit;
+      text-transform: inherit;
+    }
+  }
+}
+
+@media (max-width: 767.98px) {
+  .movie-award .awards-name ul li {
+    font-size: 14px;
   }
 }
 
@@ -2497,6 +6547,53 @@ body {
     flex: 0 0 50%;
     max-width: 50%;
   }
+}
+
+.related-m-title {
+  line-height: 1.08;
+}
+
+.related-m-static-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.related-m-static-col {
+  flex: 0 0 215px;
+  max-width: 215px;
+  width: 215px;
+  padding: 6px;
+}
+
+.related-m-swiper-wrap {
+  width: 100%;
+}
+
+.related-movies-swiper {
+  overflow: visible;
+}
+
+.related-movies-swiper .swiper-slide.related-movies-slide {
+  width: 215px;
+  max-width: min(215px, 78vw);
+  height: auto;
+}
+
+.related-movies-swiper.related-movies-swiper--mob .swiper-slide.related-movies-slide {
+  width: 200px;
+  max-width: min(200px, 72vw);
+}
+
+.related-m-card-pad--empty {
+  min-height: 220px;
+  background: rgba(0, 0, 0, 0.12);
+}
+
+.related-m-card-link:focus-visible .related-m-card-pad,
+.related-m-card-link:focus-visible.related-m-card-pad {
+  outline: 2px solid rgba(255, 255, 255, 0.95);
+  outline-offset: 3px;
 }
 
 /* Modal — replaces fancybox iframe / fancybox-thumb. */
@@ -2577,12 +6674,27 @@ body {
 /* Videos page — dharma-tv.html + tv-inside (DharmaNodeRun Angular) */
 
 .dharma-top-bg {
-  background: url("/frontend/img/tv-bg.jpg") no-repeat fixed top center;
+  background: url("/frontend/img/tv-bg.jpg") no-repeat center top;
   background-size: cover;
+  background-attachment: fixed;
   /* Legacy `.dharma-tv-bg` uses `padding: 100px 0`; pull under fixed header like other pages. */
   margin-top: calc(-1 * var(--dh-header-offset));
   padding-top: calc(var(--dh-header-offset) + 100px);
   padding-bottom: 100px;
+}
+
+/* Mobile + iPad / tablet — legacy tv-bg: contain, black, offset under header (not desktop cover) */
+@media (max-width: 1199.98px) {
+  .dharma-top-bg {
+    background: url("/frontend/img/tv-bg.jpg") no-repeat top center #000000;
+    background-size: contain;
+    background-attachment: scroll;
+    position: relative;
+    top: 60px;
+    margin-top: 0;
+    padding-top: 50px;
+    padding-bottom: 100px;
+  }
 }
 
 /* Videos hero title — same stepped `f120` treatment as overview / Angular `dharma-tv.html`. */
@@ -2691,21 +6803,6 @@ body {
 .videos-page-legacy .videos-hero-player {
   margin-bottom: 0;
   overflow: visible;
-  /*
-   * Prev/next: match legacy FlexSlider *visual* weight (thin grey chevrons), not full 70×70 asset bounds.
-   * `left.png` / `right.png` are drawn smaller here; padding keeps a comfortable tap target.
-   */
-  --hero-nav-icon: 44px;
-  --hero-nav-gap: 16px;
-  --hero-nav-pad: 14px;
-}
-
-@media (max-width: 575px) {
-  .videos-page-legacy .videos-hero-player {
-    --hero-nav-icon: 40px;
-    --hero-nav-gap: 10px;
-    --hero-nav-pad: 12px;
-  }
 }
 
 /* Same horizontal band as `.search-movie.search-movie-mar` (do not set max-width: none here). */
@@ -2720,7 +6817,7 @@ body {
   position: relative;
   width: 100%;
   overflow: visible;
-  /* Slide is full width of band (same as search). Arrows sit outside the image via absolute + translate. */
+  /* Slide is full width of band (same as search). Arrows sit outside like legacy FlexSlider (-76/-73). */
 }
 
 /* Hero swiper + slide link: no orange frame (search-style border must not bleed here) */
@@ -2748,6 +6845,12 @@ body {
   box-shadow: none;
 }
 
+.videos-page-legacy .videos-hero-swiper .swiper-slide {
+  width: 100% !important;
+  flex-shrink: 0;
+  box-sizing: border-box;
+}
+
 .videos-hero-swiper-shell .swiper-slide {
   height: auto;
 }
@@ -2757,6 +6860,11 @@ body {
   position: relative;
   display: block;
   width: 100%;
+  /*
+   * Declare 16:9 on the frame so Lighthouse / browser can pre-allocate the
+   * exact height before the hero thumbnail loads → no CLS from hero slides.
+   */
+  // aspect-ratio: 16 / 9;
   height: auto;
   min-height: 0;
   line-height: 0;
@@ -2786,16 +6894,9 @@ body {
     radial-gradient(transparent 58%, rgba(0, 0, 0, 0.08) 100%);
 }
 
-/* `.middle` only existed under `.movie-trailor` — restore Flexslider centering for TV hero */
-.videos-page-legacy .videos-hero-slide-frame .play-btn.dh-absulate.middle {
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-}
-
-.videos-page-legacy .videos-hero-slide-frame .mob-width-auto {
-  width: auto;
-  max-width: min(120px, 22vw);
+.videos-page-legacy .videos-hero-slide-frame .dharma-home-play-overlay {
+  z-index: 2;
+  pointer-events: none;
 }
 
 .videos-hero-slide-link {
@@ -2803,76 +6904,68 @@ body {
   background: #000;
 }
 
-.videos-hero-play {
-  z-index: 2 !important;
-}
-
-.videos-hero-play__icon {
-  filter: drop-shadow(0 6px 20px rgba(0, 0, 0, 0.55));
-  max-width: min(120px, 20vw);
-  height: auto;
-}
-
 /*
- * Hero nav — full-width slide (search ke barabar). Arrows FlexSlider jaisa image ke bahar.
+ * Hero prev/next — parity with legacy:
+ * `.slider-nav .flex-direction-nav a.flex-prev:before` / `flex-next:before` (+ `.tv-all-slider` inherits via `@extend`),
+ * same 70×70 `left.png` / `right.png`, `no-repeat center` (FlexSlider markup → our `<button>` + background).
  */
 .videos-page-legacy .videos-hero-outside-arrow {
   position: absolute;
-  top: 40%;
+  top: 50%;
   z-index: 6;
   box-sizing: border-box;
-  width: calc(var(--hero-nav-icon) + 2 * var(--hero-nav-pad));
-  height: calc(var(--hero-nav-icon) + 2 * var(--hero-nav-pad));
-  min-width: 44px;
-  min-height: 44px;
+  width: 70px;
+  height: 70px;
   margin: 0;
-  padding: var(--hero-nav-pad);
+  padding: 0;
   border: none;
-  background-color: transparent;
-  background-repeat: no-repeat;
-  background-position: center;
-  background-size: var(--hero-nav-icon) var(--hero-nav-icon);
   cursor: pointer;
   opacity: 1;
+  transform: translateY(-50%);
 }
+
+.videos-page-legacy .videos-hero-outside-arrow--prev {
+  left: -76px;
+  right: auto;
+  background: url("/frontend/img/left.png") no-repeat center;
+  background-size: 25px 50px;
+}
+
+.videos-page-legacy .videos-hero-outside-arrow--next {
+  right: -73px;
+  left: auto;
+  background: url("/frontend/img/right.png") no-repeat center;
+  background-size: 25px 50px;
+}
+
 .videos-page-legacy .videos-hero-outside-arrow:hover {
   opacity: 1;
 }
+
 .videos-page-legacy .videos-hero-outside-arrow:focus-visible {
   outline: 2px solid rgba(255, 255, 255, 0.9);
   outline-offset: 2px;
 }
 
-.videos-page-legacy .videos-hero-outside-arrow--prev {
-  left: 0;
-  transform: translate(calc(-100% - var(--hero-nav-gap)), -50%);
-  background-image: url("/frontend/img/left.png");
-}
-.videos-page-legacy .videos-hero-outside-arrow--next {
-  right: 0;
-  left: auto;
-  transform: translate(calc(100% + var(--hero-nav-gap)), -50%);
-  background-image: url("/frontend/img/right.png");
-}
-
-@media (max-width: 991px) {
+@media (max-width: 1200px) {
   .videos-page-legacy .videos-hero-outside-arrow--prev {
-    left: var(--hero-nav-gap);
-    transform: translateY(-50%);
+    left: -30px;
   }
   .videos-page-legacy .videos-hero-outside-arrow--next {
-    right: var(--hero-nav-gap);
-    transform: translateY(-50%);
+    right: -30px;
   }
 }
 
 @media (max-width: 767px) {
-  .videos-page-legacy .videos-hero-player.no-ar .videos-hero-outside-arrow {
-    display: none;
+  .videos-page-legacy .videos-hero-outside-arrow--prev {
+    left: 0;
+  }
+  .videos-page-legacy .videos-hero-outside-arrow--next {
+    right: 0;
   }
 
-  .videos-hero-play__icon {
-    max-width: min(96px, 22vw);
+  .videos-page-legacy .videos-hero-player.no-ar .videos-hero-outside-arrow {
+    display: none;
   }
 }
 
@@ -2897,28 +6990,36 @@ body {
 }
 
 .videos-page-legacy .em-box {
-  height: 148px;
-  width: auto;
+  /*
+   * Reserve 16:9 space before the thumbnail loads → eliminates CLS from
+   * late-loading YouTube thumbnails (PSI "Cumulative Layout Shift" fix).
+   * The fixed height approach previously caused a large layout shift when
+   * the image resolved at a different intrinsic height.
+   */
+  aspect-ratio: 16 / 9;
+  width: 100%;
+  height: auto;
   overflow: hidden;
   margin: 0 auto;
   position: relative;
+  background-color: #0a0a0a;
 }
 
-.videos-page-legacy .em-box img {
+.videos-page-legacy .em-box img,
+.videos-page-legacy .em-box img.img-responsive {
   position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  inset: 0;
   width: 100%;
-  height: auto;
-  min-height: 100%;
+  height: 100%;
+  max-width: none;
   object-fit: cover;
   display: block;
 }
 
 @media (max-width: 767px) {
+  /* aspect-ratio is already responsive — no override needed */
   .videos-page-legacy .em-box {
-    height: 125px;
+    aspect-ratio: 16 / 9;
   }
 }
 
@@ -2927,7 +7028,7 @@ body {
   overflow: hidden;
 }
 
-.videos-page-legacy .video-play img:not(.videos-hero-slide__img) {
+.videos-page-legacy .video-play img:not(.videos-hero-slide__img):not(.img-fluid) {
   display: block;
   width: 100%;
   height: auto;
@@ -2952,6 +7053,12 @@ body {
    VIEW ALL: single focusable SVG (rect outline + label), `.btn-view-more`-style chase on hover */
 .videos-page-legacy .videos-movie-section {
   width: 100%;
+}
+
+.videos-page-legacy .videos-movie-section .upcoming-slider {
+  padding-left: clamp(12px, 3.2vw, 24px);
+  padding-right: clamp(12px, 3.2vw, 24px);
+  box-sizing: border-box;
 }
 
 /* `.line45` is `line-height: 45%` (legacy typo — ~20px for 45px type). Glyph overflow overlaps
@@ -3026,6 +7133,16 @@ body {
   line-height: 1.08;
 }
 
+.videos-page-legacy .dh-video-popup-trigger {
+  cursor: pointer;
+  color: inherit;
+  &:focus-visible {
+    outline: 2px solid rgba($brand-primary, 0.95);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+}
+
 .videos-page-legacy .videos-movie-section__title h1.line45,
 .videos-page-legacy .title h1.line45 {
   line-height: 1.08;
@@ -3054,20 +7171,20 @@ body {
   cursor: pointer;
   position: relative;
   margin: 0 !important;
-  color: #a8abb2 !important;
+  color: $grey !important;
   width: auto !important;
   max-width: 200px;
   min-width: 148px;
   height: 40px;
 
   &:focus-visible {
-    outline: 2px solid #a8abb2;
+    outline: 2px solid $grey;
     outline-offset: 2px;
   }
 
   .videos-view-all-svg__frame {
     fill: none;
-    stroke: #a8abb2;
+    stroke: $grey;
     stroke-width: 2;
     stroke-dasharray: 422, 0;
     transition: all 1.35s cubic-bezier(0.19, 1, 0.22, 1);
@@ -3079,11 +7196,12 @@ body {
     letter-spacing: 0.06em;
     pointer-events: none;
     text-transform: uppercase;
+    fill: $grey;
   }
 
   &:hover .videos-view-all-svg__frame,
   &:focus-visible .videos-view-all-svg__frame {
-    stroke: #c9ccd4;
+    stroke: $grey;
     stroke-width: 5;
     stroke-dasharray: 15, 310;
     stroke-dashoffset: 55;
@@ -3092,11 +7210,12 @@ body {
 
   &:hover,
   &:focus-visible {
-    color: #c9ccd4 !important;
+    color: $grey !important;
   }
 
   &:hover .videos-view-all-svg__text,
   &:focus-visible .videos-view-all-svg__text {
+    fill: $grey;
     font-weight: 900;
     letter-spacing: 1px;
   }
@@ -3114,26 +7233,92 @@ body {
   }
 }
 
-.videos-tv-swiper-nav .swiper-button-prev,
-.videos-tv-swiper-nav .swiper-button-next {
+/* Dharma TV rows (arrows removed): clip horizontal scroll to the track so side padding
+   stays visible while swiping — `overflow: visible` let slides draw into the gutters. */
+.videos-page-legacy .videos-tv-swiper-nav {
+  --swiper-navigation-size: 70px;
+  --swiper-navigation-top-offset: 70%;
+}
+
+.videos-page-legacy .videos-tv-swiper-nav .swiper.videos-tv-swiper {
+  overflow: hidden;
+  width: 100%;
+}
+
+/* Don’t vertically stretch slides to the tallest row — avoids empty band + stray clipping. */
+.videos-page-legacy .videos-tv-swiper .swiper-wrapper {
+  align-items: flex-start;
+}
+
+/*
+ * Equal card width per slide (`slidesPerView: auto`) — fractional `slidesPerView` caused
+ * visibly different thumbnail sizes slide-to-slide and between movie rows.
+ */
+.videos-page-legacy .videos-tv-swiper .swiper-slide {
+  height: auto;
+  width: 300px;
+  box-sizing: border-box;
+}
+
+.videos-page-legacy .videos-tv-swiper .swiper-slide .video-box {
+  width: 100%;
+}
+
+@media (max-width: 575.98px) {
+  .videos-page-legacy .videos-tv-swiper .swiper-slide {
+    width: 272px;
+  }
+}
+
+@media (min-width: 576px) and (max-width: 991.98px) {
+  .videos-page-legacy .videos-tv-swiper .swiper-slide {
+    width: 286px;
+  }
+}
+
+.videos-page-legacy .videos-tv-swiper-nav .swiper-button-prev,
+.videos-page-legacy .videos-tv-swiper-nav .swiper-button-next {
   width: 70px;
-  height: 60px;
+  height: 70px;
   color: transparent;
   &::after {
     display: none;
   }
 }
 
-.videos-tv-swiper-nav .swiper-button-prev {
-  left: 4px;
-  background: url("/frontend/img/Grey-Left-Arrow.png") no-repeat center;
-  background-size: contain;
+.videos-page-legacy .videos-tv-swiper-nav .swiper-button-prev {
+  left: -76px;
+  background: url("/frontend/img/left.png") no-repeat center;
+  background-size: 70px 70px;
 }
 
-.videos-tv-swiper-nav .swiper-button-next {
-  right: 4px;
-  background: url("/frontend/img/Grey-Right-Arrow.png") no-repeat center;
-  background-size: contain;
+.videos-page-legacy .videos-tv-swiper-nav .swiper-button-next {
+  right: -73px;
+  background: url("/frontend/img/right.png") no-repeat center;
+  background-size: 70px 70px;
+}
+
+@media (max-width: 1200px) {
+  .videos-page-legacy .videos-tv-swiper-nav .swiper-button-prev {
+    left: -30px;
+  }
+  .videos-page-legacy .videos-tv-swiper-nav .swiper-button-next {
+    right: -30px;
+  }
+}
+
+@media (max-width: 767px) {
+  .videos-page-legacy .videos-tv-swiper-nav .swiper-button-prev,
+  .videos-page-legacy .videos-tv-swiper-nav .swiper-button-next {
+    display: none;
+  }
+}
+
+/* Movie with no videos — visible but clearly non-interactive */
+.tv-inside-sidebar__no-video {
+  color: rgba(255, 255, 255, 0.35);
+  cursor: default;
+  font-style: italic;
 }
 
 .tv-inside-sidebar {
@@ -3141,31 +7326,38 @@ body {
     list-style: none;
     padding: 0;
     margin: 0;
-    max-height: none;
+    /* Scroll on all screen sizes — sidebar is always present */
+    max-height: 60vh;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.28) rgba(0, 0, 0, 0.55);
+
+    &::-webkit-scrollbar {
+      width: 5px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.5);
+      border-radius: 999px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.22);
+      border-radius: 999px;
+      border: 1px solid rgba(0, 0, 0, 0.4);
+    }
+
+    &::-webkit-scrollbar-thumb:hover {
+      background: rgba($brand-primary, 0.55);
+    }
+
     @media (min-width: 768px) {
       max-height: 70vh;
-      overflow-y: auto;
-      scrollbar-width: thin;
-      scrollbar-color: rgba(255, 255, 255, 0.28) rgba(0, 0, 0, 0.55);
+    }
 
-      &::-webkit-scrollbar {
-        width: 5px;
-      }
-
-      &::-webkit-scrollbar-track {
-        background: rgba(0, 0, 0, 0.5);
-        border-radius: 999px;
-      }
-
-      &::-webkit-scrollbar-thumb {
-        background: rgba(255, 255, 255, 0.22);
-        border-radius: 999px;
-        border: 1px solid rgba(0, 0, 0, 0.4);
-      }
-
-      &::-webkit-scrollbar-thumb:hover {
-        background: rgba($brand-primary, 0.55);
-      }
+    @media (max-width: 575.98px) {
+      max-height: 45vh;
     }
   }
   a {
@@ -3259,11 +7451,51 @@ body {
   overflow-x: hidden;
 }
 
+/* Home hero carousel — iPad / tablet: sit slider slightly lower under fixed header */
+@media (min-width: 768px) and (max-width: 991.98px) {
+  .dharma-home .home-hero {
+    padding-top: calc(var(--dh-header-offset) + clamp(22px, 3.2vw, 44px));
+  }
+}
+
+@media (min-width: 992px) and (max-width: 1366.98px) {
+  @media (hover: none) and (pointer: coarse) {
+    .dharma-home .home-hero {
+      padding-top: calc(var(--dh-header-offset) + clamp(22px, 3.2vw, 44px));
+    }
+  }
+}
+
+/* Hero slider wrap: full-width swiper, arrows float over the image at left/right edges */
+.dh-hero-slider-wrap {
+  position: relative;
+  width: 100%;
+}
+
+.dh-hero-slider-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+  &.dh-hero-slider-arrow--prev { left: 12px; }
+  &.dh-hero-slider-arrow--next { right: 12px; }
+}
+
+@media (max-width: 575px) {
+  .dh-hero-slider-arrow {
+    &.dh-hero-slider-arrow--prev { left: 6px; }
+    &.dh-hero-slider-arrow--next { right: 6px; }
+  }
+  .movies-upcoming-arrow.dh-hero-slider-arrow {
+    width: 36px;
+    height: 36px;
+    .movies-upcoming-arrow-icon { font-size: 13px; }
+  }
+}
+
 .dharma-home-hero-swiper {
   width: 100%;
-  /* Reference layout: round orange nav + white chevrons */
-  --swiper-navigation-size: 22px;
-  --swiper-theme-color: #fff;
+  overflow: hidden;
 
   .swiper-slide {
     line-height: 0;
@@ -3279,35 +7511,7 @@ body {
     vertical-align: top;
   }
 
-  .swiper-button-next,
-  .swiper-button-prev {
-    width: 52px;
-    height: 52px;
-    margin-top: 0;
-    top: 50%;
-    transform: translateY(-50%);
-    background: $brand-primary;
-    border-radius: 50%;
-    color: #fff;
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.28);
-    opacity: 1 !important;
-    &::after {
-      font-size: var(--swiper-navigation-size);
-      font-weight: 700;
-    }
-    &:hover {
-      background: $dark-primary;
-      opacity: 1 !important;
-    }
-  }
-
-  .swiper-button-prev {
-    left: clamp(12px, 3.5vw, 36px);
-  }
-
-  .swiper-button-next {
-    right: clamp(12px, 3.5vw, 36px);
-  }
+  /* No built-in Swiper navigation — arrows are custom buttons outside the swiper */
 
   .swiper-pagination {
     bottom: 60px !important;
@@ -3325,30 +7529,9 @@ body {
   }
 }
 
-@media (max-width: 767px) {
-  .dharma-home-hero-swiper {
-    .swiper-button-next,
-    .swiper-button-prev {
-      width: 44px;
-      height: 44px;
-      --swiper-navigation-size: 18px;
-      left: clamp(8px, 2vw, 20px);
-      right: clamp(8px, 2vw, 20px);
-    }
-
-    .swiper-button-prev {
-      right: auto;
-    }
-
-    .swiper-button-next {
-      left: auto;
-    }
-  }
-}
-
-/* Tabs under hero — split pill: active = orange gradient + white, inactive = charcoal + orange text */
+/* Tabs under hero — matching legacy: bottom: -20px, 25px font, 9px 70px padding */
 .dharma-home .home-slider .movie-tab.second {
-  bottom: 10px;
+  bottom: -20px;
 }
 
 .dharma-home .home-hero .movie-tab .up-tab {
@@ -3358,12 +7541,11 @@ body {
   gap: 0;
   margin: 0;
   padding: 0;
-  border-radius: 999px;
+  border-radius: 8px;
   overflow: hidden;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
 }
 
-/* Remove legacy tight overlap between the two segments */
 .dharma-home .home-hero .movie-tab .up-tab li.mr2 {
   margin-right: 0 !important;
 }
@@ -3380,34 +7562,47 @@ body {
   cursor: pointer;
 }
 
-.dharma-home .home-hero .movie-tab .up-tab li button h1 {
+/* Desktop (md+): 25 px font, 9 px × 70 px padding — exact legacy match */
+.dharma-home .home-hero .movie-tab .up-tab li button span.h1 {
+  display: block;
   margin: 0;
-  font-size: clamp(0.8rem, 1.75vw, 1.15rem);
-  padding: 0.55rem clamp(1.35rem, 6vw, 4.25rem);
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  line-height: 1.2;
+  font-size: clamp(1rem, 1.95vw, 1.5625rem); /* 25 px at ≥1280 px */
+  padding: 0.5625rem clamp(2rem, 5.5vw, 4.375rem); /* 9 px × 70 px at ≥1280 px */
   font-family: "Hammersmith One", Georgia, "Times New Roman", serif;
-  border-radius: 0;
-  background: #1a1a1a;
-  color: $brand-primary !important;
-  transition:
-    background 0.2s ease,
-    color 0.2s ease;
+  font-weight: 400;
+  line-height: 1.2;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  background: #000;
+  color: $brand-primary;
+  transition: background 0.2s ease, color 0.2s ease;
 }
 
-.dharma-home .home-hero .movie-tab .up-tab li:first-child button h1 {
-  border-radius: 999px 0 0 999px;
+/* Mobile (< md): smaller pill */
+.dharma-home .home-hero .movie-tab .up-tab li button span.h6 {
+  display: block;
+  margin: 0;
+  font-size: clamp(0.75rem, 3.5vw, 1rem);
+  padding: 0.45rem clamp(1.2rem, 6vw, 2.5rem);
+  font-family: "Hammersmith One", Georgia, "Times New Roman", serif;
+  font-weight: 400;
+  line-height: 1.2;
+  text-transform: uppercase;
+  background: #000;
+  color: $brand-primary;
 }
 
-.dharma-home .home-hero .movie-tab .up-tab li:last-child button h1 {
-  border-radius: 0 999px 999px 0;
+.dharma-home .home-hero .movie-tab .up-tab li:first-child button span {
+  border-radius: 8px 0 0 8px;
 }
 
-.dharma-home .home-hero .movie-tab .up-tab li.active-tab button h1 {
-  background: linear-gradient(165deg, #ff9a56 0%, $brand-primary 42%, $dark-primary 100%);
-  color: $white !important;
+.dharma-home .home-hero .movie-tab .up-tab li:last-child button span {
+  border-radius: 0 8px 8px 0;
+}
+
+.dharma-home .home-hero .movie-tab .up-tab li.active-tab button span {
+  background: url("/frontend/img/bg-grediant.jpg") no-repeat center / 100% 100%;
+  color: #fff;
 }
 
 /* Non–home pages: keep existing Hammersmith + gradient image treatment */
@@ -3427,19 +7622,55 @@ body {
 }
 
 .dharma-home-tv {
-  margin-top: calc(-1 * var(--dh-header-offset));
-  padding-top: calc(var(--dh-header-offset) + 48px);
-  padding-bottom: 72px;
+  padding-top: 100px;
+  /* Legacy `.dharma-tv-bg { padding: 100px 0 }` — room for overlap subscribe */
+  padding-bottom: 100px;
+}
+
+@media (max-width: 991px) {
+  .dharma-home-tv {
+    padding-top: 70px;
+  }
+}
+
+@media (max-width: 575px) {
+  .dharma-home-tv {
+    padding-top: 50px;
+  }
+}
+
+/* Matches legacy .text-shadow — dark vignette on featured video */
+.text-shadow {
+  box-shadow: -30px -30px 70px -20px #000;
+  position: relative;
+  top: 2px;
+  z-index: 1;
+}
+
+/* Matches legacy .f90 */
+.f90 {
+  font-size: 90px;
 }
 
 .home-videos-title {
-  font-size: clamp(2.25rem, 7vw, 4.75rem);
+  font-size: clamp(2.25rem, 7vw, 5.625rem); /* max 90px — matches legacy f90 */
   line-height: 0.95;
 }
 
 .dharma-home-tv-feature a {
   position: relative;
   display: block;
+}
+
+.dharma-home .dh-video-popup-trigger {
+  cursor: pointer;
+  color: inherit;
+
+  &:focus-visible {
+    outline: 2px solid rgba(255, 255, 255, 0.9);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
 }
 
 .dharma-home-play-overlay {
@@ -3452,27 +7683,285 @@ body {
   line-height: 0;
 }
 
-.dharma-home-subscribe-wrap {
-  position: relative;
-  z-index: 2;
+/* Home + videos hero — play overlay icon size (legacy `.img-fluid` in video band) */
+.dharma-home-tv .img-fluid,
+.videos-page-legacy .videos-hero-slide-frame.video-play .dharma-home-play-overlay .img-fluid {
+  max-width: 50%;
+  height: auto;
 }
 
-.dharma-home-subscribe.subscribe {
-  background: #fff;
-  margin: -44px clamp(10px, 4vw, 72px) 0;
-  padding: 0 clamp(14px, 3vw, 48px);
+.dharma-home-tv .dharma-home-strip-view-all {
+  margin-top: clamp(34px, 5.5vw, 56px);
 }
 
-@media (max-width: 767px) {
-  .dharma-home-subscribe.subscribe {
-    margin: -32px 10px 0;
+/* Home videos strip VIEW ALL — muted grey (not brand orange) */
+.dharma-home-tv .dharma-home-strip-view-all .dh-view-all-btn {
+  color: $grey !important;
+
+  rect {
+    stroke: $grey;
+  }
+
+  &:hover,
+  &:focus-visible {
+    color: $grey !important;
+
+    rect {
+      stroke: $grey;
+    }
   }
 }
 
+/* Legacy `pos-bottom` — subscribe straddles TV (dark) + NEWS (orange) */
+.dharma-home-tv-anchor.dh-relative {
+  position: relative;
+}
+
+.dharma-home-pos-bottom.pos-bottom {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -18px;
+  z-index: 4;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+.dharma-home-subscribe-wrap {
+  position: relative;
+  z-index: 2;
+  padding-bottom: 0;
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+/* Subscribe card — legacy: margin: -45px 80px 0; centred on page */
+.dharma-home-subscribe.subscribe {
+  background: #fff;
+  margin: -52px auto 0;
+  padding: 0 50px;
+  position: relative;
+  max-width: min(1170px, calc(100% - 160px));
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Mobile + iPad Air / iPad Pro (≤1366) — tighter gap below VIEW ALL; desktop (>1366) keeps base spacing */
+@media (max-width: 1366.98px) {
+  .dharma-home-tv {
+    padding-bottom: clamp(112px, 30vw, 168px);
+  }
+
+  .dharma-home .video-slider.slider-nav.min-tp-nm {
+    padding-bottom: 0;
+    position: relative;
+    z-index: 5;
+  }
+
+  .dharma-home-tv .dharma-home-strip-view-all {
+    margin-top: clamp(20px, 4vw, 32px);
+    margin-bottom: clamp(24px, 6vw, 40px);
+    position: relative;
+    z-index: 5;
+  }
+
+  .dharma-home-pos-bottom.pos-bottom {
+    bottom: -20px;
+    z-index: 4;
+  }
+}
+
+/* iPad Air & iPad Mini — tighter gap below VIEW ALL (744–820 portrait; 1024–1180 landscape) */
+@media (min-width: 744px) and (max-width: 820px),
+  (min-width: 1024px) and (max-width: 1180px) and (orientation: landscape) {
+  .dharma-home-tv {
+    padding-bottom: clamp(76px, 22vw, 120px);
+  }
+
+  .dharma-home-tv .dharma-home-strip-view-all {
+    margin-top: clamp(16px, 3.5vw, 28px);
+    margin-bottom: clamp(8px, 2vw, 16px);
+  }
+}
+
+@media (max-width: 991px) {
+  .dharma-home-subscribe.subscribe {
+    margin: -52px auto 0;
+    max-width: calc(100% - 60px);
+    padding: 0 24px;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .dharma-home-pos-bottom.pos-bottom {
+    bottom: -18px;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .dharma-home-subscribe.subscribe {
+    margin: -48px auto 0;
+    max-width: calc(100% - 20px);
+    padding: 0 14px;
+    text-align: center;
+  }
+
+  .dharma-home-pos-bottom.pos-bottom {
+    bottom: -12px;
+  }
+
+  .dharma-home-tv {
+    padding-bottom: clamp(128px, 38vw, 188px);
+  }
+
+  .dharma-home-tv .dharma-home-strip-view-all {
+    margin-bottom: clamp(20px, 5vw, 36px);
+  }
+
+  /* Keep prev/next visible — inset on strip (was `display: none`) */
+  .dharma-home .dharma-home-video-nav-btn {
+    display: flex !important;
+    width: 34px;
+    height: 34px;
+    z-index: 6;
+  }
+
+  .dharma-home .dharma-home-video-nav-btn--prev {
+    left: 0;
+  }
+
+  .dharma-home .dharma-home-video-nav-btn--next {
+    right: 0;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Subscribe success modal — matches legacy subscribe.html popup       */
+/* ------------------------------------------------------------------ */
+.dh-subscribe-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.dh-subscribe-modal {
+  position: relative;
+  background: #fff;
+  border: 2px solid $brand-primary;
+  border-radius: 20px;
+  padding: 35px 25px;
+  max-width: 540px;
+  width: 100%;
+  text-align: center;
+
+  .h3-main h3 {
+    font-size: 20px;
+    line-height: 1.4;
+  }
+
+  /* "CONTINUE TO SITE" — reuse dh-view-all-btn but centered */
+  .dh-view-all-btn {
+    max-width: 200px;
+    padding: 10px 20px 8px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+
+/* Close button — orange circle top-right, matches legacy .closure */
+.dh-subscribe-modal .closure {
+  position: absolute;
+  background-color: $brand-primary;
+  top: -5px;
+  right: -5px;
+  height: 23px;
+  width: 23px;
+  text-align: center;
+  border-radius: 50%;
+  color: #fff;
+  line-height: 23px;
+  cursor: pointer;
+  z-index: 99;
+  border: none;
+  padding: 0;
+  font-size: 12px;
+
+  &:hover {
+    background-color: darken($brand-primary, 10%);
+  }
+}
+
+@media (max-width: 575px) {
+  .dh-subscribe-modal {
+    padding: 28px 16px;
+
+    .h3-main h3 {
+      font-size: 16px;
+    }
+  }
+}
+
+/* Subscribe image — matches legacy .up-img exactly */
+.dharma-home-subscribe .up-img {
+  margin-top: -25px;        /* image rises above white card into dark section */
+  vertical-align: top;
+  width: 135px;             /* exact legacy width */
+  margin-bottom: -1px;
+  line-height: 0;
+}
+
+/* h3 text — matches legacy .sub-text h3 */
+.dharma-home-subscribe .sub-text h3 {
+  font-size: 18px;
+  line-height: 1.3;
+}
+
+/* Input — matches legacy .sub-input input */
+.dharma-home-subscribe .sub-input input,
 .home-subscribe-form .form-control {
   background: #f1f1f1;
   border-color: #f1f1f1;
   height: 50px;
+  border-radius: 0;
+}
+
+/* Breathing room under the email + GO row (before status line or white card edge). */
+.dharma-home-subscribe .home-subscribe-form > .input-group {
+  margin-bottom: clamp(14px, 2.8vw, 24px);
+}
+
+/* GO button — matches legacy .go-btn button: 30px font, transparent bg */
+.dharma-home-subscribe .go-btn button {
+  font-size: 30px;
+  border: none;
+  background: transparent;
+  color: $brand-primary;
+  line-height: 50px;  /* vertically center text to match input height */
+  padding: 0 12px;
+
+  &:hover,
+  &:focus {
+    border: none;
+    outline: 0;
+    background: transparent;
+    color: $brand-primary;
+  }
+}
+
+@media (max-width: 575px) {
+  .dharma-home-subscribe .up-img {
+    width: 100px;
+  }
+  .dharma-home-subscribe .sub-text h3 {
+    font-size: 15px;
+  }
 }
 
 .dhrarma-world .container.dh-absulate.middle {
@@ -3484,6 +7973,7 @@ body {
   width: 100%;
   max-width: 1140px;
   pointer-events: none;
+  z-index: 2;
 
   a,
   button,
@@ -3496,38 +7986,1154 @@ body {
 .dhrarma-world .top-right,
 .dhrarma-world .bottom-left {
   pointer-events: none;
-  z-index: 0;
+  line-height: 0;
 }
 
-.dharma-home .dharma-home-video-strip .swiper-button-next,
-.dharma-home .dharma-home-video-strip .swiper-button-prev {
-  color: $brand-primary;
+/* Desktop Dharma World — legacy `home.html`: full-bleed `news-bg.jpg`, corner ornaments, BS3 offsets */
+.home-dharma-world-desktop .dhrarma-world {
+  overflow: hidden;
+  background: #0c0c0c;
 }
 
-/* DharmaNode `frontend/sass/main.scss` — news sun band (home) */
+.home-dharma-world-hero {
+  display: block;
+  width: 100%;
+  line-height: 0;
+}
+
+/* `dharma-img.png` — file 529×171; display cap above intrinsic for a larger wordmark (legacy img grew with column). */
+.home-dharma-world-logo {
+  width: auto;
+  max-width: min(630px, 100%);
+  height: auto;
+}
+
+.dhrarma-world .dharma-world-text .text-center {
+  display: block;
+  width: 100%;
+}
+
+.home-dharma-world-corner {
+  z-index: 1;
+}
+
+.home-dharma-world-corner--tr {
+  top: 0;
+  right: 0;
+  left: auto;
+}
+
+.home-dharma-world-corner--bl {
+  bottom: 0;
+  left: 0;
+  right: auto;
+}
+
+/* Corner ornaments — same pixel size as dharmanoderun (`img` without `img-responsive`; files: top-right 280×400, bottom-left 303×459). ≤1200px: `_mobile.scss` zoom 0.9 on these imgs. */
+.home-dharma-world-corner-img {
+  display: block;
+  object-fit: contain;
+}
+
+.home-dharma-world-corner--tr .home-dharma-world-corner-img {
+  width: 280px;
+  height: 400px;
+}
+
+.home-dharma-world-corner--bl .home-dharma-world-corner-img {
+  width: 303px;
+  height: 459px;
+}
+
+@media (max-width: 1199.98px) {
+  /* Legacy `_mobile.scss`: `zoom: 0.9` on these imgs → intrinsic × 0.9 */
+  .home-dharma-world-corner--tr .home-dharma-world-corner-img {
+    width: 252px;
+    height: 360px;
+  }
+
+  .home-dharma-world-corner--bl .home-dharma-world-corner-img {
+    width: 273px;
+    height: 413px;
+  }
+}
+
+.home-dharma-world-copy-row {
+  margin-top: 0.35rem;
+}
+
+@media (min-width: 992px) {
+  .home-dharma-world-copy-row {
+    margin-top: 0.85rem;
+  }
+}
+
+/* ENTER — legacy `main.scss` `.btn-view-enter` (= `.btn-view-more` + `$brand-primary` `.btn-1` fill +
+   `.btn` white label). SVG `<rect>` stroke is `$brand-primary` like VIEW ALL so the dashed chase reads
+   on hover when the fill goes transparent. */
+.btn-view-enter .home-dharma-world-enter {
+  box-sizing: border-box;
+  display: inline-block;
+  vertical-align: middle;
+  position: relative;
+  width: 100%;
+  max-width: 160px;
+  padding: 10px 0 8px;
+  margin: 0 auto;
+  line-height: 1.42857143;
+  background: $brand-primary !important;
+  border: none;
+  border-radius: 0;
+  color: $white !important;
+  font-size: 16px;
+  font-weight: 400;
+  text-transform: uppercase;
+  text-decoration: none !important;
+  cursor: pointer;
+
+  svg {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 40px;
+    overflow: visible;
+    pointer-events: none;
+  }
+
+  .home-dharma-world-enter-label {
+    position: relative;
+    z-index: 1;
+  }
+
+  rect {
+    fill: none;
+    stroke: $brand-primary;
+    stroke-width: 2;
+    stroke-dasharray: 422, 0;
+    transition: all 1.35s cubic-bezier(0.19, 1, 0.22, 1);
+  }
+
+  &:hover {
+    background: transparent !important;
+    color: $white !important;
+    font-weight: 900;
+    letter-spacing: 1px;
+
+    rect {
+      stroke-width: 5;
+      stroke-dasharray: 15, 310;
+      stroke-dashoffset: 55;
+      transition: all 1.35s cubic-bezier(0.19, 1, 0.22, 1);
+    }
+  }
+}
+
+/* `_mobile.scss` @media (max-width: 1200px)` — ENTER / VIEW strips scale slightly on smaller viewports */
+@media (max-width: 1200px) {
+  .btn-view-enter {
+    transform: scale(0.8);
+    transform-origin: center center;
+  }
+}
+
+/* Homepage mobile — legacy `home.html` xs: `.dhrarma-world` + `.bg-inner` + `inner-bg.jpg` */
+.dh-home-dharma-world-xs .bg-inner {
+  background: url("/frontend/img/inner-bg.jpg") no-repeat center;
+  background-size: cover;
+  position: relative;
+  padding: clamp(48px, 12vw, 80px) 0;
+}
+
+/* Home video strip — custom prev/next outside thumbnails (wired via Swiper `navigation.prevEl/nextEl`) */
+.dharma-home .video-slider.slider-nav.min-tp-nm {
+  overflow: visible;
+}
+
+.dharma-home .dharma-home-tv .col-lg-10 {
+  overflow: visible;
+}
+
+.dharma-home .dharma-home-video-strip-wrap {
+  position: relative;
+  overflow: visible;
+}
+
+.dharma-home .dharma-home-video-strip {
+  padding: 0;
+}
+
+.dharma-home .dharma-home-video-nav-btn {
+  position: absolute;
+  z-index: 6;
+  top: 50%;
+  transform: translateY(-50%);
+  width: clamp(36px, 5vw, 44px);
+  height: clamp(36px, 5vw, 44px);
+  margin: 0;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: #8f8f8f;
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
+
+  &:hover {
+    background: #737373;
+    color: #fff;
+  }
+
+  &:focus-visible {
+    outline: 2px solid rgba(255, 255, 255, 0.85);
+    outline-offset: 2px;
+  }
+}
+
+.dharma-home .dharma-home-video-nav-btn--prev {
+  left: clamp(-48px, -4.25vw, -28px);
+}
+
+.dharma-home .dharma-home-video-nav-btn--next {
+  right: clamp(-48px, -4.25vw, -28px);
+}
+
+.dharma-home .dharma-home-video-nav-icon {
+  font-size: clamp(13px, 2vw, 16px);
+  line-height: 1;
+}
+
+/* Nav visibility on xs — see `.dharma-home` rules above (inset buttons, not hidden) */
+
+/* Hide any Swiper-injected nav nodes if module adds defaults */
+.dharma-home .dharma-home-video-strip .swiper-button-next:not(.dharma-home-video-nav-btn),
+.dharma-home .dharma-home-video-strip .swiper-button-prev:not(.dharma-home-video-nav-btn) {
+  display: none !important;
+}
+
+/* Generic .img-animate — zoom on hover, used by video strip & other sections */
+.img-animate {
+  overflow: hidden;
+
+  img {
+    transition: transform 300ms ease;
+  }
+
+  &:hover img {
+    transform: scale(1.1);
+  }
+}
+
+/* video-names strip label */
+.video-names {
+  padding: 0 10px;
+  height: 40px;
+  overflow: hidden;
+}
+
+/* News band — overlap subscribe slightly; less pull-up so card sits mostly on TV band */
 .bg-sun.home-news-sun {
   background: $brand-primary;
-  margin-top: -48px;
-  padding: 120px 0 48px;
+  margin-top: -40px;
+  /* Symmetric horizontal inset so when the strip scrolls, orange shows on the trailing edge (legacy was left-heavy only). */
+  padding: clamp(34px, 5.6vw, 72px) clamp(24px, 8vw, 120px) clamp(50px, 5vw, 70px)
+    clamp(40px, 10vw, 215px);
   position: relative;
   z-index: 0;
 }
 
 @media (max-width: 767px) {
   .bg-sun.home-news-sun {
-    margin-top: -32px;
-    padding: 80px 0 36px;
+    margin-top: -26px;
+    /* Match desktop intent: visible orange gutter L/R while swiping (was 16px — too easy to feel flush). */
+    padding: clamp(40px, 6vw, 48px) clamp(20px, 5vw, 32px) 44px clamp(20px, 5vw, 32px);
   }
 }
 
+/* NEWS band heading — dharmanoderun home: `.f90` + `.font-hammersmith` + `.line45`;
+   mobile: `.f-50-main` (50px) in `_mobile.scss` */
 .home-news-title {
-  font-size: clamp(2.25rem, 6vw, 4rem);
-  line-height: 1;
+  font-family: var(--font-hammersmith), "Hammersmith One", Georgia, serif;
+  font-size: 90px;
+  font-weight: 400;
+  line-height: 45%;
+  letter-spacing: 0;
+  display: block;
+  margin: 52px 0 30px 0;
 }
 
-.home-news-swiper .swiper-button-next,
-.home-news-swiper .swiper-button-prev {
+@media (max-width: 767px) {
+  .home-news-title {
+    font-size: 50px;
+    margin: 20px 0 20px 0;
+  }
+}
+
+/* Reset legacy .mt30 on the news slider — title already supplies bottom margin */
+.bg-sun.home-news-sun .news-slider.mt30 {
+  margin-top: 0;
+}
+
+/* News image card — matches legacy 300×224px */
+.dh-home-news-thumb {
+  aspect-ratio: 300 / 224;
+  width: 100%;
+  background: #333;
+  display: block;
+}
+
+/* h40 — title container, matches legacy */
+.h40 {
+  height: 40px;
+  overflow: hidden;
+}
+
+/* Card title + date — dharmanoderun: `h4` uses Bootstrap/Karla (no `.font-hammersmith`);
+   Bootstrap 3 h4 ≈ 18px / line-height 1.1 / font-weight 500; date `.f12` + `.color-black` */
+.bg-sun.home-news-sun .home-news-swiper .video-name h4 {
+  font-family:
+    var(--font-karla),
+    "Karla",
+    "Helvetica Neue",
+    Helvetica,
+    Arial,
+    sans-serif;
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 1.1;
+  letter-spacing: 0;
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.bg-sun.home-news-sun .home-news-swiper .video-date {
+  font-family: var(--font-karla), "Karla", "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+.bg-sun.home-news-sun .home-news-swiper .video-date .color-black.f12 {
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+/* video-desc — white bottom border separator, matches legacy */
+.home-news-swiper .video-desc {
+  padding-bottom: 20px;
+  border-bottom: 1px solid #fff;
+}
+
+/* News slider — 300px wide slides + 60px gap at desktop (matches legacy item-width=300 item-margin=60) */
+@media (min-width: 1200px) {
+  .home-news-swiper .swiper-slide {
+    width: 300px;
+  }
+}
+
+/* Clip slides to the band — `overflow: visible` let transforms draw past section padding (flush to viewport). Arrows are siblings, not inside .swiper. */
+.home-news-swiper {
+  padding-bottom: 0;
+  overflow-x: hidden;
+  overflow-y: visible;
+  box-sizing: border-box;
+}
+
+.bg-sun.home-news-sun .news-slider {
+  overflow-x: clip;
+  padding-bottom: 56px; /* room for arrows below swiper */
+  position: relative;
+}
+
+@media (max-width: 575px) {
+  .bg-sun.home-news-sun .news-slider {
+    padding-bottom: 44px;
+  }
+}
+
+/* News slider — legacy: prev = news-right (▶ ARROW-2), next = news-left (◀ ARROW-1), 40×40 */
+.bg-sun.home-news-sun .movies-upcoming-arrow.home-news-slider-arrow {
+  position: absolute;
+  z-index: 5;
+  bottom: -40px;
+  left: auto;
+  top: auto;
+  flex: none;
+  align-self: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  background: transparent !important;
+  border: none;
+  box-shadow: none;
+
+  &:hover .home-news-slider-arrow-img {
+    opacity: 0.88;
+  }
+
+  &:focus-visible {
+    outline: 2px solid #fff;
+    outline-offset: 3px;
+  }
+}
+
+.bg-sun.home-news-sun .home-news-slider-arrow-img {
+  display: block;
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  pointer-events: none;
+}
+
+.bg-sun.home-news-sun .home-news-slider-arrow--next {
+  right: 0 !important;
+}
+
+.bg-sun.home-news-sun .home-news-slider-arrow--prev {
+  right: 56px !important;
+}
+
+@media (max-width: 575px) {
+  .bg-sun.home-news-sun .movies-upcoming-arrow.home-news-slider-arrow {
+    bottom: -34px !important;
+  }
+
+  .bg-sun.home-news-sun .home-news-slider-arrow--prev {
+    right: 48px !important;
+  }
+}
+
+/* Homepage hero slide frame — switches from landscape (desktop) to portrait (mobile). */
+.dh-hero-slide-frame {
+  /* Match legacy dharmanoderun: CMS images are 1600×713 — use their exact ratio */
+  aspect-ratio: 1600 / 713;
+  width: 100%;
+  overflow: hidden;
+  background: #0a0a0a;
+  line-height: 0;
+}
+
+/* Mobile portrait image: 705×1087 */
+@media (max-width: 575.98px) {
+  .dh-hero-slide-frame {
+    aspect-ratio: 705 / 1087;
+    max-height: none;
+  }
+}
+
+.dh-hero-slide-img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+}
+
+.dh-movie-thumb-frame {
+  aspect-ratio: 2 / 3;
+  max-width: 200px;
+}
+
+.dh-home-feature-thumb {
+  position: relative;
+  display: block;
+  /* Matches legacy DharmaHome image spec: 1518×753px */
+  aspect-ratio: 1518 / 753;
+  background: #111;
+}
+
+/* Legacy home slider shows arrow nav on all screen sizes */
+
+.dh-home-strip-thumb {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  width: 100%;
+  background: #151515;
+}
+
+/* --------------------------------------------------------------------------- */
+/* Fan Corner + Dictionary — legacy `frontend/sass/main.scss` + `fan-*.html` */
+/* --------------------------------------------------------------------------- */
+
+.fan-bg {
+  background-color: #000;
+}
+
+/* `frontend/sass/main.scss` + `fan-landing.html` — fixed header uses CSS var instead of raw 120px. */
+.fan-landing-page {
+  &.padder-up {
+    padding-top: calc(var(--dh-header-offset) + clamp(20px, 4vw, 48px));
+  }
+}
+
+.super-big {
+  text-transform: uppercase;
+  font-size: 90px;
+  margin: 0 0 10px;
+  line-height: 1.05;
+
+  @media (max-width: 767.98px) {
+    font-size: 40px;
+  }
+}
+
+.descriptive {
+  font-size: clamp(16px, 2.2vw, 20px);
+  line-height: 1.45;
+  margin: 0 auto;
+  max-width: 820px;
+}
+
+.fan-landing-pad-img {
+  padding: 70px 40px;
+
+  @media (max-width: 767.98px) {
+    padding: 70px 0;
+  }
+}
+
+.fan-landing-band-link {
+  line-height: 0;
+  outline: none;
+
+  &:focus-visible {
+    outline: 3px solid rgba(255, 255, 255, 0.9);
+    outline-offset: -3px;
+  }
+}
+
+/* ----------------------------------------------------------------------- */
+/* Social — legacy `frontend/views/content/dharma-world.html` (`/social`) */
+/* ----------------------------------------------------------------------- */
+
+.site-main:has(.social-page) {
+  flex-grow: 0;
+}
+
+.social-page {
+  min-height: 0;
+}
+
+/* Hero — full-bleed cover via positioned `Image` (legacy `dharma-world.html` img + overlay) */
+.social-page-hero.top-banner {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  min-height: clamp(420px, 72vh, 820px);
+  background: #0c0c0c;
+}
+
+.social-page-hero__bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.social-page-hero__bg-img {
+  object-fit: cover;
+  object-position: center center;
+}
+
+.social-page-hero__inner,
+.social-page-hero .dharma-word.dh-absulate.middle {
+  top: 50%;
+  left: 50%;
+  right: auto;
+  bottom: auto;
+  transform: translate(-50%, -50%);
+  z-index: 1;
+  width: 100%;
+  max-width: min(680px, 94vw);
+  margin: 0;
+  padding: 0 16px;
+  text-align: center;
+  pointer-events: none;
+
+  a,
+  button,
+  .btn {
+    pointer-events: auto;
+  }
+}
+
+.social-page-hero__logo {
+  max-width: min(560px, 88vw);
+  height: auto;
+  margin-bottom: 1rem;
+}
+
+.social-page-hero__copy {
+  font-size: clamp(0.75rem, 2.8vw, 1.125rem);
+  line-height: 1.5;
   color: #fff;
-  opacity: 0.9;
+}
+
+/* Bands row — legacy `img-responsive` (no fixed aspect box / fill gap below row) */
+.social-page-bands {
+  margin: 0;
+  padding: 0;
+  line-height: 0;
+  font-size: 0;
+  overflow: hidden;
+
+  .social-page-band-row {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: flex-start;
+    gap: 0;
+    margin: 0;
+  }
+
+  .social-page-band-col {
+    flex: 1 1 50%;
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+  }
+
+  .full-image.social-page-band-image {
+    width: 100%;
+    line-height: 0;
+  }
+
+  .social-page-band-img {
+    display: block;
+    width: 100%;
+    height: auto;
+    vertical-align: top;
+  }
+}
+
+/* iPad + mobile — taller hero, centered cover (legacy `_mobile.scss` `.top-banner`) */
+@media (max-width: 1024px) {
+  .social-page-hero.top-banner {
+    min-height: max(55vh, calc(var(--dh-header-offset, 116px) + 320px));
+  }
+
+  .social-page-hero__bg-img {
+    object-fit: cover;
+    object-position: center center;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .social-page-hero.top-banner {
+    min-height: max(52vh, calc(var(--dh-header-offset, 116px) + 280px));
+  }
+
+  .social-page-hero .mob-mt-20 {
+    margin-top: 20px;
+  }
+
+  .social-page-bands.min-m-flex .social-page-band-row {
+    display: block;
+  }
+
+  .social-page-bands.min-m-flex .social-page-band-col {
+    width: 100%;
+    max-width: none;
+    flex: none;
+    display: block;
+  }
+
+}
+
+.fan-corner-page.top-bannerss {
+  background: url("/frontend/img/1942x1139.jpg") no-repeat center top;
+  background-size: cover;
+  min-height: calc(100vh - var(--dh-header-offset, 116px));
+}
+
+.fan-corner-page .dharma-word.pd-all {
+  padding: 10% 0;
+  padding-top: calc(var(--dh-header-offset) + 24px);
+}
+
+.fan-corner-page .banner-title.lin-min-ht h1 {
+  line-height: 80%;
+}
+
+.fan-corner-title {
+  font-size: clamp(2.5rem, 8vw, 120px);
+  line-height: 0.9;
+}
+
+.fan-corner-intro-copy {
+  font-size: clamp(15px, 2.2vw, 18px);
+}
+
+.fan-big-play-btn .img-fluid {
+  max-width: 80%;
+  height: auto;
+}
+
+/* Legacy card — override Bootstrap .bg-transparent !important */
+.fan-corner-page .bg-transparent {
+  background: rgba(0, 0, 0, 0.4) !important;
+  padding: 15px;
+  border-radius: 20px;
+  position: relative;
+}
+
+.fan-corner-page .bg-transparent .ticker {
+  position: absolute;
+  right: 15px;
+  top: 15px;
+  z-index: 2;
+  width: auto;
+  max-width: 100px;
+}
+
+/* tp-head: timer stack — badge positions relative to this box (legacy `fan-corner.html`) */
+.fan-corner-page .tp-head {
+  position: relative;
+  display: inline-block;
+  text-align: center;
+}
+
+.tp-head img {
+  display: block;
+  margin: 0 auto;
+}
+
+/* canvas is block inside its wrapper div, no absolute needed */
+.fan-timer-canvas {
+  display: block;
+}
+
+/* Number badge — wt.png (79×82) white-circle bg overlaid on the canvas ring */
+.sc-bg {
+  background: url("/frontend/img/wt.png") no-repeat center;
+  background-size: cover;
+  padding: 13px;
+}
+
+.fan-corner-page .tp-head .ps-wt {
+  position: absolute;
+  top: 29px;
+  right: 10px;
+  z-index: 2;
+}
+
+.ps-wt span {
+  display: block;
+  font-size: 30px;
+  min-width: 40px;
+  line-height: 1;
+  text-align: center;
+}
+
+.fan-corner-page .padall30 {
+  /* Right padding clears ~80px canvas + badge in top-right corner */
+  padding: 30px 110px 30px 0;
+}
+
+.fan-corner-page .padall0 {
+  padding: 30px 0;
+}
+
+.fan-corner-page .qsn-big h2 {
+  margin: 0;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.fan-corner-page .ans-opt ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+/* Options side-by-side on desktop; stack on mobile */
+.fan-corner-page .ans-opt li {
+  position: relative;
+  display: inline-block;
+  margin-right: 8px;
+  margin-bottom: 0.5rem;
+}
+
+@media (max-width: 575.98px) {
+  .fan-corner-page .ans-opt li {
+    display: block;
+    margin-right: 0;
+    margin-bottom: 0.75rem;
+  }
+}
+
+.fan-corner-page .ans-opt input[type="radio"] {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.fan-corner-page .ans-opt label {
+  display: inline-block;
+  position: relative;
+  font-weight: 300;
+  font-size: 1.6em;
+  padding: 0 25px 0 20px;
+  margin: 0 auto;
+  height: 0;
+  z-index: 9;
+  cursor: pointer;
+  transition: all 0.25s linear;
+  color: #fff;
+}
+
+.fan-corner-page .ans-opt .check {
+  display: inline-block;
+  position: absolute;
+  border: 2px solid #f37021;
+  border-radius: 100%;
+  height: 13px;
+  width: 13px;
+  top: 9px;
+  left: 4px;
+  z-index: 5;
+  transition: border 0.25s linear;
+  vertical-align: text-top;
+  cursor: pointer;
+}
+
+.fan-corner-page .ans-opt input:checked ~ .check {
+  border: 1px solid $brand-primary;
+}
+
+.fan-corner-page .ans-opt input:checked ~ .check::before {
+  content: "";
+  display: block;
+  position: absolute;
+  border-radius: 100%;
+  height: 13px;
+  width: 13px;
+  top: -1px;
+  left: -1px;
+  margin: auto;
+  background: $brand-primary;
+  border: 1px solid #f37021;
+  transition: background 0.25s linear;
+}
+
+.fan-corner-page .ans-opt input:checked ~ label {
+  color: $brand-primary;
+}
+
+.fan-corner-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1080;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.white-orange-bg.fan-corner-modal-inner {
+  width: min(560px, 100%);
+  border: 2px solid $brand-primary;
+  padding: clamp(28px, 6vw, 40px);
+  border-radius: 20px;
+  background: #fff;
+}
+
+.fan-corner-modal-inner .closure {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  background: $brand-primary;
+  color: #fff;
+  line-height: 26px;
+  font-size: 18px;
+  cursor: pointer;
+  z-index: 2;
+}
+
+.fan-form-control {
+  border: 0;
+  border-bottom: 1px solid #ddd;
+  border-radius: 0;
+  padding-left: 0;
+}
+
+.fan-corner-modal-inner .fan-form-error {
+  margin-top: 6px;
+  font-size: 12px;
+  line-height: 1.35;
+  color: #c62828;
+}
+
+.fan-corner-modal-inner .pop-pad {
+  padding: 20px 70px;
+}
+
+/* iPad — keep question clear of timer column */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .fan-corner-page .padall30 {
+    padding: 40px 115px 30px 0;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .fan-corner-page .padall30 {
+    /* Top + right padding so question/options sit below/right of scaled timer */
+    padding: 100px 88px 40px 0;
+  }
+
+  .fan-corner-page .bg-transparent .ticker {
+    right: 4px;
+    top: 4px;
+    max-width: 88px;
+  }
+
+  .fan-corner-page .bg-transparent .ticker .tp-head img {
+    transform: scale(0.5);
+    transform-origin: top right;
+  }
+
+  .fan-corner-page .bg-transparent .ticker .fan-timer-canvas {
+    width: 64px;
+    height: 64px;
+  }
+
+  .fan-corner-page .banner-title.lin-min-ht h1,
+  .fan-corner-page .fan-corner-title {
+    font-size: 40px;
+  }
+
+  .fan-corner-page .change-sc h2 {
+    font-size: 20px;
+  }
+
+  .fan-corner-page .ans-opt ul {
+    padding-left: 10px;
+    text-align: left;
+  }
+
+  .fan-corner-page .ans-opt li {
+    display: block;
+    padding: 5px 0;
+    margin-right: 0;
+  }
+
+  .fan-corner-page .ans-opt label {
+    font-size: 1.2em;
+  }
+
+  .fan-corner-page .btn-n-s .btn-view-more {
+    margin: 0;
+  }
+
+  .fan-corner-page .btn-n-s .btn-view-more .btn {
+    margin: 10px 0;
+  }
+
+  .fan-corner-page .final-score h1 {
+    font-size: 22px;
+  }
+
+  .fan-corner-page .final-score h4 {
+    font-size: 14px;
+  }
+
+  .fan-corner-page .dh-btn-min {
+    width: 80%;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .fan-corner-modal-inner .pop-pad {
+    padding: 20px 0;
+  }
+
+  .fan-corner-modal-inner .f-gin {
+    font-size: 22px;
+  }
+}
+
+/* Legacy: in the .btn-n-s context buttons sit side-by-side with 15px outer margin */
+.btn-n-s .btn-view-more,
+.btn-n-s .btn-view-all {
+  display: initial;
+  margin: 0 15px;
+}
+
+/* Override the base block+100% rule so the button sizes to its content */
+.btn-n-s .btn-view-more .btn,
+.btn-n-s .btn-view-all .btn {
+  display: inline-block;
+  min-width: 110px;
+}
+
+.btn-n-s .btn-view-more.display-inline-block {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+/* Mobile: stack buttons full-width */
+@media (max-width: 575.98px) {
+  .btn-n-s {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .btn-n-s .btn-view-more,
+  .btn-n-s .btn-view-more.display-inline-block {
+    display: block;
+    margin: 0;
+    width: 100%;
+  }
+
+  .btn-n-s .btn-view-more .btn {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    min-width: unset;
+  }
+}
+
+/* Share score modal — social icon list */
+.fan-share-ul {
+  display: flex;
+  justify-content: center;
+  gap: 0;
+  margin-top: 20px;
+  padding: 0;
+  list-style: none;
+}
+
+.fan-share-ul li {
+  display: inline-block;
+  padding: 0 10px;
+}
+
+.fan-share-icon {
+  width: 42px;
+  height: auto;
+  display: block;
+}
+
+/* Score page: two side-by-side share/play buttons with SVG outline borders */
+.final-score .dh-btn-min {
+  text-align: center;
+  margin: 30px auto 0;
+}
+
+.final-score .dh-btn-min span {
+  display: inline-block;
+  vertical-align: middle;
+  margin: 0 8px 10px;
+}
+
+.final-score .dh-btn-min .btn-in {
+  min-width: 200px;
+  display: inline-block !important;
+}
+
+.dark-bg2.dictionary-page {
+  background-color: #000;
+  background-image: url("/frontend/img/bg-disctionary.jpg");
+  background-position: top center;
+  background-repeat: no-repeat;
+  background-size: 100% auto;
+  padding-bottom: 48px;
+  padding-top: calc(var(--dh-header-offset) + 72px);
+}
+
+/* Match legacy 280px masonry bricks — constrain the grid section container so
+   cards stay close to the original width (≈290px) on all screen sizes. */
+.dictionary-page__grid-wrap > .container {
+  max-width: min(960px, 90vw);
+}
+
+.dictionary-page .dictionary-masonry {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+
+  @media (max-width: 991.98px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (max-width: 575.98px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Scroll-reveal animation (same idea as .movie-news-grid--reveal) */
+.dict-card-reveal {
+  opacity: 0;
+  transform: translateY(18px);
+  transition:
+    opacity 400ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 400ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.dict-card-reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.dictionary-card {
+  overflow: hidden;
+  background-image: url("/frontend/img/dicks/bg-white.jpg");
+  background-position: bottom right;
+  background-repeat: no-repeat;
+  background-size: contain;
+  background-color: #fff !important;
+}
+
+.dictionary-card__media {
+  position: relative;
+  overflow: hidden;
+  background-color: #f0f0f0;
+}
+
+.dictionary-card__gif-image {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+}
+
+.dictionary-card__img-placeholder {
+  width: 100%;
+  aspect-ratio: 380 / 162;
+  background-color: #e8e8e8;
+}
+
+/* GIF badge — top-left, like legacy `.dh-absulate middle` but pinned */
+.dictionary-card__gif-badge {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.dictionary-card__gif-icon {
+  width: 46px !important;
+  height: auto !important;
+  display: block;
+}
+
+.dict-card-title {
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+
+.dict-card-name {
+  font-size: 0.85rem;
+  margin-bottom: 4px;
 }
 

@@ -16,7 +16,7 @@ export function VideosSearchBar({ value, onChange, id = "videos-search" }) {
     <div className={cls.join(" ")}>
       <div className="search-img">
         <Image
-          src="/frontend/img/search.png"
+          src="/frontend/img/search.svg"
           alt=""
           width={20}
           height={20}

@@ -1,4 +1,16 @@
-import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
+import { SocialPageContent } from "@/components/social/SocialPageContent";
+import { buildPageMetadata } from "@/lib/siteMetadata";
+
+export const metadata = buildPageMetadata({
+  title: "Social",
+  path: "/social",
+});
+
+/** Legacy Angular `dharma-world` state at `/social`. */
 export default function SocialPage() {
-    return (_jsxs("section", { className: "container py-5 min-vh-content", children: [_jsx("h1", { className: "font-hammersmith color-primary text-up mb-3", children: "Social" }), _jsx("p", { className: "color-grey", children: "Replace with Dharma World / Insta modules when you wire Strapi or existing APIs." })] }));
+  return (
+    <div className="social-page">
+      <SocialPageContent />
+    </div>
+  );
 }

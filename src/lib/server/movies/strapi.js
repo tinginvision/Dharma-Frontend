@@ -1,9 +1,11 @@
 import "server-only";
+import { cache } from "react";
 import {
   applyMovieImageFallbacks,
   resolveMovieUrlSlug,
 } from "@/lib/movieModel";
 import { cmsAssetOriginForServer } from "@/lib/media";
+import { fetchWithRevalidate } from "@/lib/server/fetchJson";
 
 /**
  * Strapi movies: values come straight from `.env` / `.env.local` (`process.env`).
@@ -98,6 +100,14 @@ export function isStrapiMoviesEnabled() {
 /** Strapi host configured (slider collection may be public without JWT). */
 export function hasStrapiUrl() {
   return strapiBase().length > 0;
+}
+
+/**
+ * Base URL + API token for generic Strapi REST calls (e.g. `POST /api/forms`).
+ * @returns {{ base: string, token: string }}
+ */
+export function getStrapiRestConfig() {
+  return { base: strapiBase(), token: strapiToken() };
 }
 
 /** Strapi v4 `attributes`; v5 often flat */
@@ -271,14 +281,11 @@ async function strapiGetCollection(resource, searchParams, opts) {
     if (v !== undefined && v !== "") url.searchParams.set(k, String(v));
   }
 
-  /** @type {Record<string, string>} */
-  const headers = { Accept: "application/json" };
   if (token) {
     warnIfSuspiciousApiToken(token);
-    headers.Authorization = `Bearer ${token}`;
   }
 
-  const res = await fetch(url.toString(), { headers, next: { revalidate: 60 } });
+  const res = await fetchWithRevalidate(url.toString(), 60);
   const text = await res.text().catch(() => "");
   let json = {};
   try {
@@ -327,7 +334,6 @@ async function strapiGetCollectionAllPages(resource, baseParams = {}, pageSize =
   /** @type {Record<string, unknown>[]} */
   const all = [];
   let page = 1;
-  let pageCount = 1;
 
   const size = Math.min(Math.max(1, pageSize), 500);
 
@@ -339,14 +345,11 @@ async function strapiGetCollectionAllPages(resource, baseParams = {}, pageSize =
     url.searchParams.set("pagination[page]", String(page));
     url.searchParams.set("pagination[pageSize]", String(size));
 
-    /** @type {Record<string, string>} */
-    const headers = { Accept: "application/json" };
     if (token) {
       warnIfSuspiciousApiToken(token);
-      headers.Authorization = `Bearer ${token}`;
     }
 
-    const res = await fetch(url.toString(), { headers, next: { revalidate: 60 } });
+    const res = await fetchWithRevalidate(url.toString(), 60);
     const text = await res.text().catch(() => "");
     let json = {};
     try {
@@ -368,13 +371,13 @@ async function strapiGetCollectionAllPages(resource, baseParams = {}, pageSize =
     }
 
     const d = json?.data;
-    if (!Array.isArray(d)) break;
+    if (!Array.isArray(d) || d.length === 0) break;
     all.push(...d.map((entry) => normalizeStrapiDoc(entry)));
-    const p = json?.meta?.pagination;
-    pageCount =
-      typeof p?.pageCount === "number" && Number.isFinite(p.pageCount) ? p.pageCount : page;
     page += 1;
-  } while (page <= pageCount);
+    /** Stop after a partial page — `meta.pagination.pageCount` can be wrong on some Strapi setups. */
+    if (d.length < size) break;
+    if (page > 600) break;
+  } while (true);
 
   return all;
 }
@@ -494,6 +497,16 @@ export async function fetchStrapiDharmaTvsFlattenedRows() {
       const movieOrder =
         typeof movie.order === "number" ? movie.order : Number(movie.order) || 0;
       const vidOrder = entry.order == null ? 0 : Number(entry.order) || 0;
+      const releaseDate =
+        movie.releaseDate != null && String(movie.releaseDate).trim() ?
+          String(movie.releaseDate).trim()
+        : "";
+      const movieMonth =
+        typeof movie.month === "number" ? movie.month : Number(movie.month) || 0;
+      const upcomingOrd =
+        typeof movie.upcomingOrder === "number" ? movie.upcomingOrder : (
+          Number(movie.upcomingOrder) || 0
+        );
 
       /** @type {Record<string, unknown>} */
       const row = {
@@ -506,6 +519,9 @@ export async function fetchStrapiDharmaTvsFlattenedRows() {
             typeof movie.documentId === "string" && movie.documentId ?
               movie.documentId
             : String(movie.id ?? ""),
+          ...(releaseDate ? { releaseDate } : {}),
+          ...(movieMonth ? { month: movieMonth } : {}),
+          ...(upcomingOrd ? { upcomingOrder: upcomingOrd } : {}),
         },
         url: yt,
         title:
@@ -548,13 +564,7 @@ async function strapiGetMany(searchParams) {
     if (v !== undefined && v !== "") url.searchParams.set(k, v);
   }
 
-  /** @type {Record<string, string>} */
-  const headers = {
-    Accept: "application/json",
-    Authorization: `Bearer ${token}`,
-  };
-
-  const res = await fetch(url.toString(), { headers, next: { revalidate: 60 } });
+  const res = await fetchWithRevalidate(url.toString(), 60);
   const text = await res.text().catch(() => "");
   let json = {};
   try {
@@ -626,6 +636,17 @@ function mapStrapiRowToMovieFields(item) {
   };
 
   applyMovieImageFallbacks(row);
+
+  const cmsStatus = typeof item.status === "boolean" ? item.status : true;
+  const synopsisOk =
+    String(row.synopsis || "")
+      .replace(/<[^>]*>/g, " ")
+      .replace(/\u00a0/g, " ")
+      .trim()
+      .length > 0;
+  const backgroundOk = String(row.backgroundImage || "").trim().length > 0;
+  row.status = cmsStatus && synopsisOk && backgroundOk;
+
   return row;
 }
 
@@ -669,6 +690,7 @@ const DETAIL_POPULATE_KEYS = [
   "movie_behind_scenes",
   "movie_awards",
   "related_from_movies",
+  "news_lists",
 ];
 
 function detailPopulateParams() {
@@ -681,6 +703,8 @@ function detailPopulateParams() {
     "populate[movie_film_videos][populate][0]": "thumbnail",
     "populate[movie_behind_scenes][populate][0]": "image",
     "populate[movie_gallery_items][populate][0]": "image",
+    "populate[news_lists][populate][0]": "image",
+    "populate[news_lists][populate][1]": "banner",
   };
   DETAIL_POPULATE_KEYS.forEach((key, i) => {
     p[`populate[${i}]`] = key;
@@ -688,13 +712,42 @@ function detailPopulateParams() {
   return p;
 }
 
-/** @type {Record<string, unknown>[] | null} */
-let listCache = null;
-/** @type {Record<string, unknown>[] | null} */
-let detailRawCache = null;
+/** Query shapes for `/api/movies` with full-detail populate — shared list + slug filter + bulk list. */
+function detailRawFetchParamAttempts(pageSizeForListAttempt = "500") {
+  return [
+    {
+      "pagination[pageSize]": pageSizeForListAttempt,
+      "sort[0]": "upcomingOrder:desc",
+      populate: "*",
+      "populate[movie_casts][populate][0]": "image",
+      "populate[movie_crews][populate][0]": "image",
+      "populate[movie_wallpapers][populate][0]": "image",
+      "populate[movie_film_videos][populate][0]": "thumbnail",
+      "populate[movie_behind_scenes][populate][0]": "image",
+      "populate[movie_gallery_items][populate][0]": "image",
+      "populate[news_lists][populate][0]": "image",
+      "populate[news_lists][populate][1]": "banner",
+    },
+    (() => {
+      const q = detailPopulateParams();
+      q["pagination[pageSize]"] = pageSizeForListAttempt;
+      return q;
+    })(),
+    (() => {
+      const q = listPopulateParams();
+      q["pagination[pageSize]"] = pageSizeForListAttempt;
+      return q;
+    })(),
+  ];
+}
 
-async function loadAllMoviesForList() {
-  if (listCache) return listCache;
+/**
+ * Do not cache the movie list in module scope: Strapi edits (e.g. releaseType)
+ * would never appear until the Next process restarts. Dedupe per request with
+ * React `cache`; cross-request freshness uses `fetchWithRevalidate` from
+ * `@/lib/server/fetchJson` (ISR `revalidate`).
+ */
+const loadAllMoviesForList = cache(async () => {
   let raw = [];
   try {
     raw = await strapiGetMany(listPopulateParams());
@@ -707,27 +760,39 @@ async function loadAllMoviesForList() {
   const mapped = raw.map((r) =>
     mapStrapiRowToMovieFields(typeof r === "object" && r ? r : {})
   );
-  listCache = sortAllMovies(mapped);
-  return listCache;
-}
+  return sortAllMovies(mapped);
+});
 
-async function loadDetailRawRows() {
-  if (detailRawCache) return detailRawCache;
-  const attempts = [
-    {
-      "pagination[pageSize]": "500",
-      "sort[0]": "upcomingOrder:desc",
-      populate: "*",
-      "populate[movie_casts][populate][0]": "image",
-      "populate[movie_crews][populate][0]": "image",
-      "populate[movie_wallpapers][populate][0]": "image",
-      "populate[movie_film_videos][populate][0]": "thumbnail",
-      "populate[movie_behind_scenes][populate][0]": "image",
-      "populate[movie_gallery_items][populate][0]": "image",
-    },
-    detailPopulateParams(),
-    listPopulateParams(),
-  ];
+/**
+ * One movie row for `/movie/[slug]`: filtered `GET /api/movies` on `urlName` and Strapi `slug`,
+ * same populate fallbacks as the bulk loader; bulk+fuzzy slug match only runs when filtered calls miss.
+ *
+ * @param {string} slugDecoded
+ */
+const fetchMovieRawByDecodedSlugFiltered = cache(async (slugDecoded) => {
+  if (!slugDecoded) return null;
+  const filters = ["urlName", "slug"];
+  const attempts = detailRawFetchParamAttempts("1");
+
+  for (const baseParams of attempts) {
+    for (const field of filters) {
+      try {
+        const rows = await strapiGetMany({
+          ...baseParams,
+          [`filters[${field}][$eq]`]: slugDecoded,
+        });
+        const first = rows[0];
+        if (first && typeof first === "object") return normalizeStrapiDoc(first);
+      } catch {
+        /* try next */
+      }
+    }
+  }
+  return null;
+});
+
+const loadDetailRawRows = cache(async () => {
+  const attempts = detailRawFetchParamAttempts("500");
   let raw = [];
   for (const params of attempts) {
     try {
@@ -737,9 +802,8 @@ async function loadDetailRawRows() {
       /* try next */
     }
   }
-  detailRawCache = raw.map((r) => (typeof r === "object" && r ? r : {}));
-  return detailRawCache;
-}
+  return raw.map((r) => (typeof r === "object" && r ? r : {}));
+});
 
 export async function strapiFetchMovieDetails() {
   return plain(await loadAllMoviesForList());
@@ -820,6 +884,66 @@ function mapWallpapers(rel) {
         ),
       image: img,
     });
+  }
+  return byOrder(out);
+}
+
+/** Legacy `News` / movie-inside “News” tab (api/models-style fields). */
+function mapMovieNews(rows) {
+  const list = Array.isArray(rows) ? rows.map((x) => normalizeStrapiDoc(x)) : [];
+  const out = [];
+  for (const o of list) {
+    if (!o || typeof o !== "object") continue;
+    const title =
+      (typeof o.title === "string" && o.title.trim()) ?
+        o.title.trim()
+      : (typeof o.name === "string" && o.name.trim()) ?
+        o.name.trim()
+      : (typeof o.headline === "string" && o.headline.trim()) ?
+        o.headline.trim()
+      : "";
+    const image =
+      mediaUrl(o.image) ||
+      mediaUrl(o.photo) ||
+      mediaUrl(o.media) ||
+      mediaUrl(o.picture) ||
+      mediaUrl(o.file) ||
+      mediaUrl(o.thumbnail) ||
+      mediaUrl(o.cover) ||
+      "";
+    const banner = mediaUrl(o.banner) || "";
+    const text = typeof o.text === "string" ? o.text : "";
+    const link = typeof o.link === "string" ? o.link.trim() : "";
+    if (!title && !image && !banner && !text.trim() && !link) continue;
+    let idRaw =
+      typeof o.documentId === "string" && o.documentId.trim() ?
+        o.documentId.trim()
+      : o.id != null && String(o.id) !== "" ? String(o.id) : "";
+    if (!idRaw && link) idRaw = `ext:${link.slice(0, 120)}`;
+    if (!idRaw && title) idRaw = `t:${title.slice(0, 80)}`;
+    if (!idRaw) continue;
+    const dateRaw = o.date ?? o.publishedAt ?? o.publishDate ?? o.newsDate ?? o.createdAt;
+    let date;
+    if (dateRaw != null) {
+      const d = new Date(String(dateRaw));
+      if (!Number.isNaN(d.getTime())) date = d;
+    }
+    const keywords = typeof o.keywords === "string" ? o.keywords : "";
+    /** @type {Record<string, unknown>} */
+    const row = {
+      _id: idRaw,
+      order: Number(o.order) || 0,
+    };
+    if (image) row.image = image;
+    if (banner) row.banner = banner;
+    if (title) row.title = title;
+    if (keywords) row.keywords = keywords;
+    if (date) row.date = date;
+    if (text) row.text = text;
+    if (link) row.link = link;
+    const slugRaw = typeof o.slug === "string" && o.slug.trim() ? o.slug.trim() : "";
+    if (slugRaw) row.slug = slugRaw;
+    out.push(row);
   }
   return byOrder(out);
 }
@@ -948,7 +1072,21 @@ export async function fetchStrapiDharmaTvFlattenedRows() {
       /** @type {Record<string, unknown>} */
       const row = {
         movieKey,
-        movie: { name, year, urlName: movieKey },
+        movie: {
+          name,
+          year,
+          urlName: movieKey,
+          ...(mappedMovie.releaseDate != null &&
+          String(mappedMovie.releaseDate).trim() ?
+            { releaseDate: String(mappedMovie.releaseDate).trim() }
+          : {}),
+          ...(Number(mappedMovie.month) ?
+            { month: Number(mappedMovie.month) }
+          : {}),
+          ...(Number(mappedMovie.upcomingOrder) ?
+            { upcomingOrder: Number(mappedMovie.upcomingOrder) }
+          : {}),
+        },
         url: yt,
         title:
           typeof v.name === "string" && v.name.trim() ? v.name.trim() : yt,
@@ -992,6 +1130,84 @@ export async function fetchStrapiDharmaSliderHeroSlides() {
     }
     slides.sort((a, b) => (Number(a.order) || 0) - (Number(b.order) || 0));
     return plain(slides);
+  } catch (err) {
+    console.error("[Strapi] dharma-sliders:", err);
+    return [];
+  }
+}
+
+/**
+ * Home-page hero slides from `dharma-slider-homes?populate=*`.
+ * Each entry has: order, url (may be empty), image (landscape 1600×713),
+ * mobileImage (portrait 705×1087), movie.urlName (for internal link).
+ *
+ * @returns {{ order:number, url:string, image:string, mobileImage:string, movieSlug:string|null }[]}
+ */
+export async function fetchStrapiHomeSliderSlides() {
+  try {
+    const origin = strapiSliderCmsOrigin();
+    const rows = await strapiGetCollection("dharma-slider-homes", { populate: "*" }, { origin });
+    /** @type {{ order:number, url:string, image:string, mobileImage:string, movieSlug:string|null }[]} */
+    const slides = [];
+    for (const raw of rows) {
+      if (!raw || typeof raw !== "object") continue;
+      const row = /** @type {Record<string,unknown>} */ (raw);
+      const img = mediaUrlWithOrigin(row.image, origin) || mediaUrl(row.image) || "";
+      const mobImg = mediaUrlWithOrigin(row.mobileImage, origin) || mediaUrl(row.mobileImage) || "";
+      if (!img && !mobImg) continue;
+      const movie = row.movie && typeof row.movie === "object" ? row.movie : null;
+      const movieSlug =
+        movie && typeof (/** @type {any} */ (movie)).urlName === "string"
+          ? String((/** @type {any} */ (movie)).urlName).trim() || null
+          : null;
+      slides.push({
+        order: Number(row.order) || 0,
+        url: String(row.url ?? "").trim(),
+        image: img,
+        mobileImage: mobImg,
+        movieSlug,
+      });
+    }
+    slides.sort((a, b) => a.order - b.order);
+    return plain(slides);
+  } catch (err) {
+    console.error("[Strapi] dharma-slider-homes:", err);
+    return [];
+  }
+}
+
+/**
+ * Fetch all rows from `dharma-sliders?populate=*` sorted by `order` descending (highest = latest/featured).
+ * Returns plain objects: { order, url (YouTube ID), image (absolute URL), title }.
+ * The first element is intended as the home-page featured video; the rest feed the strip.
+ *
+ * @see https://dharmacms2.tinglabs.in/api/dharma-sliders?populate=*
+ */
+export async function fetchStrapiDharmaSliders() {
+  try {
+    const origin = strapiSliderCmsOrigin();
+    const rows = await strapiGetCollection(
+      "dharma-sliders",
+      { populate: "*", "sort[0]": "order:desc" },
+      { origin }
+    );
+    /** @type {{ order:number, url:string, image:string, title:string }[]} */
+    const results = [];
+    for (const raw of rows) {
+      if (!raw || typeof raw !== "object") continue;
+      const row = /** @type {Record<string,unknown>} */ (raw);
+      const img = mediaUrlWithOrigin(row.image, origin) || mediaUrl(row.image) || "";
+      const ytUrl = String(row.url ?? "").trim();
+      results.push({
+        order: Number(row.order) || 0,
+        url: ytUrl,
+        image: img,
+        title: String(row.title ?? "").trim(),
+      });
+    }
+    // ensure descending by order (Strapi sort may not be guaranteed across pages)
+    results.sort((a, b) => b.order - a.order);
+    return plain(results);
   } catch (err) {
     console.error("[Strapi] dharma-sliders:", err);
     return [];
@@ -1093,20 +1309,24 @@ function dedupeMovieAwardRows(rows) {
 /** @type {typeof dedupeMovieAwardRows} */
 const dedupeMovieWallpaperRows = dedupeMovieAwardRows;
 
+/** @type {typeof dedupeMovieAwardRows} */
+const dedupeMovieNewsRows = dedupeMovieAwardRows;
+
 function mapAwards(rel) {
   const items = strapiRelatedToArray(rel);
+  /** Strapi `movie-awards`: `title` = ceremony/show (accordion), `awardname` = category line inside. */
   const rows = [];
   for (const raw of items) {
     if (!raw || typeof raw !== "object") continue;
     const o = normalizeStrapiDoc(raw);
-    const awardname = typeof o.awardname === "string" ? o.awardname : "";
-    const title = typeof o.title === "string" ? o.title : "";
-    const winner = typeof o.winner === "string" ? o.winner : "";
+    const ceremony = typeof o.title === "string" ? o.title.trim() : "";
+    const category = typeof o.awardname === "string" ? o.awardname.trim() : "";
+    const winner = typeof o.winner === "string" ? o.winner.trim() : "";
     // Omit unpopulated relation stubs (id-only) so list+API merge can replace them.
-    if (!awardname.trim() && !title.trim() && !winner.trim()) continue;
+    if (!ceremony && !category && !winner) continue;
     rows.push({
-      awardname,
-      title,
+      ceremony,
+      category,
       note: typeof o.note === "string" ? o.note : "",
       winner,
       year: typeof o.year === "number" ? o.year : Number(o.year) || 0,
@@ -1114,7 +1334,8 @@ function mapAwards(rel) {
   }
   const groups = new Map();
   for (const r of rows) {
-    const key = `${r.awardname ?? ""}\0${r.year ?? ""}`;
+    const key =
+      r.ceremony ? `${r.ceremony}\0${r.year}` : `${r.category}\0${r.year}\0${r.winner}`;
     const g = groups.get(key) ?? [];
     g.push(r);
     groups.set(key, g);
@@ -1123,18 +1344,89 @@ function mapAwards(rel) {
   for (const [, g] of groups) {
     const head = g[0];
     if (!head) continue;
+    const name = head.ceremony || head.category || "Awards";
     out.push({
-      _id: `${head.awardname}-${head.year}`,
-      name: head.awardname,
+      _id: `${name}-${head.year}-${g.map((x) => x.category).join(",").slice(0, 120)}`,
+      name,
       year: head.year,
       award: g.map((x) => ({
-        awardname: x.title,
+        awardname: x.category,
         winner: x.winner,
         note: x.note,
       })),
     });
   }
+  out.sort(
+    (a, b) =>
+      (Number(b.year) || 0) - (Number(a.year) || 0) || String(a.name).localeCompare(String(b.name)),
+  );
   return out;
+}
+
+/** Merge related movie docs: CMS `movie-related-links` first, then embedded `related_from_movies`. */
+function mergeRelatedDeduped(fromLinksMapped, fromEmbeddedMapped) {
+  const seen = new Set();
+  const out = [];
+  for (const list of [fromLinksMapped, fromEmbeddedMapped]) {
+    if (!Array.isArray(list)) continue;
+    for (const item of list) {
+      if (!item || typeof item !== "object") continue;
+      const k =
+        typeof item.urlName === "string" && item.urlName.trim() ?
+          item.urlName.trim()
+        : String(item._id || "").trim();
+      if (!k || seen.has(k)) continue;
+      seen.add(k);
+      out.push(item);
+    }
+  }
+  return out;
+}
+
+/** `/api/movie-related-links` rows for the current movie (`fromMovie` → `toMovie`). */
+async function strapiFetchMovieRelatedLinkRowsForPickedMovie(picked) {
+  if (!picked || typeof picked !== "object") return [];
+  const docId =
+    typeof picked.documentId === "string" && picked.documentId.trim() ?
+      picked.documentId.trim()
+    : "";
+  const numId =
+    picked.id != null && String(picked.id).trim() !== "" ? String(picked.id) : "";
+
+  if (!docId && !numId) return [];
+
+  const base = {
+    populate: "*",
+    "pagination[pageSize]": "200",
+  };
+
+  /** @type {Record<string, string | number | undefined>[]} */
+  const paramSets = [];
+  if (docId) {
+    paramSets.push({ ...base, "filters[fromMovie][documentId][$eq]": docId });
+    paramSets.push({ ...base, "filters[from_movie][documentId][$eq]": docId });
+  }
+  if (numId) {
+    paramSets.push({ ...base, "filters[fromMovie][id][$eq]": numId });
+    paramSets.push({ ...base, "filters[from_movie][id][$eq]": numId });
+  }
+
+  for (const params of paramSets) {
+    const rows = await strapiGetCollection("movie-related-links", params);
+    if (rows.length) return rows;
+  }
+
+  const all = await strapiGetCollectionAllPages("movie-related-links", { populate: "*" }, 150);
+
+  return all.filter((row) => {
+    if (!row || typeof row !== "object") return false;
+    const from = row.fromMovie ?? row.from_movie;
+    if (!from || typeof from !== "object") return false;
+    const f = normalizeStrapiDoc(from);
+    if (docId && String(f.documentId || "").trim() === docId) return true;
+    if (numId && String(f.id ?? "") === numId) return true;
+    return false;
+  });
 }
 
 function mapRelated(raw, byId) {
@@ -1144,12 +1436,22 @@ function mapRelated(raw, byId) {
   for (const rawLink of raw) {
     if (!rawLink || typeof rawLink !== "object") continue;
     const link = normalizeStrapiDoc(rawLink);
-    const target = link.movie ?? link.to_movie ?? link.relatedMovie;
+    const target =
+      link.toMovie ??
+      link.to_movie ??
+      link.movie ??
+      link.relatedMovie;
     let doc = null;
     if (target && typeof target === "object") {
       const t = normalizeStrapiDoc(target);
       if (typeof t.name === "string" && t.name) {
         doc = mapStrapiRowToMovieFields(t);
+      } else {
+        const key =
+          typeof t.documentId === "string" && t.documentId.trim() ?
+            t.documentId.trim()
+          : t.id != null ? String(t.id) : "";
+        if (key) doc = byId.get(key) ?? null;
       }
     }
     if (!doc && (typeof target === "string" || typeof target === "number")) {
@@ -1164,7 +1466,11 @@ function mapRelated(raw, byId) {
     }
     if (!doc) continue;
     resolved.push({
-      order: Number(link.order) || 0,
+      order:
+        Number(link.order) ||
+        Number(link.sortOrder) ||
+        Number(link.sort_order) ||
+        0,
       doc: {
         _id: String(doc._id),
         name: doc.name,
@@ -1444,18 +1750,121 @@ async function strapiFetchMovieGalleryItemsForMovie(picked) {
   return [];
 }
 
+/** REST collection slugs tried for per-movie news and single-article fetches. */
+const NEWS_LIST_COLLECTIONS = [
+  "news-lists",
+  "news-list",
+  "movie-news",
+  "movie-newses",
+  "movie-news-items",
+];
+
+/**
+ * Per-movie news rows (legacy Sails `News` filtered by `movie`).
+ * Tries common Strapi collection UIDs; same filter pattern as `movie-wallpapers`.
+ */
+async function strapiFetchMovieNewsForMovie(picked) {
+  if (!picked || typeof picked !== "object") return [];
+  const docId =
+    typeof picked.documentId === "string" && picked.documentId.trim() ?
+      picked.documentId.trim()
+    : "";
+  const numId =
+    picked.id != null && Number.isFinite(Number(picked.id)) ? String(picked.id) : "";
+
+  if (!docId && !numId) return [];
+
+  const base = { populate: "*", "pagination[pageSize]": "1000" };
+  /** @type {Record<string, string | number | undefined>[]} */
+  const paramSets = [];
+  if (docId) {
+    paramSets.push({ ...base, "filters[movie][documentId][$eq]": docId });
+    paramSets.push({ ...base, "filters[movies][documentId][$eq]": docId });
+  }
+  if (numId) {
+    paramSets.push({ ...base, "filters[movie][id][$eq]": numId });
+    paramSets.push({ ...base, "filters[movies][id][$eq]": numId });
+  }
+
+  for (const resource of NEWS_LIST_COLLECTIONS) {
+    for (const params of paramSets) {
+      const rows = await strapiGetCollection(resource, params);
+      if (rows.length) return rows;
+    }
+  }
+  return [];
+}
+
+/** @param {Record<string, unknown>} picked Normalized Strapi movie row */
+async function strapiFetchNewsListForMoviePick(picked) {
+  const newsFromRelation = strapiRelatedToArray(
+    picked.news_lists ??
+      picked.newsLists ??
+      picked.news_list ??
+      picked.newsList ??
+      picked.movie_news ??
+      picked.movieNews ??
+      picked.movie_newss ??
+      picked.movieNewss,
+  );
+  const newsFromApi = await strapiFetchMovieNewsForMovie(picked);
+  return mapMovieNews(dedupeMovieNewsRows([...newsFromRelation, ...newsFromApi]));
+}
+
+/**
+ * News list for a movie (same shape as `Movie.getMovieNews` / movie-inside tab).
+ * @param {string} slug Movie `urlName` / Strapi slug
+ */
+export async function strapiFetchNewsListForMovieSlug(slug) {
+  if (!isStrapiMoviesEnabled()) return [];
+  const decodedSlug = decodeURIComponent(slug || "").trim();
+  let picked = decodedSlug ? await fetchMovieRawByDecodedSlugFiltered(decodedSlug) : null;
+  if (!picked) {
+    const rawRows = await loadDetailRawRows();
+    picked = pickMovieRaw(rawRows, slug);
+  }
+  if (!picked) return [];
+  return plain(await strapiFetchNewsListForMoviePick(picked));
+}
+
 export async function strapiTryFetchOneMovie(slug) {
-  const rawRows = await loadDetailRawRows();
-  const picked = pickMovieRaw(rawRows, slug);
+  const decodedSlug = decodeURIComponent(slug || "").trim();
+  let picked = decodedSlug ? await fetchMovieRawByDecodedSlugFiltered(decodedSlug) : null;
+
+  /** When slug filter misses, bulk rows are loaded for fuzzy `pickMovieRaw` — reuse for related summary. */
+  let rawRowsFallback = /** @type {Record<string, unknown>[]} */ ([]);
+
+  if (!picked) {
+    rawRowsFallback = await loadDetailRawRows();
+    picked = pickMovieRaw(rawRowsFallback, slug);
+  }
   if (!picked) return null;
 
   const summaryByKey = new Map();
-  for (const r of rawRows) {
-    const mapped = mapStrapiRowToMovieFields(r);
-    summaryByKey.set(String(mapped._id), mapped);
+  if (rawRowsFallback.length) {
+    for (const r of rawRowsFallback) {
+      const mapped = mapStrapiRowToMovieFields(r);
+      summaryByKey.set(String(mapped._id), mapped);
+      if (mapped.id != null && String(mapped.id).trim() !== "") {
+        summaryByKey.set(String(mapped.id), mapped);
+      }
+    }
+  } else {
+    const listMovies = await loadAllMoviesForList();
+    for (const m of listMovies) {
+      summaryByKey.set(String(m._id), m);
+      if (m.id != null && String(m.id).trim() !== "") {
+        summaryByKey.set(String(m.id), m);
+      }
+    }
   }
 
   const mappedCore = mapStrapiRowToMovieFields(picked);
+  summaryByKey.set(String(mappedCore._id), mappedCore);
+  if (mappedCore.id != null && String(mappedCore.id).trim() !== "") {
+    summaryByKey.set(String(mappedCore.id), mappedCore);
+  }
+
   const movie = stripRelationsForMovie(mappedCore);
 
   let castRows = strapiRelatedToArray(picked.movie_casts);
@@ -1508,6 +1917,20 @@ export async function strapiTryFetchOneMovie(slug) {
     dedupeMovieAwardRows([...galleryFromRelation, ...galleryFromApi]),
   );
 
+  const news = await strapiFetchNewsListForMoviePick(picked);
+
+  const relatedFromEmbedded = mapRelated(
+    strapiRelatedToArray(picked.related_from_movies),
+    summaryByKey,
+  );
+  let relatedFromLinks = [];
+  try {
+    const linkRows = await strapiFetchMovieRelatedLinkRowsForPickedMovie(picked);
+    relatedFromLinks = mapRelated(linkRows, summaryByKey);
+  } catch {
+    relatedFromLinks = [];
+  }
+
   const result = {
     movie,
     cast,
@@ -1516,10 +1939,191 @@ export async function strapiTryFetchOneMovie(slug) {
     wallpaper,
     videos,
     behindTheScenes,
-    related: mapRelated(picked.related_from_movies, summaryByKey),
-    news: [],
+    related: mergeRelatedDeduped(relatedFromLinks, relatedFromEmbedded),
+    news,
     award,
   };
 
   return plain(result);
+}
+
+function escapeHtmlPlain(s) {
+  return String(s)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+/** Strapi Blocks (minimal) → HTML for news body */
+function strapiBlocksToHtml(blocks) {
+  if (!Array.isArray(blocks)) return "";
+  const parts = [];
+  for (const b of blocks) {
+    if (!b || typeof b !== "object") continue;
+    const type = b.type;
+    const children = b.children;
+    if (!Array.isArray(children)) continue;
+    const text = children
+      .map((c) => (c && typeof c === "object" && typeof c.text === "string" ? c.text : ""))
+      .join("");
+    if (type === "paragraph") {
+      parts.push(`<p>${escapeHtmlPlain(text)}</p>`);
+    } else if (type === "heading") {
+      const level = Math.min(6, Math.max(2, Number(b.level) || 2));
+      parts.push(`<h${level}>${escapeHtmlPlain(text)}</h${level}>`);
+    } else if (type === "list") {
+      const tag = b.format === "ordered" ? "ol" : "ul";
+      parts.push(`<${tag}><li>${escapeHtmlPlain(text)}</li></${tag}>`);
+    }
+  }
+  return parts.join("");
+}
+
+function normalizeNewsArticleBody(o) {
+  const t = o.text ?? o.body ?? o.content ?? o.article;
+  if (t == null) return "";
+  if (typeof t === "string") return t;
+  if (Array.isArray(t)) return strapiBlocksToHtml(t);
+  if (typeof t === "object" && Array.isArray(t.blocks)) return strapiBlocksToHtml(t.blocks);
+  return "";
+}
+
+function mapArticleForDetailPage(raw) {
+  const o = normalizeStrapiDoc(raw);
+  const _id = String(o.documentId || o.id || "").trim();
+  const title = String(o.title || o.name || "").trim();
+  const dateRaw = o.date ?? o.publishedAt ?? o.newsDate ?? o.createdAt;
+  let dateIso = "";
+  if (dateRaw != null) {
+    const d = new Date(String(dateRaw));
+    if (!Number.isNaN(d.getTime())) dateIso = d.toISOString();
+  }
+  const banner = mediaUrl(o.banner) || "";
+  const image = mediaUrl(o.image) || mediaUrl(o.photo) || "";
+  const html = normalizeNewsArticleBody(o);
+  const link = typeof o.link === "string" ? o.link.trim() : "";
+  return { _id, title, dateIso, banner, image, html, link };
+}
+
+function mapRelatedCardForDetailPage(raw) {
+  const o = normalizeStrapiDoc(raw);
+  const _id = String(o.documentId || o.id || "").trim();
+  const title = String(o.title || o.name || "").trim();
+  const dateRaw = o.date ?? o.publishedAt ?? o.createdAt;
+  let dateIso = "";
+  if (dateRaw != null) {
+    const d = new Date(String(dateRaw));
+    if (!Number.isNaN(d.getTime())) dateIso = d.toISOString();
+  }
+  const image =
+    mediaUrl(o.image) || mediaUrl(o.banner) || mediaUrl(o.thumbnail) || "";
+  const slug = typeof o.slug === "string" && o.slug.trim() ? o.slug.trim() : "";
+  return { _id, title, dateIso, image, ...(slug ? { slug } : {}) };
+}
+
+/**
+ * @returns {{ row: unknown, resource: string } | null}
+ */
+async function strapiFindNewsArticleRow(rawSegment) {
+  const segment = String(rawSegment || "").trim();
+  if (!segment) return null;
+  if (!strapiBase() || !strapiToken()) return null;
+
+  const paramsBase = { populate: "*", "pagination[pageSize]": "5" };
+  /** Prefer URL slug; keep documentId / numeric id for bookmarks and CMS links. */
+  const variants = [
+    { ...paramsBase, "filters[slug][$eq]": segment },
+    { ...paramsBase, "filters[documentId][$eq]": segment },
+    { ...paramsBase, "filters[id][$eq]": segment },
+  ];
+  for (const resource of NEWS_LIST_COLLECTIONS) {
+    for (const params of variants) {
+      const rows = await strapiGetCollection(resource, params);
+      if (rows.length) return { row: rows[0], resource };
+    }
+  }
+  return null;
+}
+
+async function strapiFetchRelatedNewsByArticle(articleRow, resource, excludeId) {
+  const o = normalizeStrapiDoc(articleRow);
+  const movieRaw = o.movie ?? (Array.isArray(o.movies) ? o.movies[0] : o.movies);
+  if (!movieRaw || typeof movieRaw !== "object") return [];
+  const m = normalizeStrapiDoc(movieRaw);
+  const movieDocId = typeof m.documentId === "string" && m.documentId.trim() ? m.documentId.trim() : "";
+  const movieNumId =
+    m.id != null && Number.isFinite(Number(m.id)) ? String(m.id) : "";
+  if (!movieDocId && !movieNumId) return [];
+
+  const base = { populate: "*", "pagination[pageSize]": "24" };
+  /** @type {Record<string, string | number | undefined>[]} */
+  const paramSets = [];
+  if (movieDocId) {
+    paramSets.push({ ...base, "filters[movie][documentId][$eq]": movieDocId });
+    paramSets.push({ ...base, "filters[movies][documentId][$eq]": movieDocId });
+  }
+  if (movieNumId) {
+    paramSets.push({ ...base, "filters[movie][id][$eq]": movieNumId });
+    paramSets.push({ ...base, "filters[movies][id][$eq]": movieNumId });
+  }
+
+  const exclude = String(excludeId || "").trim();
+  for (const params of paramSets) {
+    const rows = await strapiGetCollection(resource, params);
+    if (rows.length) {
+      const norm = rows.map((r) => normalizeStrapiDoc(r));
+      return norm.filter((r) => {
+        const rid = String(r.documentId || r.id || "").trim();
+        return rid && rid !== exclude;
+      });
+    }
+  }
+  return [];
+}
+
+/**
+ * Single news article + same-movie related list (legacy `News/getOneNews` shape).
+ * @param {string} articleId Strapi `slug` (preferred), `documentId`, numeric `id`, or legacy Mongo `_id`.
+ */
+export async function strapiTryFetchNewsArticle(articleId) {
+  const hit = await strapiFindNewsArticleRow(articleId);
+  if (!hit) return null;
+  const article = mapArticleForDetailPage(hit.row);
+  if (!article._id) return null;
+  const relatedRows = await strapiFetchRelatedNewsByArticle(
+    hit.row,
+    hit.resource,
+    article._id,
+  );
+  const related = relatedRows.slice(0, 12).map((r) => mapRelatedCardForDetailPage(r));
+  return plain({ article, related });
+}
+
+/** Default host for `/api/dictionaries` when no `STRAPI_DICTIONARIES_URL` — not `localhost` / Sails {@link https://dharmacms2.tinglabs.in/api/dictionaries?populate=*}. */
+const DICTIONARY_CMS_ORIGIN_DEFAULT = "https://dharmacms2.tinglabs.in";
+
+function dictionaryStrapiOrigin() {
+  const explicit =
+    trim(process.env.STRAPI_DICTIONARIES_URL) ||
+    trim(process.env.NEXT_PUBLIC_STRAPI_DICTIONARIES_URL);
+  if (explicit) return explicit.replace(/\/$/, "");
+  return DICTIONARY_CMS_ORIGIN_DEFAULT.replace(/\/$/, "");
+}
+
+/**
+ * Dharma Dictionary cards from Strapi (flat entries + populated `image`).
+ * Uses {@link dictionaryStrapiOrigin} so this never follows `NEXT_PUBLIC_API_URL` localhost.
+ */
+export async function strapiFetchDictionaries() {
+  const origin = dictionaryStrapiOrigin();
+  const rows = await strapiGetCollection(
+    "dictionaries",
+    {
+      "pagination[pageSize]": "500",
+      populate: "*",
+    },
+    { origin },
+  );
+  return plain(byOrder(rows));
 }
