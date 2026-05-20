@@ -285,9 +285,7 @@ function VideosViewAllGraphic({ movieKey }) {
   );
 }
 
-function MovieVideoBlock({ movie, movieKey, items, totalForMovie, onOpenVideo }) {
-  const showSlider = totalForMovie > 2;
-
+function MovieVideoBlock({ movie, movieKey, items, onOpenVideo }) {
   return (
     <div className="upcoming-movie videos-movie-section search-movie-mar mx-auto w-100 pb-short">
       <div className="title videos-movie-section__title">
@@ -299,16 +297,9 @@ function MovieVideoBlock({ movie, movieKey, items, totalForMovie, onOpenVideo })
         </h1>
       </div>
       <div className="upcoming-slider tv-all-slider text-shadow cl-flex tv-ain-tp">
-        {showSlider ?
+        {items.length > 0 ?
           <VideoRowSwiper items={items} onOpen={onOpenVideo} />
-        : <div className="row g-3">
-            {items.map((item, idx) => (
-              <div key={`${movie}-${idx}`} className="col-6 col-md-3">
-                <VideoTile item={item} eager={idx < 4} onOpen={onOpenVideo} />
-              </div>
-            ))}
-          </div>
-        }
+        : null}
         <div className="btn-view-all mt40 mobile-text-center w-100 videos-movie-view-all">
           <VideosViewAllGraphic movieKey={movieKey} />
         </div>
@@ -353,7 +344,8 @@ function HeroSlider({ slides, onVideoOpen }) {
           <div className="videos-hero-swiper-shell w-100 min-w-0">
             <Swiper
               modules={[Autoplay]}
-              loop={sorted.length > 1}
+              /* Loop with 1–2 slides shrinks slide width; legacy full-width hero needs ≥3 for loop */
+              loop={sorted.length >= 3}
               onSwiper={(s) => setHeroSwiper(s)}
               observer
               observeParents
@@ -507,7 +499,6 @@ export function VideosPageView({ slider, videos, movieTitleLookups = null, initi
               movie={g.movie}
               movieKey={g.movieKey}
               items={g.items}
-              totalForMovie={g.totalForMovie}
               onOpenVideo={openClip}
             />
           ))

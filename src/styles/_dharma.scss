@@ -6682,18 +6682,17 @@ img.doneLoading {
   padding-bottom: 100px;
 }
 
-/* background-attachment: fixed is broken on iOS/Android — disable on mobile */
-@media (max-width: 767.98px) {
+/* Mobile + iPad / tablet — legacy tv-bg: contain, black, offset under header (not desktop cover) */
+@media (max-width: 1199.98px) {
   .dharma-top-bg {
+    background: url("/frontend/img/tv-bg.jpg") no-repeat top center #000000;
+    background-size: contain;
     background-attachment: scroll;
-    background-position: center top;
-    /*
-     * Under fixed navbar: net content inset was only 100px while header + scallop are ~118px+,
-     * so hero titles (Videos, etc.) sat under/overlapped the bar. Bump the band + safe-area.
-     */
-    padding-top: calc(
-      var(--dh-header-offset) + env(safe-area-inset-top, 0px) + clamp(132px, 28vw, 152px)
-    );
+    position: relative;
+    top: 60px;
+    margin-top: 0;
+    padding-top: 50px;
+    padding-bottom: 100px;
   }
 }
 
@@ -6843,6 +6842,12 @@ img.doneLoading {
   background: transparent;
   border: none;
   box-shadow: none;
+}
+
+.videos-page-legacy .videos-hero-swiper .swiper-slide {
+  width: 100% !important;
+  flex-shrink: 0;
+  box-sizing: border-box;
 }
 
 .videos-hero-swiper-shell .swiper-slide {
