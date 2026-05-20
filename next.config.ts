@@ -46,6 +46,8 @@ function remoteImagePatterns(): NonNullable<
   const hosts = new Set<string>([
     ...fromEnv,
     "dharmacms2.tinglabs.in",
+    "dharma-production.com",
+    "www.dharma-production.com",
     "img.youtube.com",
     "i.ytimg.com",
   ]);

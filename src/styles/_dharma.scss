@@ -5831,38 +5831,54 @@ img.doneLoading {
 }
 
 
-/* Phones: deco draws upward from bottom — need extra vertical band + smaller bitmap so paragraphs don’t sit on art */
+/* Tablets / narrow landscape: less right gutter so copy stays readable */
 @media (min-width: 768px) and (max-width: 1024px) {
   .synopsis-cut-deco {
-    max-width: min(58%, 500px);
-    max-height: 95%;
+    max-width: min(48%, 420px);
+    max-height: 90%;
   }
 
   .synopsis-layout:has(.synopsis-cut-deco) .synopsis-pane {
-    padding-right: clamp(12px, 44%, 340px);
+    padding-right: clamp(12px, 32%, 260px);
   }
 }
 
 @media (max-width: 767.98px) {
+  .movie-inside-date.bg-synopsis.synopsis-layout,
+  .movie-inside-date.bg-synopsis.mob-bg {
+    padding-left: max(10px, env(safe-area-inset-left, 0px));
+    padding-right: max(10px, env(safe-area-inset-right, 0px));
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
   .synopsis {
     margin-bottom: 0;
     padding-bottom: 0;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
   }
 
   .synopsis-layout {
     margin-bottom: 0;
     padding-bottom: 0;
     overflow: hidden;
+    width: 100%;
+    max-width: 100%;
   }
 
-  /* In-flow image: section height ends at image bottom (no gap after deco) */
+  /* Stack copy full-width, deco aligned right below (flex-end only on the image) */
   .synopsis-layout__row {
     display: flex;
     flex-direction: column;
-    align-items: flex-end;
+    align-items: stretch;
     margin-left: 0;
     margin-right: 0;
     margin-bottom: 0;
+    width: 100%;
+    max-width: 100%;
     --bs-gutter-x: 0;
     --bs-gutter-y: 0;
   }
@@ -5870,35 +5886,62 @@ img.doneLoading {
   .synopsis-layout__row > .col-md-8 {
     width: 100%;
     max-width: 100%;
+    min-width: 0;
     padding-left: 0;
     padding-right: 0;
     flex: 0 0 auto;
+    align-self: stretch;
   }
 
   .synopsis-cut-deco {
     position: static;
     display: block;
     flex: 0 0 auto;
-    margin: 0;
+    align-self: flex-end;
+    margin: 0.75rem 0 0;
     padding: 0;
     line-height: 0;
-    max-width: min(92vw, 420px);
-    max-height: none;
+    max-width: min(100%, 420px);
     width: auto;
     height: auto;
   }
 
   .synopsis-layout .synopsis-pane {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
     background-color: rgba(255, 255, 255, 0.97);
-    padding-left: max(12px, env(safe-area-inset-left, 0px));
-    padding-right: max(12px, env(safe-area-inset-right, 0px));
-    padding-top: 0;
-    padding-bottom: 0;
+    padding-left: 0;
+    padding-right: 0;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
     border-radius: 4px;
   }
 
   .synopsis-layout:has(.synopsis-cut-deco) .synopsis-pane {
-    padding-right: max(12px, env(safe-area-inset-right, 0px));
+    padding-right: 0;
+  }
+
+  .synopsis-body {
+    overflow-x: hidden;
+
+    p,
+    li,
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+      max-width: 100%;
+    }
+  }
+
+  .synopsis-pane h4 {
+    font-size: 1.125rem;
+    line-height: 1.35;
+    margin-top: 1.25rem;
   }
 
   .synopsis-body > *:last-child,
@@ -5909,7 +5952,21 @@ img.doneLoading {
 
 @media (max-width: 575.98px) {
   .synopsis-cut-deco {
-    max-width: min(94vw, 400px);
+    max-width: min(100%, 360px);
+  }
+
+  .synopsis-body {
+    p,
+    li {
+      font-size: 14px;
+      line-height: 1.75;
+    }
+  }
+
+  .synopsis-pane > p,
+  .synopsis-pane h4 + p {
+    font-size: 14px;
+    line-height: 1.75;
   }
 }
 
@@ -5957,6 +6014,9 @@ img.doneLoading {
 .synopsis-body {
   font-family: var(--font-karla), "Karla", system-ui, sans-serif;
   font-weight: 300;
+  max-width: 100%;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
 
   p,
   li {
@@ -5967,12 +6027,27 @@ img.doneLoading {
     margin: 0 0 1.35em;
   }
 
-  img {
+  img,
+  video,
+  iframe {
+    display: block;
+    max-width: 100% !important;
+    width: auto;
+    height: auto !important;
+    margin: 0 0 1em;
+  }
+
+  table {
     display: block;
     max-width: 100%;
-    width: auto;
-    height: auto;
-    margin: 0 0 1em;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  pre {
+    max-width: 100%;
+    overflow-x: auto;
+    white-space: pre-wrap;
   }
 
   > *:last-child,
@@ -6168,6 +6243,100 @@ img.doneLoading {
       &:hover {
         background: $brand-primary;
       }
+    }
+  }
+}
+
+/* Movie inside — share rail on the right (legacy sidebar); flex row avoids iPad overlap */
+.movie-inside-date .row:has(.movie-inside-share-col),
+.cast-credit .box-pad > .row:has(.movie-inside-share-col) {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: flex-start;
+}
+
+.movie-inside-date .row:has(.movie-inside-share-col) > :not(.movie-inside-share-col),
+.cast-credit .box-pad > .row:has(.movie-inside-share-col) > :not(.movie-inside-share-col) {
+  flex: 1 1 0;
+  min-width: 0;
+  width: auto !important;
+  max-width: 100% !important;
+}
+
+/* Cast tab: keep “CAST” label width; grid grows; share stays right */
+.cast-credit .box-pad > .row:has(.movie-inside-share-col) > .col-md-2:first-child,
+.cast-credit .box-pad > .row:has(.movie-inside-share-col) > .col-sm-2:first-child {
+  flex: 0 0 auto;
+  width: auto !important;
+  max-width: 28%;
+}
+
+.cast-credit .box-pad > .row:has(.movie-inside-share-col) > .col-md-8,
+.cast-credit .box-pad > .row:has(.movie-inside-share-col) > .col-sm-8 {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.movie-inside-share-col {
+  flex: 0 0 clamp(58px, 11vw, 80px);
+  width: clamp(58px, 11vw, 80px) !important;
+  max-width: clamp(58px, 11vw, 80px) !important;
+  margin-top: 0;
+  padding-left: 10px;
+  padding-right: 0;
+  align-self: flex-start;
+}
+
+.movie-inside-share-col .social-share {
+  float: none !important;
+  display: inline-block;
+  margin-left: auto;
+  margin-right: 0;
+}
+
+.movie-inside-share-col .social-share.pull-right {
+  float: none !important;
+}
+
+@media (max-width: 1199.98px) {
+  .movie-inside-share-col .social-share {
+    padding: 14px 5px;
+    border-radius: 44px;
+
+    > span.f18 {
+      font-size: 13px;
+    }
+
+    ul li a i {
+      font-size: 17px;
+      height: 30px;
+      width: 30px;
+      padding: 6px 4px;
+      margin: 8px 0;
+    }
+  }
+}
+
+@media (max-width: 575.98px) {
+  .movie-inside-share-col {
+    flex: 0 0 52px;
+    width: 52px !important;
+    max-width: 52px !important;
+    padding-left: 6px;
+  }
+
+  .movie-inside-share-col .social-share {
+    padding: 12px 3px;
+
+    > span.f18 {
+      font-size: 11px;
+    }
+
+    ul li a i {
+      font-size: 14px;
+      height: 26px;
+      width: 26px;
+      margin: 6px 0;
     }
   }
 }
@@ -6707,20 +6876,39 @@ img.doneLoading {
 
 /* Videos page — dharma-tv.html + tv-inside (DharmaNodeRun Angular) */
 
+/* Videos listing + `/videos/[movieKey]` detail — same art + fallback as home `.dharma-tv-bg` */
 .dharma-top-bg {
-  background: url("/frontend/img/tv-bg.jpg") no-repeat center top;
+  background-color: #0d0d0d;
+  background-image: url("/frontend/img/tv-bg.jpg");
+  background-repeat: no-repeat;
+  background-position: center top;
   background-size: cover;
-  background-attachment: fixed;
+  background-attachment: scroll;
   /* Legacy `.dharma-tv-bg` uses `padding: 100px 0`; pull under fixed header like other pages. */
   margin-top: calc(-1 * var(--dh-header-offset));
   padding-top: calc(var(--dh-header-offset) + 100px);
   padding-bottom: 100px;
 }
 
-/* Mobile + iPad / tablet — legacy tv-bg: contain, black, offset under header (not desktop cover) */
+/* Video detail — fill viewport with tv-bg tone when image is `contain` on smaller screens */
+.videos-page-legacy.videos-tv-inside.dharma-top-bg {
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+@media (min-width: 1200px) {
+  .dharma-top-bg {
+    background-attachment: fixed;
+  }
+}
+
+/* Mobile + iPad / tablet — legacy tv-bg: contain; `#0d0d0d` fills letterbox (matches home TV band) */
 @media (max-width: 1199.98px) {
   .dharma-top-bg {
-    background: url("/frontend/img/tv-bg.jpg") no-repeat top center #000000;
+    background-color: #0d0d0d;
+    background-image: url("/frontend/img/tv-bg.jpg");
+    background-repeat: no-repeat;
+    background-position: top center;
     background-size: contain;
     background-attachment: scroll;
     position: relative;
@@ -7856,20 +8044,18 @@ img.doneLoading {
     margin-bottom: clamp(20px, 5vw, 36px);
   }
 
-  /* Keep prev/next visible — inset on strip (was `display: none`) */
+  .dharma-home .dharma-home-video-strip-wrap {
+    padding-left: max(36px, env(safe-area-inset-left, 0px) + 32px);
+    padding-right: max(36px, env(safe-area-inset-right, 0px) + 32px);
+  }
+
   .dharma-home .dharma-home-video-nav-btn {
-    display: flex !important;
-    width: 34px;
-    height: 34px;
-    z-index: 6;
+    width: 32px;
+    height: 32px;
   }
 
-  .dharma-home .dharma-home-video-nav-btn--prev {
-    left: 0;
-  }
-
-  .dharma-home .dharma-home-video-nav-btn--next {
-    right: 0;
+  .dharma-home .dharma-home-video-nav-icon {
+    font-size: 12px;
   }
 }
 
@@ -8181,7 +8367,7 @@ img.doneLoading {
   padding: clamp(48px, 12vw, 80px) 0;
 }
 
-/* Home video strip — custom prev/next outside thumbnails (wired via Swiper `navigation.prevEl/nextEl`) */
+/* Home video strip — custom prev/next (Swiper `navigation.prevEl/nextEl`) */
 .dharma-home .video-slider.slider-nav.min-tp-nm {
   overflow: visible;
 }
@@ -8193,15 +8379,17 @@ img.doneLoading {
 .dharma-home .dharma-home-video-strip-wrap {
   position: relative;
   overflow: visible;
+  box-sizing: border-box;
 }
 
 .dharma-home .dharma-home-video-strip {
   padding: 0;
+  overflow: hidden;
 }
 
 .dharma-home .dharma-home-video-nav-btn {
   position: absolute;
-  z-index: 6;
+  z-index: 8;
   top: 50%;
   transform: translateY(-50%);
   width: clamp(36px, 5vw, 44px);
@@ -8216,6 +8404,7 @@ img.doneLoading {
   display: flex;
   align-items: center;
   justify-content: center;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
   transition:
     background-color 0.15s ease,
     color 0.15s ease;
@@ -8231,12 +8420,62 @@ img.doneLoading {
   }
 }
 
-.dharma-home .dharma-home-video-nav-btn--prev {
-  left: clamp(-48px, -4.25vw, -28px);
+/* Desktop — arrows sit just outside the strip (wide viewports only) */
+@media (min-width: 1200px) {
+  .dharma-home .dharma-home-video-nav-btn--prev {
+    left: clamp(-48px, -4.25vw, -28px);
+  }
+
+  .dharma-home .dharma-home-video-nav-btn--next {
+    right: clamp(-48px, -4.25vw, -28px);
+  }
 }
 
-.dharma-home .dharma-home-video-nav-btn--next {
-  right: clamp(-48px, -4.25vw, -28px);
+/* Tablet landscape / small laptop — tuck arrows in so `.dharma-home { overflow-x: hidden }` does not clip */
+@media (min-width: 992px) and (max-width: 1199.98px) {
+  .dharma-home .dharma-home-video-strip-wrap {
+    padding-left: 44px;
+    padding-right: 44px;
+  }
+
+  .dharma-home .dharma-home-video-nav-btn--prev {
+    left: 4px;
+  }
+
+  .dharma-home .dharma-home-video-nav-btn--next {
+    right: 4px;
+  }
+}
+
+/* Mobile + tablet portrait — inset arrows; gutter keeps thumbs from sitting under controls */
+@media (max-width: 991.98px) {
+  .dharma-home .dharma-home-tv .container {
+    overflow: visible;
+  }
+
+  .dharma-home .video-slider.slider-nav.min-tp-nm {
+    overflow: visible;
+  }
+
+  .dharma-home .dharma-home-video-strip-wrap {
+    padding-left: max(40px, env(safe-area-inset-left, 0px) + 36px);
+    padding-right: max(40px, env(safe-area-inset-right, 0px) + 36px);
+  }
+
+  .dharma-home .dharma-home-video-nav-btn {
+    display: flex !important;
+    width: 36px;
+    height: 36px;
+    z-index: 8;
+  }
+
+  .dharma-home .dharma-home-video-nav-btn--prev {
+    left: max(4px, env(safe-area-inset-left, 0px));
+  }
+
+  .dharma-home .dharma-home-video-nav-btn--next {
+    right: max(4px, env(safe-area-inset-right, 0px));
+  }
 }
 
 .dharma-home .dharma-home-video-nav-icon {
@@ -8244,7 +8483,7 @@ img.doneLoading {
   line-height: 1;
 }
 
-/* Nav visibility on xs — see `.dharma-home` rules above (inset buttons, not hidden) */
+/* Nav visibility on xs — inset buttons (see `max-width: 991.98px` block above) */
 
 /* Hide any Swiper-injected nav nodes if module adds defaults */
 .dharma-home .dharma-home-video-strip .swiper-button-next:not(.dharma-home-video-nav-btn),
