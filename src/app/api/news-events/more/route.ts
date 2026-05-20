@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { fetchJsonWithRevalidate } from "@/lib/server/fetchJson";
 import { buildNewsListStrapiUrl } from "@/lib/newsEventsListQuery";
 import {
+  logStrapiNewsNotConfigured,
   mapStrapiNewsListItem,
   NEWS_LIST_REVALIDATE_SEC,
 } from "@/lib/server/strapiNewsList";
@@ -21,6 +22,13 @@ export async function GET(req: Request) {
     const year = (u.searchParams.get("year") || "").trim();
 
     const strapiUrl = buildNewsListStrapiUrl({ page, q, month, year });
+    if (!strapiUrl) {
+      logStrapiNewsNotConfigured("news-events more API");
+      return NextResponse.json(
+        { error: "News API not configured", items: [], page: 1, pageCount: 1 },
+        { status: 503 },
+      );
+    }
     const json = (await fetchJsonWithRevalidate(
       strapiUrl,
       NEWS_LIST_REVALIDATE_SEC,

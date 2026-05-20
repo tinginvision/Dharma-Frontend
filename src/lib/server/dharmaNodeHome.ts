@@ -1,8 +1,10 @@
 import "server-only";
 import {
+  getStrapiNewsListsUrl,
+  logStrapiNewsFetchError,
+  logStrapiNewsNotConfigured,
   mapStrapiNewsListItem,
   NEWS_LIST_REVALIDATE_SEC,
-  STRAPI_NEWS_LISTS_URL,
 } from "@/lib/server/strapiNewsList";
 import { fetchJsonWithRevalidate } from "@/lib/server/fetchJson";
 import {
@@ -101,7 +103,12 @@ async function fetchHomeNewsPayload(): Promise<{
   params.set("pagination[pageSize]", String(HOME_NEWS_FETCH_PAGE_SIZE));
   params.set("sort[0]", "date:desc");
   params.set("populate", "*");
-  const url = `${STRAPI_NEWS_LISTS_URL}?${params.toString()}`;
+  const newsBase = getStrapiNewsListsUrl();
+  if (!newsBase) {
+    logStrapiNewsNotConfigured("home news strip");
+    return { newsItems: [], newsShowMoreStories: false };
+  }
+  const url = `${newsBase}?${params.toString()}`;
   try {
     const json = (await fetchJsonWithRevalidate(
       url,
@@ -136,7 +143,8 @@ async function fetchHomeNewsPayload(): Promise<{
     const newsItems = hasMoreThanMax ? mapped.slice(0, HOME_NEWS_MAX) : mapped;
 
     return { newsItems, newsShowMoreStories: hasMoreThanMax };
-  } catch {
+  } catch (err) {
+    logStrapiNewsFetchError("home news strip", err, url);
     return { newsItems: [], newsShowMoreStories: false };
   }
 }

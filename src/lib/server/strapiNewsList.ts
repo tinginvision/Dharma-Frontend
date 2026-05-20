@@ -1,14 +1,53 @@
 import "server-only";
 import { resolveUploadUrl } from "@/lib/media";
+import { getStrapiRestConfig } from "@/lib/server/movies/strapi";
 
-/** Public Strapi REST collection for site news (same as `app/news-events/page.jsx`). */
-export const STRAPI_NEWS_LISTS_URL =
-  (typeof process.env.NEXT_PUBLIC_STRAPI_NEWS_URL === "string" &&
-    process.env.NEXT_PUBLIC_STRAPI_NEWS_URL.trim()) ||
-  "https://dharmacms2.tinglabs.in/api/news-lists";
+function trim(s: string | undefined): string {
+  return (s ?? "").trim();
+}
+
+/**
+ * Site-wide news listing (`GET /api/news-lists`).
+ * Optional full override: `NEXT_PUBLIC_STRAPI_NEWS_URL`.
+ * Otherwise `{STRAPI_URL|STRAPI_API_URL|…}/api/news-lists` — same CMS host as movies.
+ */
+/** `null` when `STRAPI_URL` / `STRAPI_API_URL` (or `NEXT_PUBLIC_STRAPI_NEWS_URL`) is not set. */
+export function resolveStrapiNewsListsUrl(): string | null {
+  const override = trim(process.env.NEXT_PUBLIC_STRAPI_NEWS_URL);
+  if (override) return override;
+
+  const { base } = getStrapiRestConfig();
+  if (base) return `${base.replace(/\/$/, "")}/api/news-lists`;
+
+  return null;
+}
+
+/** Resolved at runtime from server env (not only build-time `NEXT_PUBLIC_*`). */
+export function getStrapiNewsListsUrl(): string | null {
+  return resolveStrapiNewsListsUrl();
+}
+
+export function logStrapiNewsNotConfigured(context: string): void {
+  console.error(
+    `[news] ${context}: Strapi not configured — set STRAPI_URL or STRAPI_API_URL (e.g. https://dharma-production.com/cms).`,
+  );
+}
 
 /** ISR revalidate seconds for news list JSON (listing page + home strip). */
 export const NEWS_LIST_REVALIDATE_SEC = 120;
+
+export function logStrapiNewsFetchError(context: string, err: unknown, url?: string): void {
+  const msg = err instanceof Error ? err.message : String(err);
+  const hint =
+    !getStrapiRestConfig().base ?
+      "Set STRAPI_URL or STRAPI_API_URL (e.g. https://dharma-production.com/cms) on the server."
+    : !trim(process.env.STRAPI_API_TOKEN) &&
+        !trim(process.env.STRAPI_AUTH_TOKEN) &&
+        !trim(process.env.STRAPI_TOKEN) ?
+      "Set STRAPI_API_TOKEN or STRAPI_AUTH_TOKEN if the CMS requires auth."
+    : "";
+  console.error(`[news] ${context} failed${url ? ` (${url})` : ""}: ${msg}${hint ? ` — ${hint}` : ""}`);
+}
 
 function toRecord(v: unknown): Record<string, unknown> {
   return v && typeof v === "object" ? (v as Record<string, unknown>) : {};

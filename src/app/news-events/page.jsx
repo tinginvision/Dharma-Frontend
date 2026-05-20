@@ -8,12 +8,12 @@ export const metadata = buildPageMetadata({
 import { buildNewsListStrapiUrl } from "@/lib/newsEventsListQuery";
 import { fetchJsonWithRevalidate } from "@/lib/server/fetchJson";
 import {
+  getStrapiNewsListsUrl,
+  logStrapiNewsFetchError,
+  logStrapiNewsNotConfigured,
   mapStrapiNewsListItem,
   NEWS_LIST_REVALIDATE_SEC,
-  STRAPI_NEWS_LISTS_URL,
 } from "@/lib/server/strapiNewsList";
-
-const NEWS_API = STRAPI_NEWS_LISTS_URL;
 const NEWS_REVALIDATE_SEC = NEWS_LIST_REVALIDATE_SEC;
 
 function toRecord(v) {
@@ -35,13 +35,19 @@ function dedupeNewsItemsById(items) {
 }
 
 async function fetchNewsList(filters) {
+  const url = buildNewsListStrapiUrl(filters);
+  if (!url) {
+    logStrapiNewsNotConfigured("news-events list");
+    return { items: [], pageCount: 1 };
+  }
   try {
-    const json = await fetchJsonWithRevalidate(buildNewsListStrapiUrl(filters), NEWS_REVALIDATE_SEC);
+    const json = await fetchJsonWithRevalidate(url, NEWS_REVALIDATE_SEC);
     const rows = Array.isArray(json?.data) ? json.data : [];
     const items = dedupeNewsItemsById(rows.map(mapStrapiNewsListItem));
     const pageCount = Number(json?.meta?.pagination?.pageCount ?? 1);
     return { items, pageCount };
-  } catch {
+  } catch (err) {
+    logStrapiNewsFetchError("news-events list", err, url);
     return { items: [], pageCount: 1 };
   }
 }
@@ -77,9 +83,22 @@ async function fetchMonthYearOptions() {
 
       let json;
       try {
-        json = await fetchJsonWithRevalidate(`${NEWS_API}?${params.toString()}`, NEWS_REVALIDATE_SEC);
-      } catch {
-        if (page === 1) return { months: [], years: [] };
+        const optionsBase = getStrapiNewsListsUrl();
+        if (!optionsBase) {
+          logStrapiNewsNotConfigured("news-events month/year options");
+          return { months: [], years: [] };
+        }
+        json = await fetchJsonWithRevalidate(`${optionsBase}?${params.toString()}`, NEWS_REVALIDATE_SEC);
+      } catch (err) {
+        if (page === 1) {
+          const optionsBase = getStrapiNewsListsUrl();
+          logStrapiNewsFetchError(
+            "news-events month/year options",
+            err,
+            optionsBase ? `${optionsBase}?${params.toString()}` : undefined,
+          );
+          return { months: [], years: [] };
+        }
         break;
       }
 
