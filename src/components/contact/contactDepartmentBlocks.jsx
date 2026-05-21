@@ -5,7 +5,7 @@
 export const CONTACT_DISTRIBUTION_BLOCK = {
   key: "distribution",
   title: "Distribution",
-  src: "/frontend/img/distribution.svg",
+  src: "/frontend/img/Distribution.svg",
   iconWidth: 33,
   iconHeight: 33,
   lines: <>For distribution related queries email us on</>,
