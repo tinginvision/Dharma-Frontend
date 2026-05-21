@@ -24,11 +24,6 @@ const FOOTER_SOCIAL = [
     icon: "fa-brands fa-youtube",
     label: "YouTube",
   },
-  {
-    href: "https://www.pinterest.com/dharmamovies/",
-    icon: "fa-brands fa-pinterest-p",
-    label: "Pinterest",
-  },
 ];
 
 export function SiteFooter() {
@@ -69,32 +64,6 @@ export function SiteFooter() {
                     </a>
                   </li>
                 ))}
-                <li>
-                  <a
-                    href="http://www.dailymotion.com/DharmaMovies"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label="Dailymotion"
-                    className="footer-daily-link"
-                  >
-                    <span className="footer-daily-imgwrap">
-                      <Image
-                        src="/frontend/img/daily.png"
-                        alt=""
-                        width={35}
-                        height={35}
-                        className="daily-image"
-                      />
-                      <Image
-                        src="/frontend/img/daily_hover.png"
-                        alt=""
-                        width={35}
-                        height={35}
-                        className="hover-daily"
-                      />
-                    </span>
-                  </a>
-                </li>
               </ul>
             </div>
           </div>

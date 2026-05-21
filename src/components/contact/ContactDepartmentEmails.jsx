@@ -42,11 +42,8 @@ export function ContactDepartmentEmails() {
           ))}
         </div>
         <div className="row mt20 g-4">
-          {CONTACT_EMAIL_BLOCKS_ROW2.map((b, i) => (
-            <div
-              key={b.key}
-              className={`col-12 col-md-4${i === 0 ? " offset-md-2" : ""}`}
-            >
+          {CONTACT_EMAIL_BLOCKS_ROW2.map((b) => (
+            <div key={b.key} className="col-12 col-md-4">
               <article className="contact-info text-center h-100">
                 <div className="contact-info__head">
                   <span className="contact-info__icon info-icon" aria-hidden>

@@ -40,30 +40,27 @@ export default function OverviewPage() {
                     </div>
                     <div className="data-abt mt20 movie-inside-date pb30">
                       <p>
-                        Dharma Productions is one of India&apos;s top film
-                        production house. Led by Karan Johar, the company was
-                        founded by his father Late Shri Yash Johar in 1976, with
-                        its first production venture titled &apos;Dostana&apos;
-                        starring Amitabh Bachchan. Since Karan Johar&apos;s
-                        directorial debut film &apos;Kuch Kuch Hota Hai&apos;,
-                        the company has gone on to produce more than 45 films
-                        which include a series of blockbusters and critically
-                        acclaimed films like &apos;Kabhi Khushi Kabhie Gham,
-                        Yeh Jawaani Hai Deewani, 2 States, Kapoor & Sons and
-                        Dear Zindagi&apos;. In its recent past, Dharma
-                        Productions has earned a name in the industry for
-                        encouraging and launching a fresh talent pool of
+                        Dharma Productions is a leading Indian film studio,
+                        production house and distribution company. Owned by Karan
+                        Johar, and Adar Poonawalla, the company was founded by Late
+                        Sri Yash Johar in 1976, with its first production venture
+                        titled &apos;Dostana&apos; starring Amitabh Bachchan. Since
+                        Karan Johar&apos;s directorial debut film &apos;Kuch Kuch Hota
+                        Hai&apos;, the company has gone on to produce more than 60+
+                        films which includes series of blockbusters and critically
+                        acclaimed films like Kabhi Khushi Kabhie Gham, My Name is Khan,
+                        Yeh Jawaani Hai Deewani, Agneepath, The Lunchbox, Baahubali,
+                        Raazi, Kesari, Shershaah, Rocky Aur Rani Kii Prem Kahaani,
+                        Kesari Chapter 2 and Homebound - a 98th Oscar shortlisted
+                        film. In its recent past, Dharma Productions has earned a name
+                        in the industry for launching a fresh talent pool of 23+
                         directors, together with rising stars such as Alia Bhatt,
-                        Sidharth Malhotra and Varun Dhawan. In the last few
-                        years, the company produced both critical & commercial
-                        successes alike Raazi, Dhadak, Simmba, Kesari & Good
-                        Newwz, Shershaah, Sooryavanshi, JugJugg Jeeyo,
-                        Brahmastra. Some of the most keenly awaited films sitting
-                        in its roster are Rocky Aur Rani Ki Prem Kahani, Yodha,
-                        Mr. & Mrs. Mahi and more. Today, Dharma Productions is the
-                        most sought after production house in the country and is
-                        constantly aiming at creating new benchmarks in the
-                        Indian film industry.
+                        Sidharth Malhotra, Varun Dhawan, Janhvi Kapoor, Ananya Panday
+                        &amp; Lakshya.
+                      </p>
+                      <p>
+                        Today, Dharma Productions is constantly aiming at creating new
+                        benchmarks in the Indian film industry.
                       </p>
                     </div>
                     <div className="karan-img dh-relative pb30">

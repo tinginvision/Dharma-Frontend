@@ -3224,6 +3224,10 @@ $tv-bg-aspect-h: 1518;
   line-height: 1.428571429;
 }
 
+.overview-page .data-abt p + p {
+  margin-top: 1.75em;
+}
+
 /* Horizontal padding — `movie-inside-date`: 50 / 30 / 20px. */
 .overview-page .movie-inside-date {
   padding-left: 50px;
