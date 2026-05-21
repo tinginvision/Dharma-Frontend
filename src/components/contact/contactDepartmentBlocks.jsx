@@ -2,6 +2,16 @@
  * Single source for department email tiles — home “Let’s Talk” + `/contact-us`.
  */
 
+export const CONTACT_DISTRIBUTION_BLOCK = {
+  key: "distribution",
+  title: "Distribution",
+  src: "/frontend/img/distribution.svg",
+  iconWidth: 33,
+  iconHeight: 33,
+  lines: <>For distribution related queries email us on</>,
+  email: "distribution@dharma-production.com",
+};
+
 export const CONTACT_EMAIL_BLOCKS_ROW1 = [
   {
     key: "info",
@@ -51,4 +61,5 @@ export const CONTACT_EMAIL_BLOCKS_ROW2 = [
     lines: <>For legal related queries contact us on</>,
     email: "legal@dharma-production.com",
   },
+  CONTACT_DISTRIBUTION_BLOCK,
 ];
