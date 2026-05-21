@@ -1,6 +1,9 @@
 "use client";
 
-import { CONTACT_GOOGLE_MAPS_URL, CONTACT_MAP_EMBED_SRC } from "@/lib/contactOfficeMap";
+import {
+  CONTACT_GOOGLE_MAPS_PLACE_URL,
+  CONTACT_MAP_EMBED_SRC,
+} from "@/lib/contactOfficeMap";
 
 /**
  * Map strip from `frontend/views/content/contact-us.html`: `.maps` iframe, “Open in Google Maps”
@@ -22,7 +25,7 @@ export function ContactOfficeMapEmbed() {
           />
           <div className="contact-page__map-iframe-open">
             <a
-              href={CONTACT_GOOGLE_MAPS_URL}
+              href={CONTACT_GOOGLE_MAPS_PLACE_URL}
               target="_blank"
               rel="noopener noreferrer"
               className="contact-page__map-iframe-link"

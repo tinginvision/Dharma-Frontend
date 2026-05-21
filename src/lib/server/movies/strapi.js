@@ -2100,30 +2100,27 @@ export async function strapiTryFetchNewsArticle(articleId) {
   return plain({ article, related });
 }
 
-/** Default host for `/api/dictionaries` when no `STRAPI_DICTIONARIES_URL` — not `localhost` / Sails {@link https://dharmacms2.tinglabs.in/api/dictionaries?populate=*}. */
-const DICTIONARY_CMS_ORIGIN_DEFAULT = "https://dharmacms2.tinglabs.in";
-
-function dictionaryStrapiOrigin() {
-  const explicit =
-    trim(process.env.STRAPI_DICTIONARIES_URL) ||
-    trim(process.env.NEXT_PUBLIC_STRAPI_DICTIONARIES_URL);
-  if (explicit) return explicit.replace(/\/$/, "");
-  return DICTIONARY_CMS_ORIGIN_DEFAULT.replace(/\/$/, "");
-}
-
 /**
- * Dharma Dictionary cards from Strapi (flat entries + populated `image`).
- * Uses {@link dictionaryStrapiOrigin} so this never follows `NEXT_PUBLIC_API_URL` localhost.
+ * Dharma Dictionary cards from Strapi (`GET /api/dictionaries?populate=*`).
+ * Same CMS host + token as movies/news ({@link strapiBase} / `STRAPI_API_URL`).
  */
 export async function strapiFetchDictionaries() {
-  const origin = dictionaryStrapiOrigin();
-  const rows = await strapiGetCollection(
-    "dictionaries",
-    {
+  const base = strapiBase();
+  if (!base) {
+    console.warn(
+      "[dictionary] Strapi not configured — set STRAPI_API_URL (or STRAPI_URL) and STRAPI_AUTH_TOKEN",
+    );
+    return [];
+  }
+
+  try {
+    const rows = await strapiGetCollection("dictionaries", {
       "pagination[pageSize]": "500",
       populate: "*",
-    },
-    { origin },
-  );
-  return plain(byOrder(rows));
+    });
+    return plain(byOrder(rows));
+  } catch (err) {
+    console.error("[dictionary] Strapi fetch failed:", err);
+    return [];
+  }
 }
