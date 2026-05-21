@@ -383,7 +383,8 @@ function HeroSlider({ slides, onVideoOpen }) {
                             alt=""
                             width={120}
                             height={120}
-                            className="img-fluid"
+                            className="img-fluid dharma-home-play-icon"
+                            sizes="(max-width: 575px) 28px, (max-width: 767px) 32px, (max-width: 1199px) 36px, 64px"
                             priority={i === 0}
                           />
                         </span>
