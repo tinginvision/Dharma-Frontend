@@ -23,8 +23,8 @@ const LOCAL_BUSINESS_JSON_LD = {
   },
   geo: {
     "@type": "GeoCoordinates",
-    latitude: 19.133687,
-    longitude: 72.836493,
+    latitude: 19.13398,
+    longitude: 72.8367,
   },
 };
 

@@ -1511,7 +1511,7 @@ $tv-bg-aspect-h: 1518;
 }
 
 .contact-page__map-canvas {
-  height: 500px;
+  height: 450px;
   width: 100%;
 }
 
@@ -1529,6 +1529,10 @@ $tv-bg-aspect-h: 1518;
 .contact-page__map-iframe {
   border: 0;
   display: block;
+}
+
+.contact-page__map-iframe--noninteractive {
+  pointer-events: none;
 }
 
 .contact-page__map-iframe-open {

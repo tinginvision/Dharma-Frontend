@@ -32,10 +32,7 @@ function mapDictionaryRow(src, index) {
   };
 }
 
-/**
- * Canonical list: Strapi [`/api/dictionaries?populate=*`](https://dharmacms2.tinglabs.in/api/dictionaries?populate=*)
- * via {@link strapiFetchDictionaries} (production CMS host, not localhost).
- */
+/** Strapi `GET /api/dictionaries?populate=*` via {@link strapiFetchDictionaries} */
 async function fetchDictionaryFromStrapi() {
   try {
     const rows = await strapiFetchDictionaries();
@@ -45,8 +42,12 @@ async function fetchDictionaryFromStrapi() {
       const c = mapDictionaryRow(row, i);
       if (c) out.push(c);
     });
+    if (!out.length && rows.length === 0) {
+      console.warn("[dictionary] Strapi returned no dictionary entries");
+    }
     return out;
-  } catch {
+  } catch (err) {
+    console.error("[dictionary] Strapi mapping failed:", err);
     return [];
   }
 }
@@ -68,7 +69,8 @@ async function fetchDictionaryFromLegacySails() {
       if (c) out.push(c);
     });
     return out;
-  } catch {
+  } catch (err) {
+    console.warn("[dictionary] Legacy Sails fetch failed:", err);
     return [];
   }
 }
@@ -79,5 +81,9 @@ async function fetchDictionaryFromLegacySails() {
 export const fetchDictionaryCards = cache(async () => {
   const fromCms = await fetchDictionaryFromStrapi();
   if (fromCms.length > 0) return fromCms;
-  return fetchDictionaryFromLegacySails();
+  const fromSails = await fetchDictionaryFromLegacySails();
+  if (!fromSails.length) {
+    console.warn("[dictionary] No entries from Strapi or legacy API");
+  }
+  return fromSails;
 });
