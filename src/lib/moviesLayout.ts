@@ -55,20 +55,20 @@ export function buildMovieList(details: MovieRecord[]) {
   const recentRaw = g["Recent"] ?? [];
   const pastRaw = g["Past"] ?? [];
 
-  /** Movies section — all released titles (Recent + Past) */
-  const recentSorted = [...recentRaw, ...pastRaw].sort(
-    (a, b) => (b.upcomingOrder ?? 0) - (a.upcomingOrder ?? 0)
-  );
-
-  /** Dharma Distribution — any movie with Strapi `dharmaDistribution` boolean true */
+  /** Dharma Distribution — movies with Strapi `dharmaDistribution` true */
   const pastSorted = details
     .filter((m) => m.dharmaDistribution === true)
+    .sort((a, b) => (b.upcomingOrder ?? 0) - (a.upcomingOrder ?? 0));
+
+  /** Movies section — all released titles except those marked for Dharma Distribution */
+  const recentSorted = [...recentRaw, ...pastRaw]
+    .filter((m) => m.dharmaDistribution !== true)
     .sort((a, b) => (b.upcomingOrder ?? 0) - (a.upcomingOrder ?? 0));
 
   return {
     upcoming,
     recentSorted,
-    recentSlides: layoutRecent(recentRaw),
+    recentSlides: layoutRecent(recentRaw.filter((m) => m.dharmaDistribution !== true)),
     pastSorted,
   };
 }
