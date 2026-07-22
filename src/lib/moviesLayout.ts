@@ -7,6 +7,8 @@ export type MovieRecord = {
   year?: number;
   status?: boolean;
   releaseType?: string;
+  /** Strapi boolean — when true, movie appears under Dharma Distribution */
+  dharmaDistribution?: boolean;
   upcomingOrder?: number;
   bigImage?: string;
   mediumImage?: string;
@@ -52,12 +54,20 @@ export function buildMovieList(details: MovieRecord[]) {
   );
   const recentRaw = g["Recent"] ?? [];
   const pastRaw = g["Past"] ?? [];
-  const pastSorted = [...pastRaw].sort(
+
+  /** Movies section — all released titles (Recent + Past) */
+  const recentSorted = [...recentRaw, ...pastRaw].sort(
     (a, b) => (b.upcomingOrder ?? 0) - (a.upcomingOrder ?? 0)
   );
 
+  /** Dharma Distribution — any movie with Strapi `dharmaDistribution` boolean true */
+  const pastSorted = details
+    .filter((m) => m.dharmaDistribution === true)
+    .sort((a, b) => (b.upcomingOrder ?? 0) - (a.upcomingOrder ?? 0));
+
   return {
     upcoming,
+    recentSorted,
     recentSlides: layoutRecent(recentRaw),
     pastSorted,
   };

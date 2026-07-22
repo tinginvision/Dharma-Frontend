@@ -1894,6 +1894,7 @@ $tv-bg-aspect-h: 1518;
     margin-left: 8px;
   }
 
+  .dharma-movies-bg2 .mob-slider.movies-past-mob-slider,
   .dharma-movies-bg3 .mob-slider.movies-past-mob-slider {
     scroll-padding-inline: max(16px, env(safe-area-inset-left, 0px))
       max(16px, env(safe-area-inset-right, 0px));
@@ -2105,15 +2106,18 @@ $tv-bg-aspect-h: 1518;
  * handset rules treated it as a phone. Tall min-height excludes typical phones (~900+).
  */
 @media (min-width: 720px) and (max-width: 767.98px) and (min-height: 900px) {
-  /* Past Releases: desktop grid + four-up on this band (hide horizontal strip) */
+  /* Movies + Dharma Distribution: desktop grid + four-up on this band (hide horizontal strip) */
+  .dharma-movies-bg2 .movies-past-grid-row.mobile-row.hidden-xs.d-none.d-md-block,
   .dharma-movies-bg3 .movies-past-grid-row.mobile-row.hidden-xs.d-none.d-md-block {
     display: block !important;
   }
 
+  .dharma-movies-bg2 .movies-past-mob-rail.d-md-none,
   .dharma-movies-bg3 .movies-past-mob-rail.d-md-none {
     display: none !important;
   }
 
+  .dharma-movies-bg2 .mobile-row.movies-past-grid-row .col-flex,
   .dharma-movies-bg3 .mobile-row.movies-past-grid-row .col-flex {
     flex: 0 0 25%;
     max-width: 25%;
@@ -2350,10 +2354,11 @@ $tv-bg-aspect-h: 1518;
 }
 
 /*
- * Past Releases — `< md`: parity with Angular `movies.html` `.mob-slider` flex-slider
+ * Movies + Dharma Distribution — `< md`: parity with Angular `movies.html` `.mob-slider` flex-slider
  * (`item-width="207"`, `item-margin="20"`). Legacy hides arrows via `.mob-slider .flex-direction-nav`.
  * Smooth horizontal swipe: containment + inertia (`-webkit-overflow-scrolling`), snap finish.
  */
+.dharma-movies-bg2 .mob-slider.movies-past-mob-slider,
 .dharma-movies-bg3 .mob-slider.movies-past-mob-slider {
   overflow-x: auto;
   overflow-y: visible;
@@ -2368,19 +2373,23 @@ $tv-bg-aspect-h: 1518;
   scrollbar-width: none;
 }
 
+.dharma-movies-bg2 .mob-slider.movies-past-mob-slider:focus-visible,
 .dharma-movies-bg3 .mob-slider.movies-past-mob-slider:focus-visible {
   outline: 2px solid rgba($brand-primary, 0.65);
   outline-offset: 2px;
 }
 
+.dharma-movies-bg2 .mob-slider.movies-past-mob-slider::-webkit-scrollbar,
 .dharma-movies-bg3 .mob-slider.movies-past-mob-slider::-webkit-scrollbar {
   display: none;
 }
 
+.dharma-movies-bg2 .mob-slider .flex-direction-nav,
 .dharma-movies-bg3 .mob-slider .flex-direction-nav {
   display: none !important;
 }
 
+.dharma-movies-bg2 .movies-past-mob-strip,
 .dharma-movies-bg3 .movies-past-mob-strip {
   display: flex;
   flex-flow: row nowrap;
@@ -2393,6 +2402,7 @@ $tv-bg-aspect-h: 1518;
   backface-visibility: hidden;
 }
 
+.dharma-movies-bg2 .movies-past-mob-slide,
 .dharma-movies-bg3 .movies-past-mob-slide {
   flex: 0 0 207px;
   width: 207px;
@@ -2404,6 +2414,7 @@ $tv-bg-aspect-h: 1518;
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .dharma-movies-bg2 .mob-slider.movies-past-mob-slider,
   .dharma-movies-bg3 .mob-slider.movies-past-mob-slider {
     scroll-snap-type: x proximity;
   }
@@ -2499,7 +2510,8 @@ $tv-bg-aspect-h: 1518;
   }
 }
 
-/* A little air under “Recent Releases” / “Past Releases” (head `<h1>` uses `.mb0`). */
+/* A little air under “Movies” / “Dharma Distribution” (head `<h1>` uses `.mb0`). */
+.dharma-movies-bg2 .upcoming-movie .title,
 .dharma-movies-bg2 .recent-movie .title,
 .dharma-movies-bg3 .upcoming-movie .title {
   margin-bottom: clamp(12px, 2.4vw, 28px);
@@ -2775,8 +2787,9 @@ $tv-bg-aspect-h: 1518;
   }
 }
 
-/* Movies — Past Releases on iPad / compact canvases (768–1366): four posters per row (`20%` = five-up is default above 1366). */
+/* Movies + Dharma Distribution on iPad / compact canvases (768–1366): four posters per row (`20%` = five-up is default above 1366). */
 @media (min-width: 768px) and (max-width: 1366.98px) {
+  .dharma-movies-bg2 .mobile-row .col-flex,
   .dharma-movies-bg3 .mobile-row .col-flex {
     flex: 0 0 25%;
     max-width: 25%;

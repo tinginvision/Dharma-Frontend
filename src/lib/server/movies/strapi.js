@@ -633,6 +633,8 @@ function mapStrapiRowToMovieFields(item) {
       ),
     order: typeof item.order === "number" ? item.order : Number(item.order) || 0,
     status: typeof item.status === "boolean" ? item.status : true,
+    dharmaDistribution:
+      item.dharmaDistribution === true || item.DharmaDistribution === true,
   };
 
   applyMovieImageFallbacks(row);
@@ -748,15 +750,23 @@ function detailRawFetchParamAttempts(pageSizeForListAttempt = "500") {
  * `@/lib/server/fetchJson` (ISR `revalidate`).
  */
 const loadAllMoviesForList = cache(async () => {
-  let raw = [];
-  try {
-    raw = await strapiGetMany(listPopulateParams());
-  } catch {
-    raw = await strapiGetMany({
-      "pagination[pageSize]": "500",
-      "sort[0]": "upcomingOrder:desc",
-    });
+  const baseParams = { "sort[0]": "upcomingOrder:desc" };
+  LIST_POPULATE_KEYS.forEach((key, i) => {
+    baseParams[`populate[${i}]`] = key;
+  });
+
+  let raw = await strapiGetCollectionAllPages("movies", baseParams, 100);
+  if (!raw.length) {
+    try {
+      raw = await strapiGetMany(listPopulateParams());
+    } catch {
+      raw = await strapiGetMany({
+        "pagination[pageSize]": "500",
+        "sort[0]": "upcomingOrder:desc",
+      });
+    }
   }
+
   const mapped = raw.map((r) =>
     mapStrapiRowToMovieFields(typeof r === "object" && r ? r : {})
   );
