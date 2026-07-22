@@ -26,44 +26,10 @@ function usePastReleasesInitialDisplayCount() {
   return count;
 }
 
-function RecentReleaseCard({ data }) {
-  const src = resolveUploadUrl(data.mediumImage) || "/frontend/img/logo.png";
-  const card = (
-    <div className="video-box mb20 common-class">
-      <div className="video-slide-img img-pads">
-        <div className="position-relative w-100 movies-recent-medium-inner">
-          <Image
-            src={src}
-            alt="Dharma Productions"
-            fill
-            className="object-fit-cover img-responsive rounded-0"
-            sizes="(max-width: 768px) 100vw, 560px"
-            loading="lazy"
-            quality={80}
-          />
-        </div>
-      </div>
-      <div className="video-name font-karla text-up">
-        <span>
-          {(data.name || "").slice(0, 60)}
-          {data.year ? ` (${data.year})` : ""}
-        </span>
-      </div>
-    </div>
-  );
-  return (
-    <div className="col-md-6 col-sm-6 col-12">
-      {data.status ?
-        <Link href={`/movie/${encodeURIComponent(movieSlug(data))}`} className="text-decoration-none text-reset">
-          {card}
-        </Link>
-      : card}
-    </div>
-  );
-}
-
-function PastReleaseCard({ item, mobile = false }) {
-  const src = resolveUploadUrl(item.smallImage) || "/frontend/img/logo.png";
+/** Portrait poster card — shared size for Movies + Dharma Distribution. */
+function MoviePosterCard({ item, mobile = false }) {
+  const src =
+    resolveUploadUrl(item.smallImage || item.recentSmall) || "/frontend/img/logo.png";
   const thumb = (
     <div className="img-pads">
       <div className="position-relative w-100 movies-past-thumb-inner">
@@ -107,9 +73,45 @@ function PastReleaseCard({ item, mobile = false }) {
     : inner;
 }
 
+function PosterGrid({ chunks, keyPrefix }) {
+  return (
+    <>
+      <div className="mobile-row hidden-xs d-none d-md-block movies-past-grid-row">
+        <div className="row-flex text-center flex-wrap justify-content-center">
+          {chunks.flatMap((videos, ci) =>
+            videos.map((item, ri) => (
+              <div
+                key={`${keyPrefix}-${ci}-${movieSlug(item) ?? "m"}-${String(item._id ?? item.year ?? ri)}`}
+                className="col-flex px-1 mb-3"
+              >
+                <MoviePosterCard item={item} />
+              </div>
+            ))
+          )}
+        </div>
+      </div>
+
+      <div className="d-md-none movies-past-mob-rail">
+        {chunks.map((videos, vi) => (
+          <div key={`${keyPrefix}-mob-${vi}`} className="mob-slider movies-past-mob-slider">
+            <div className="movies-past-mob-strip">
+              {videos.map((item) => (
+                <div key={`${keyPrefix}-ms-${movieSlug(item)}`} className="movies-past-mob-slide">
+                  <MoviePosterCard item={item} mobile />
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </>
+  );
+}
+
 export function MoviesPageView({ initialDetails, searchNames, initialSearchQuery = "" }) {
   const router = useRouter();
-  const [viewAll, setViewAll] = useState(false);
+  const [viewAllMovies, setViewAllMovies] = useState(false);
+  const [viewAllDistribution, setViewAllDistribution] = useState(false);
   const [searchPick, setSearchPick] = useState(() => initialSearchQuery || "");
 
   useEffect(() => {
@@ -117,14 +119,26 @@ export function MoviesPageView({ initialDetails, searchNames, initialSearchQuery
   }, [initialSearchQuery]);
 
   const layout = useMemo(() => buildMovieList(initialDetails), [initialDetails]);
-  const pastInitialCount = usePastReleasesInitialDisplayCount();
+  const initialCount = usePastReleasesInitialDisplayCount();
+
+  const moviesDisplayed = useMemo(
+    () => (layout.recentSorted ?? []).slice(0, initialCount),
+    [layout.recentSorted, initialCount]
+  );
+  const moviesRest = useMemo(
+    () => (layout.recentSorted ?? []).slice(initialCount),
+    [layout.recentSorted, initialCount]
+  );
+  const moviesChunks = useMemo(() => chunkBy(moviesDisplayed, 5), [moviesDisplayed]);
+  const moviesMoreChunks = useMemo(() => chunkBy(moviesRest, 5), [moviesRest]);
+
   const pastDisplayed = useMemo(
-    () => (layout.pastSorted ?? []).slice(0, pastInitialCount),
-    [layout.pastSorted, pastInitialCount]
+    () => (layout.pastSorted ?? []).slice(0, initialCount),
+    [layout.pastSorted, initialCount]
   );
   const pastRest = useMemo(
-    () => (layout.pastSorted ?? []).slice(pastInitialCount),
-    [layout.pastSorted, pastInitialCount]
+    () => (layout.pastSorted ?? []).slice(initialCount),
+    [layout.pastSorted, initialCount]
   );
   const pastChunks = useMemo(() => chunkBy(pastDisplayed, 5), [pastDisplayed]);
   const pastMoreChunks = useMemo(() => chunkBy(pastRest, 5), [pastRest]);
@@ -159,7 +173,8 @@ export function MoviesPageView({ initialDetails, searchNames, initialSearchQuery
                     parentSearchBanner={searchPick}
                     onClearBanner={() => {
                       setSearchPick("");
-                      setViewAll(false);
+                      setViewAllMovies(false);
+                      setViewAllDistribution(false);
                     }}
                     onSelect={(m) => {
                       setSearchPick(m.name || "");
@@ -194,35 +209,42 @@ export function MoviesPageView({ initialDetails, searchNames, initialSearchQuery
         : null}
       </div>
 
-      {layout.recentSlides.length > 0 ?
+      {(layout.recentSorted ?? []).length > 0 ?
         <section className="dharma-movies-bg2">
-          <div className="orange-bg">
+          <div className="orange-bg recent-movie pb-5">
             <div className="container">
               <div className="row">
                 <div className="col-md-12">
-                  <div className="recent-movie">
+                  <div className="upcoming-movie">
                     <div className="title">
-                      <h1 className="ml15 mb0 color-primary font-hammersmith line30 f55 text-up">Recent Releases</h1>
-                    </div>
-                    <div className="upcoming-slider slider-right">
-                      {layout.recentSlides.map((slide, si) => (
-                        <div key={`slide-${si}`} className="div-none-slide">
-                          {slide.map((datasRow, ri) => (
-                            <div key={`row-${si}-${ri}`} className="row">
-                              {datasRow.map((data) => (
-                                <RecentReleaseCard
-                                  key={`${movieSlug(data) || ""}-${String(data._id ?? data.year ?? "")}`}
-                                  data={data}
-                                />
-                              ))}
-                            </div>
-                          ))}
-                        </div>
-                      ))}
+                      <h1 className="ml15 mb0 color-primary font-hammersmith line30 f55 text-up">Movies</h1>
                     </div>
                   </div>
                 </div>
               </div>
+
+              <PosterGrid chunks={moviesChunks} keyPrefix="movies" />
+
+              {!viewAllMovies && moviesRest.length > 0 ?
+                <div className="text-center">
+                  <div className="dh-relative">
+                    <div className="btn-view-more mt15 mb20 text-center">
+                      <button
+                        type="button"
+                        className="btn-1 dh-view-all-btn font-hammersmith display-inline"
+                        onClick={() => setViewAllMovies(true)}
+                      >
+                        <svg aria-hidden="true" focusable="false" style={{ pointerEvents: "none" }}>
+                          <rect x="0" y="0" fill="none" width="100%" height="100%" />
+                        </svg>
+                        <span className="dh-view-all-label">VIEW ALL</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              : null}
+
+              {viewAllMovies ? <PosterGrid chunks={moviesMoreChunks} keyPrefix="movies-more" /> : null}
             </div>
           </div>
         </section>
@@ -236,49 +258,22 @@ export function MoviesPageView({ initialDetails, searchNames, initialSearchQuery
                 <div className="col-md-12">
                   <div className="upcoming-movie">
                     <div className="title">
-                      <h1 className="ml15 mb0 color-primary font-hammersmith line30 f55 text-up">Past Releases</h1>
+                      <h1 className="ml15 mb0 color-primary font-hammersmith line30 f55 text-up">Dharma Distribution</h1>
                     </div>
                   </div>
                 </div>
               </div>
 
-              <div className="mobile-row hidden-xs d-none d-md-block movies-past-grid-row">
-                <div className="row-flex text-center flex-wrap justify-content-center">
-                  {pastChunks.flatMap((videos, ci) =>
-                    videos.map((item, ri) => (
-                      <div
-                        key={`pch-${ci}-${movieSlug(item) ?? "past"}-${String(item._id ?? item.year ?? ri)}`}
-                        className="col-flex px-1 mb-3"
-                      >
-                        <PastReleaseCard item={item} />
-                      </div>
-                    ))
-                  )}
-                </div>
-              </div>
+              <PosterGrid chunks={pastChunks} keyPrefix="past" />
 
-              <div className="d-md-none movies-past-mob-rail">
-                {pastChunks.map((videos, vi) => (
-                  <div key={`mob-${vi}`} className="mob-slider movies-past-mob-slider">
-                    <div className="movies-past-mob-strip">
-                      {videos.map((item) => (
-                        <div key={`m-${movieSlug(item)}`} className="movies-past-mob-slide">
-                          <PastReleaseCard item={item} mobile />
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              {!viewAll && pastRest.length > 0 ?
+              {!viewAllDistribution && pastRest.length > 0 ?
                 <div className="text-center">
                   <div className="dh-relative">
                     <div className="btn-view-more mt15 mb20 text-center">
                       <button
                         type="button"
                         className="btn-1 dh-view-all-btn font-hammersmith display-inline"
-                        onClick={() => setViewAll(true)}
+                        onClick={() => setViewAllDistribution(true)}
                       >
                         <svg aria-hidden="true" focusable="false" style={{ pointerEvents: "none" }}>
                           <rect x="0" y="0" fill="none" width="100%" height="100%" />
@@ -290,37 +285,7 @@ export function MoviesPageView({ initialDetails, searchNames, initialSearchQuery
                 </div>
               : null}
 
-              {viewAll ?
-                <>
-                  <div className="mobile-row hidden-xs d-none d-md-block movies-past-grid-row">
-                    <div className="row-flex text-center flex-wrap justify-content-center">
-                      {pastMoreChunks.flatMap((videos, ci) =>
-                        videos.map((item, ri) => (
-                          <div
-                            key={`pm-${ci}-${movieSlug(item) ?? "past"}-${String(item._id ?? item.year ?? ri)}`}
-                            className="col-flex px-1 mb-3"
-                          >
-                            <PastReleaseCard item={item} />
-                          </div>
-                        ))
-                      )}
-                    </div>
-                  </div>
-                  <div className="d-md-none movies-past-mob-rail">
-                    {pastMoreChunks.map((videos, vi) => (
-                      <div key={`pmm-${vi}`} className="mob-slider movies-past-mob-slider">
-                        <div className="movies-past-mob-strip">
-                          {videos.map((item) => (
-                            <div key={`pmm-${movieSlug(item)}`} className="movies-past-mob-slide">
-                              <PastReleaseCard item={item} mobile />
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </>
-              : null}
+              {viewAllDistribution ? <PosterGrid chunks={pastMoreChunks} keyPrefix="past-more" /> : null}
             </div>
           </div>
         </section>

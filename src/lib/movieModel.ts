@@ -79,6 +79,8 @@ export type MovieDoc = {
   theatricalTrailerUrl?: string;
   cutImage2?: string;
   releaseType?: string;
+  /** Strapi checkbox — marks a Past movie for the Dharma Distribution section */
+  dharmaDistribution?: boolean;
   synopsis?: string;
   note?: string;
   /** When set in Strapi, used as public URL slug instead of buildUrlName(name, year). */
