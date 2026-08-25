@@ -48,7 +48,7 @@ function MoviePosterCard({ item, mobile = false }) {
   const names = (
     <div className="movie-names">
       <h4 className={`text-up color-grey${mobile ? " small" : ""}`}>
-        {(item.name || "").slice(0, 20)}
+        {item.name || ""}
         <br />({item.year})
       </h4>
     </div>
