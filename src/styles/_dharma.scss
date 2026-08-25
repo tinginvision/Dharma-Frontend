@@ -1183,6 +1183,7 @@ body {
   h4 {
     text-align: left;
     padding-left: 10px;
+    padding-right: 10px;
     margin: 0;
     /* Legacy uses Bootstrap 3 h4 defaults: 18px / 500 / line-height 1.1 */
     font-family: var(--font-karla), Karla, "Helvetica Neue", Arial, sans-serif;
@@ -1190,6 +1191,9 @@ body {
     font-weight: 500;
     line-height: 1.2;
     letter-spacing: 0;
+    white-space: normal;
+    overflow-wrap: break-word;
+    word-break: break-word;
   }
 }
 
