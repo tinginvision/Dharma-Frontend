@@ -5,12 +5,15 @@ import { useEffect, useMemo, useState } from "react";
 import { MovieInsideGalleryMasonry } from "@/components/movie/MovieInsideGalleryMasonry";
 import { MovieRelatedMoviesStrip } from "@/components/movie/MovieRelatedMoviesStrip";
 import { resolveUploadUrl } from "@/lib/media";
-function youtubeThumb(id) {
+import { youtubeVideoId } from "@/lib/youtube";
+function youtubeThumb(raw) {
+    const id = youtubeVideoId(raw);
     if (!id)
         return undefined;
     return `https://img.youtube.com/vi/${id}/sddefault.jpg`;
 }
-function youtubeEmbed(id) {
+function youtubeEmbed(raw) {
+    const id = youtubeVideoId(raw);
     if (!id)
         return undefined;
     return `https://www.youtube.com/embed/${id}?autoplay=1&modestbranding=0&showinfo=0&rel=0&loop=1`;

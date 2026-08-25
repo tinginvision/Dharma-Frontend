@@ -1,12 +1,34 @@
-/** YouTube id or URL → 11-char video id (best effort). */
+const YT_ID = /^[a-zA-Z0-9_-]{11}$/;
+
+/**
+ * YouTube id or URL → 11-char video id.
+ * Accepts a bare id, `v=ID`, watch/share/embed/shorts/youtu.be links, extra query params.
+ */
 export function youtubeVideoId(raw: unknown): string {
   const s = String(raw ?? "").trim();
   if (!s) return "";
-  if (/^[a-zA-Z0-9_-]{11}$/.test(s)) return s;
-  const m = s.match(
-    /(?:v=|youtu\.be\/|embed\/|shorts\/|live\/)([a-zA-Z0-9_-]{11})/i
+  if (YT_ID.test(s)) return s;
+
+  // Bare id with extra params: Yy8SKJygKD4&t=10s or Yy8SKJygKD4?t=10s
+  const fromBare = s.match(/^([a-zA-Z0-9_-]{11})[?&#]/);
+  if (fromBare) return fromBare[1];
+
+  const fromV = s.match(/[?&#]?v=([a-zA-Z0-9_-]{11})/i);
+  if (fromV) return fromV[1];
+
+  const fromPath = s.match(
+    /(?:youtu\.be\/|youtube\.com\/(?:embed|shorts|live|v)\/)([a-zA-Z0-9_-]{11})/i
   );
-  return m ? m[1] : "";
+  if (fromPath) return fromPath[1];
+
+  try {
+    const href = /^https?:\/\//i.test(s) ? s : `https://${s.replace(/^\/+/, "")}`;
+    const v = new URL(href).searchParams.get("v");
+    if (v && YT_ID.test(v)) return v;
+  } catch {
+    /* ignore */
+  }
+  return "";
 }
 
 /** Open in a normal browser tab — use this for `<a href>`. `/embed/` in a top-level tab often shows YouTube error 153. */

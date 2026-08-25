@@ -1,3 +1,5 @@
+import { youtubeVideoId } from "./youtube";
+
 export type CastEntry = {
   _id?: string;
   actor?: string;
@@ -130,7 +132,7 @@ export function applyMovieImageFallbacks<
   T extends Partial<MovieDoc> & Record<string, unknown>,
 >(doc: T): T {
   if (!doc) return doc;
-  const ytId = (doc.theatricalTrailerUrl as string) || "";
+  const ytId = youtubeVideoId(doc.theatricalTrailerUrl);
   const yt = ytId ? `https://img.youtube.com/vi/${ytId}/hqdefault.jpg` : "";
   const val = (f: keyof MovieDoc) => {
     const v = doc[f as string] as unknown;
