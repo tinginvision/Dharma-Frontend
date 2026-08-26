@@ -91,42 +91,36 @@ export default function OverviewPage() {
                         </div>
                         <div className="overview-page__karan-below-mn-org pt20">
                           <p>
-                            Karan Johar made his directorial debut at age 25 with a
-                            path-breaking love story &apos;Kuch Kuch Hota
-                            Hai&apos;. The film remains a landmark in Indian
-                            Cinema for the appreciation it received, both critically
-                            and commercially, in India as well as the world.
-                            Following this, over the last 15 years, he has directed
-                            and written critically and commercially acclaimed
-                            blockbusters like Kabhi Khushi Kabhie Gham, Kabhi Alvida
-                            Naa Kehna and My Name Is Khan.
+                            Producer, director, talk show host and an entrepreneur -
+                            Karan Johar is one of the most notable Indian filmmakers
+                            for the past 25+ years with the honor of being a Padma
+                            Shri awardee.
                           </p>
                           <p>
-                            The multi-faceted Karan wears many caps with ease.
-                            Besides being an acclaimed director and one of the most
-                            influential men in the industry today, Karan is also a
-                            television personality, a talk show host, a costume
-                            designer and the latest feather in his cap is that of
-                            being an actor. His talk show Koffee With Karan has the
+                            His talk show &apos;Koffee With Karan&apos; has the
                             distinction of being the most watched English talk show
-                            on Indian television.
+                            on Indian television and is now ruling over the OTT space
+                            as well. He&apos;s also the host for the Indian
+                            adaptation of the successful reality game show - The
+                            Traitors.
                           </p>
                           <p>
-                            In addition to personal success and accomplishment, Karan
-                            Johar has also been a mentor to many successful
-                            directors in India. Directors have flourished under his
-                            guidance and support as a producer, releasing both
-                            commercial blockbusters like Agneepath, Dostana and Yeh
-                            Jawaani Hai Deewani, as well as critical indie successes
-                            like Wake Up Sid and Ek Main Aur Ekk Tu.
-                          </p>
-                          <p>
-                            The name Karan Johar is synonymous with prestige,
-                            elegance, versatility and success. He is amongst a
-                            prolific group of Indian film makers who have brought
-                            about a fresh and modern outlook to Indian commercial
-                            cinema and has contributed greatly to the transformation
-                            of Hindi cinema from his very first film.
+                            Directors have flourished under his guidance and support
+                            as a producer, releasing both commercial blockbusters
+                            like Agneepath, Dostana and Yeh Jawaani Hai Deewani,
+                            Shershaah (a national award winning film) &amp; the
+                            blockbuster, Brahmastra - as well as critical successes
+                            like Wake Up Sid, Kapoor &amp; Sons, Gehraiyaan and
+                            recently, the Cannes Film Festival, TIFF nominated along
+                            with the official entry from India for the Best
+                            International Feature at the 98th Academy Awards film -
+                            Homebound. Marking his 25th anniversary year as a
+                            director, he released his directorial &apos;Rocky Aur
+                            Rani Kii Prem Kahaani&apos; for which he has won a
+                            National Film Award for the most popular film providing
+                            wholesome entertainment. He also successfully built three
+                            branches of the Dharma empire - Dharmatic Entertainment,
+                            Dharma 2.0 and Dharma Collab Artists Agency.
                           </p>
                         </div>
                       </div>
