@@ -4,6 +4,7 @@ import {
   applyMovieImageFallbacks,
   resolveMovieUrlSlug,
 } from "@/lib/movieModel";
+import { isUpcomingReleaseType } from "@/lib/moviesLayout";
 import { cmsAssetOriginForServer } from "@/lib/media";
 import { fetchWithRevalidate } from "@/lib/server/fetchJson";
 
@@ -828,17 +829,20 @@ export async function strapiFetchAllUpcomingMovies() {
   const all = await loadAllMoviesForList();
   const now = Date.now();
   const rows = all.filter((m) => {
-    if (m.releaseType !== "Upcoming") return false;
+    if (!isUpcomingReleaseType(m)) return false;
     const rd = m.releaseDate ? new Date(String(m.releaseDate)).getTime() : NaN;
-    if (Number.isNaN(rd)) return false;
+    if (Number.isNaN(rd)) return true;
     return rd >= now;
   });
   return plain(
-    [...rows].sort(
-      (a, b) =>
-        new Date(String(a.releaseDate)).getTime() -
-        new Date(String(b.releaseDate)).getTime()
-    )
+    [...rows].sort((a, b) => {
+      const da = a.releaseDate ? new Date(String(a.releaseDate)).getTime() : NaN;
+      const db = b.releaseDate ? new Date(String(b.releaseDate)).getTime() : NaN;
+      const sa = Number.isNaN(da) ? Number.POSITIVE_INFINITY : da;
+      const sb = Number.isNaN(db) ? Number.POSITIVE_INFINITY : db;
+      if (sa !== sb) return sa - sb;
+      return (Number(a.upcomingOrder) || 0) - (Number(b.upcomingOrder) || 0);
+    })
   );
 }
 

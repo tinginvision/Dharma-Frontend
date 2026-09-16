@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRef } from "react";
 import { Autoplay, Pagination } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { movieSlug } from "@/lib/moviesLayout";
+import { movieSlug, upcomingSlideImage } from "@/lib/moviesLayout";
 import { resolveUploadUrl } from "@/lib/media";
 import "swiper/css";
 import "swiper/css/pagination";
@@ -75,7 +75,7 @@ export function UpcomingReleasesSlider({ items }) {
             className="movies-upcoming-swiper-inner"
           >
             {items.map((item, index) => {
-              const src = resolveUploadUrl(item.bigImage) || "/frontend/img/logo.png";
+              const src = resolveUploadUrl(upcomingSlideImage(item) || item.bigImage) || "/frontend/img/logo.png";
               const slideKey = `${movieSlug(item) || "up"}-${String(item._id ?? index)}`;
               const slideImg = (
                 <div className="movies-upcoming-slide-img-holder position-relative w-100">
