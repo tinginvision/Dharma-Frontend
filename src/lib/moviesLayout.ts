@@ -77,18 +77,35 @@ function isDharmaDistributionMovie(m: MovieRecord): boolean {
   return m.dharmaDistribution === true;
 }
 
+export function isUpcomingReleaseType(m: MovieRecord | Record<string, unknown> | null | undefined): boolean {
+  if (!m || typeof m !== "object") return false;
+  return String((m as MovieRecord).releaseType || "").trim().toLowerCase() === "upcoming";
+}
+
+/** Banner used by the Upcoming Releases slider. */
+export function upcomingSlideImage(m: MovieRecord): string {
+  return (
+    String(m.bigImage || "").trim() ||
+    String(m.upcomingSmall || "").trim() ||
+    String(m.mediumImage || "").trim() ||
+    String(m.smallImage || "").trim() ||
+    String(m.recentSmall || "").trim()
+  );
+}
+
 export function buildMovieList(details: MovieRecord[]) {
   const g = groupByReleaseType(details);
-  /** Upcoming slider — skip titles marked for Dharma Distribution */
-  const upcoming = [...(g["Upcoming"] ?? [])]
-    .filter((m) => !isDharmaDistributionMovie(m))
+
+  /** All `releaseType: Upcoming` — including `dharmaDistribution: true` (also listed under Distribution). */
+  const upcoming = details
+    .filter((m) => isUpcomingReleaseType(m))
     .sort((a, b) => (a.upcomingOrder ?? 0) - (b.upcomingOrder ?? 0));
   const recentRaw = g["Recent"] ?? [];
   const pastRaw = g["Past"] ?? [];
 
   /**
-   * Dharma Distribution — any movie with the Strapi flag, including
-   * `releaseType: Upcoming` + `dharmaDistribution: true`, latest date first.
+   * Dharma Distribution — every movie with the Strapi flag, including Upcoming
+   * and titles with no `releaseType` (those appear only here).
    */
   const pastSorted = sortMoviesLatestFirst(
     details.filter((m) => isDharmaDistributionMovie(m)),
