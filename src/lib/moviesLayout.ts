@@ -10,6 +10,7 @@ export type MovieRecord = {
   /** Strapi boolean — when true, movie appears under Dharma Distribution */
   dharmaDistribution?: boolean;
   upcomingOrder?: number;
+  month?: number;
   bigImage?: string;
   mediumImage?: string;
   smallImage?: string;
@@ -20,6 +21,31 @@ export type MovieRecord = {
   director?: string;
   mainCast?: string;
 };
+
+/** Newest release first (date → year/month → CMS order), same as Dharma Distribution. */
+export function movieLatestSortKey(m: MovieRecord): number {
+  const rd = m.releaseDate;
+  if (rd != null && String(rd).trim()) {
+    const t = new Date(String(rd)).getTime();
+    if (!Number.isNaN(t)) return t;
+  }
+  const year = Number(m.year) || 0;
+  const month = Number(m.month) || 0;
+  if (year > 0) {
+    const mi = month >= 1 && month <= 12 ? month - 1 : 0;
+    return new Date(year, mi, 1).getTime();
+  }
+  return 0;
+}
+
+export function sortMoviesLatestFirst(rows: MovieRecord[]): MovieRecord[] {
+  return [...rows].sort((a, b) => {
+    const da = movieLatestSortKey(a);
+    const db = movieLatestSortKey(b);
+    if (da !== db) return db - da;
+    return (b.upcomingOrder ?? 0) - (a.upcomingOrder ?? 0);
+  });
+}
 
 /** Row groups for sliders / legacy chunking (Past mobile rail still uses 5-up strips). */
 export function chunkBy<T>(arr: T[], size: number): T[][] {
@@ -47,28 +73,36 @@ export function layoutRecent(recentRaw: MovieRecord[]): MovieRecord[][][] {
   return outer.map((group) => chunkBy(group, 4));
 }
 
+function isDharmaDistributionMovie(m: MovieRecord): boolean {
+  return m.dharmaDistribution === true;
+}
+
 export function buildMovieList(details: MovieRecord[]) {
   const g = groupByReleaseType(details);
-  const upcoming = [...(g["Upcoming"] ?? [])].sort(
-    (a, b) => (a.upcomingOrder ?? 0) - (b.upcomingOrder ?? 0)
-  );
+  /** Upcoming slider — skip titles marked for Dharma Distribution */
+  const upcoming = [...(g["Upcoming"] ?? [])]
+    .filter((m) => !isDharmaDistributionMovie(m))
+    .sort((a, b) => (a.upcomingOrder ?? 0) - (b.upcomingOrder ?? 0));
   const recentRaw = g["Recent"] ?? [];
   const pastRaw = g["Past"] ?? [];
 
-  /** Dharma Distribution — movies with Strapi `dharmaDistribution` true */
-  const pastSorted = details
-    .filter((m) => m.dharmaDistribution === true)
-    .sort((a, b) => (b.upcomingOrder ?? 0) - (a.upcomingOrder ?? 0));
+  /**
+   * Dharma Distribution — any movie with the Strapi flag, including
+   * `releaseType: Upcoming` + `dharmaDistribution: true`, latest date first.
+   */
+  const pastSorted = sortMoviesLatestFirst(
+    details.filter((m) => isDharmaDistributionMovie(m)),
+  );
 
-  /** Movies section — all released titles except those marked for Dharma Distribution */
+  /** Movies section — released titles only (Recent + Past); Upcoming stays in the slider */
   const recentSorted = [...recentRaw, ...pastRaw]
-    .filter((m) => m.dharmaDistribution !== true)
+    .filter((m) => !isDharmaDistributionMovie(m))
     .sort((a, b) => (b.upcomingOrder ?? 0) - (a.upcomingOrder ?? 0));
 
   return {
     upcoming,
     recentSorted,
-    recentSlides: layoutRecent(recentRaw.filter((m) => m.dharmaDistribution !== true)),
+    recentSlides: layoutRecent(recentRaw.filter((m) => !isDharmaDistributionMovie(m))),
     pastSorted,
   };
 }
