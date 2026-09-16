@@ -634,7 +634,8 @@ function mapStrapiRowToMovieFields(item) {
     order: typeof item.order === "number" ? item.order : Number(item.order) || 0,
     status: typeof item.status === "boolean" ? item.status : true,
     dharmaDistribution:
-      item.dharmaDistribution === true || item.DharmaDistribution === true,
+      isTruthyBanner(item.dharmaDistribution) ||
+      isTruthyBanner(item.DharmaDistribution),
   };
 
   applyMovieImageFallbacks(row);
