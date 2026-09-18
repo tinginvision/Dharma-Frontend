@@ -22,6 +22,44 @@ export type MovieRecord = {
   mainCast?: string;
 };
 
+const MONTH_SHORT = [
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec",
+] as const;
+
+/** `Sep 2026` when month+year exist; otherwise year only. */
+export function movieMonthYearText(m: Pick<MovieRecord, "month" | "year">): string {
+  const month = Number(m.month);
+  const year = Number(m.year);
+  const hasMonth = Number.isInteger(month) && month >= 1 && month <= 12;
+  const hasYear = Number.isFinite(year) && year > 0;
+  if (hasMonth && hasYear) return `${MONTH_SHORT[month - 1]} ${year}`;
+  if (hasYear) return String(year);
+  return "";
+}
+
+export function formatMovieReleaseDate(d: string | Date | null | undefined): string {
+  if (d == null || !String(d).trim()) return "";
+  const dt = new Date(String(d));
+  if (Number.isNaN(dt.getTime())) return "";
+  return dt.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
+}
+
+/** Full release date, or month + year when the day is not set. */
+export function movieReleaseCaption(m: MovieRecord): string {
+  return formatMovieReleaseDate(m.releaseDate) || movieMonthYearText(m);
+}
+
 /** Newest release first (date → year/month → CMS order), same as Dharma Distribution. */
 export function movieLatestSortKey(m: MovieRecord): number {
   const rd = m.releaseDate;
