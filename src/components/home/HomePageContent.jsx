@@ -6,7 +6,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Autoplay, Navigation, Pagination } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { resolveUploadUrl } from "@/lib/media";
-import { movieSlug } from "@/lib/moviesLayout";
+import { movieMonthYearText, movieReleaseCaption, movieSlug } from "@/lib/moviesLayout";
 import { youtubeEmbedUrl, youtubeThumbnailUrl, youtubeVideoId, youtubeWatchUrl } from "@/lib/youtube";
 import { ContactDepartmentEmails } from "@/components/contact/ContactDepartmentEmails";
 import { ContactMapWithAddressPanel } from "@/components/contact/ContactMapWithAddressPanel";
@@ -49,22 +49,9 @@ function HeroSlideContent({ s, slideIndex }) {
   );
 }
 
-function formatRelease(d) {
-  if (!d) return "";
-  const dt = new Date(d);
-  if (Number.isNaN(dt.getTime())) return "";
-  return dt.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
-}
-
 function monthYearLabel(m) {
-  const month = Number(m?.month);
-  const year = Number(m?.year);
-  if (Number.isFinite(month) && month >= 1 && month <= 12 && Number.isFinite(year)) {
-    const mo = new Date(2000, month - 1, 1).toLocaleString("en", { month: "short" });
-    return `(${mo} ${year})`;
-  }
-  if (Number.isFinite(year)) return `(${year})`;
-  return "";
+  const text = movieMonthYearText(m);
+  return text ? `(${text})` : "";
 }
 
 function ViewAllMoviesLink() {
@@ -99,6 +86,7 @@ function MovieThumbCard({ item, released }) {
       resolveUploadUrl(item.recentSmall || item.smallImage)
     : resolveUploadUrl(item.upcomingSmall || item.smallImage);
   const thumbSrc = src || "/frontend/img/logo.svg";
+  const upcomingDateLine = released ? "" : movieReleaseCaption(item);
   const imgEl = (
     <div className="position-relative w-100 dh-movie-thumb-frame overflow-hidden mx-auto rounded-0">
       <Image
@@ -123,8 +111,8 @@ function MovieThumbCard({ item, released }) {
       <h4 className="text-up color-grey">
         {(item.name || "").slice(0, 20)}
         <br />
-        {item.releaseDate ?
-          <span>{formatRelease(item.releaseDate)}</span>
+        {upcomingDateLine ?
+          <span>{upcomingDateLine}</span>
         : null}
       </h4>
     );
